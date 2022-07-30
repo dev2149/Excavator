@@ -1,0 +1,130 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class DeviceSound : MonoBehaviour 
+{
+	#region #Singleton Encapsulate
+	private static DeviceSound _instance = null;
+	public static DeviceSound Instance
+	{
+		get
+		{
+			return DeviceSound._instance;
+		}
+	}
+	#endregion
+
+	public AudioListener listenerA;
+
+	public float BGM;
+	public float Effect;
+
+	public AudioSource source_bgm;
+	public AudioSource source_effect;
+
+    //포즈 기능
+    private bool TimePause;
+
+
+	void Awake()
+	{
+		#region #Singleton Initialization
+		if (null == DeviceSound._instance)
+		{
+			DeviceSound._instance = this;
+			GameObject.DontDestroyOnLoad(this.gameObject);
+		}
+		else
+		{
+		//	if(Application.loadedLevelName != "dig" && Application.loadedLevelName != "dive")				
+			DeviceSound.Destroy(this.gameObject);
+			return;
+		}
+		#endregion
+	}
+	void Start()
+	{
+		Enable = Option.Instance.Sound;
+		source_bgm.loop = true;
+
+        TimePause = false;
+	}
+
+
+
+	void Update()
+	{
+        //일시정지
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            TimePause = !TimePause;
+            if (TimePause)
+            {
+                Time.timeScale = 0.0f;
+                Option.Instance.Sound = false;
+            }
+            else
+            {
+                Time.timeScale = 1.0f;
+                Option.Instance.Sound = true;
+            }
+        }
+
+
+		if (true == Option.Instance.Sound)
+		{
+			source_bgm.audio.volume = DeviceSound.Instance.BGM;
+			source_effect.audio.volume = DeviceSound.Instance.Effect;
+		}
+		else
+		{
+			source_bgm.volume = 0.0f;
+			source_effect.volume = 0.0f;
+		}
+
+
+	}
+
+	
+	public bool Enable
+	{
+		get
+		{
+			return listenerA.enabled;
+		}
+
+		set
+		{
+			listenerA.enabled = value;
+		}
+	}
+
+	public void Play(AudioClip clip)
+	{
+		if (false == Option.Instance.Sound)
+			return;
+
+		source_bgm.audio.PlayOneShot (clip);
+		source_bgm.audio.volume = DeviceSound.Instance.BGM;
+	}
+
+	public void Play(AudioClip clip, float volume) //Effect
+	{
+		if (false == Option.Instance.Sound)
+			return;
+
+		source_effect.PlayOneShot (clip,volume);		
+	}
+	
+	public void AudioPuase()
+	{
+		if (false == Option.Instance.Sound)
+			return;
+	
+		source_bgm.Stop ();
+		source_effect.Stop ();
+		
+	}
+	
+
+}

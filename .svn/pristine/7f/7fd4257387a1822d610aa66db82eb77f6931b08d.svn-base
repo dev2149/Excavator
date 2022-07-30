@@ -1,0 +1,531 @@
+﻿using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+
+public class DriveMessage : MonoBehaviour
+{
+	public GameObject[] guides;
+	public BoxCollider[] buttons;
+	public GameObject preMessage;
+	
+	public GameObject mirror;
+	public GameObject tween;
+	public DrivingCamera drivingCamera;
+
+	private enum GUIDE
+	{
+		HANDLE,
+		PEDAL_BREAK,
+		PEDAL_ACCEL,
+		GEAR_D,
+		GEAR_R,
+		GEAR_N,
+		CAMERA_CENTER,
+		CAMERA_FRONT,
+		CAMERA_BACK,
+	}
+	public int state = 0;
+	private GameObject message;
+	private float time_;
+
+	private AudioClip alram;	
+	private AudioClip guidement;
+	public AudioSource audio_;
+
+
+	void Awake()
+	{
+		GameEvent.notify += OnGameEventNotify;
+
+        if (false == Driving.start_at_end)
+			state = 0; //전진.
+        else {
+			state = 17; //후진
+			GameEvent.notify (GameEvent.TAG.DRIVE_PEDAL_BREAK);
+		}    
+		tween.SetActive(false);
+
+		alram = Resources.Load ("띠롱") as AudioClip;
+	}
+
+	void OnDestroy()
+	{
+		GameEvent.notify -= OnGameEventNotify;
+	}
+
+	void Update()
+	{
+		if (false == Driving.tutorial && state == 0) {
+			state = -1;
+
+        	guidement = Resources.Load ("DriveTest/02") as AudioClip;
+			NGUITools.PlaySound(guidement,DeviceSound.Instance.Effect);
+
+			SetMessage("앞바퀴가 출발선을 통과하면 시험이 시작됩니다.");
+			Invoke("ResetMessage",5.0f);
+		}
+
+	}
+
+	void OnGameEventNotify(GameEvent.TAG tag)
+	{
+		if (false == Driving.tutorial)
+			return;
+
+
+		if (tag == GameEvent.TAG.DRIVE_FOUL_CONE)
+		{
+			SetMessage("[ff0000]콘[-]에 부딪쳤습니다.");
+			state = 1000;
+		}
+		else if (tag == GameEvent.TAG.DRIVE_FOUL_TIME)
+		{
+			SetMessage("시간을 [ff0000]초과[-]하였습니다.");
+			state = 1000;
+		}
+		else if (tag == GameEvent.TAG.DRIVE_FOUL_CENTER)
+		{
+			SetMessage("[ff0000]중간지점[-]을 지나쳤습니다.");
+			state = 1000;
+		}
+		else
+		{
+			CheckNotify (tag);
+		}
+
+	}
+
+	void SetMessage(string text)
+	{		
+		if (null != message) Destroy(message);
+
+		message = NGUITools.AddChild (gameObject, preMessage);
+		message.SetActive (true);			
+		message.GetComponent<UILabel>().text = text;
+		
+	}
+	
+	void ResetMessage()
+	{
+		message.GetComponent<UILabel>().text = " ";
+		++state;
+	}
+
+	void Tween()
+	{
+		tween.SetActive(false);
+		mirror.SetActive(true);
+	}
+
+	void GuideSound(string str, bool on)
+	{
+		if (!this.gameObject.activeSelf)
+			return;
+
+		if (on) {
+			if (!audio_.isPlaying) {
+			audio_.clip = Resources.Load (str.ToString()) as AudioClip;
+			audio_.Play();
+			audio_.volume = DeviceSound.Instance.Effect;
+			}
+			on = false;
+		}
+	}
+
+	void CheckNotify(GameEvent.TAG tag)
+	{
+	//	print (tag +" "+ state);
+		switch(state)
+		{
+		case 0:
+			if (tag == GameEvent.TAG.DRIVE_READY)
+			{
+				GuideSound("DriveGuide/001",true);
+
+				SetMessage("주행모드 연습을 시작하겠습니다.");
+				++state;
+				Invoke("NextState", 2.5f);
+
+				ShowGuide(-1);
+			}
+			break;
+
+		case 1:
+			break;
+
+		case 2:
+			GuideSound("DriveGuide/002",true);
+			SetMessage("기어박스에서 [00ff00]D[-]를 선택합니다.");
+			++state;
+			
+			ShowGuide((int)GUIDE.GEAR_D);
+			break;
+
+		case 3:
+			if (tag == GameEvent.TAG.DRIVE_GEAR_D)
+			{
+				GuideSound("DriveGuide/003",true);
+				NGUITools.PlaySound (alram, DeviceSound.Instance.Effect);
+				SetMessage("[00ff00]핸들[-]을 돌려 방향을 설정합니다.");
+				++state;
+
+				ShowGuide((int)GUIDE.HANDLE);
+			}
+			break;
+
+		case 4:
+			if (tag == GameEvent.TAG.DRIVE_HANDLE)
+			{
+				NGUITools.PlaySound (alram, DeviceSound.Instance.Effect);
+				GuideSound("DriveGuide/004",true);
+				SetMessage("앞바퀴를 볼 수있는[00ff00] 카메라[-]를 누릅니다.");
+				++state;
+
+				if(drivingCamera.target == drivingCamera.fornt)
+				{
+               //     Debug.Log("1111");
+					ShowGuide((int)GUIDE.PEDAL_ACCEL);
+					state++;
+				}else
+				{
+                //    Debug.Log("2222");
+					ShowGuide((int)GUIDE.CAMERA_FRONT);
+				}
+
+
+			}
+			break;
+		
+		case 5:
+			if (tag == GameEvent.TAG.DRIVE_CAMERA_FRONT)
+			{
+				NGUITools.PlaySound (alram, DeviceSound.Instance.Effect);
+				GuideSound("DriveGuide/005",true);
+				SetMessage("[00ff00]엑셀[-]을 눌러 주행을 시작합니다.");
+				++state;
+
+				ShowGuide((int)GUIDE.PEDAL_ACCEL);
+			}
+			break;
+
+		case 6:
+			if (tag == GameEvent.TAG.DRIVE_PEDAL_ACCEL)
+			{
+				NGUITools.PlaySound (alram, DeviceSound.Instance.Effect);
+				GuideSound("DriveGuide/006",true);
+				SetMessage("사이드미러를 보면서[00ff00]뒷바퀴가[-]\n 통과할때 까지 직진합니다.");
+				++state;
+
+				tween.SetActive(true);
+				mirror.SetActive(false);
+
+				Invoke("ResetMessage",4.0f);
+				ShowGuide(-1);
+				AllButton();
+			}
+			break;
+			
+		case 7:
+			Invoke("Tween",3.0f);
+			break;
+			
+
+		case 8:
+			if (tag == GameEvent.TAG.DRIVE_START_CAUTION) // 바퀴네개가 모두 들어왔을때. STATE.CENTER
+			{
+				GuideSound("DriveGuide/007",true);
+				SetMessage("[ff0000]TIP:[-] 뒷바퀴가 출발선을 지났을때\n [00ff00]핸들을 좌측으로[-] 돌리세요."); 
+				++state;
+			
+				Invoke("ResetMessage",5.0f);
+			}
+			break;
+
+			
+		case 9:
+			break;
+			
+		case 10:
+			if (tag == GameEvent.TAG.DRIVE_CENTER)
+			{
+				GuideSound("DriveGuide/008",true);
+				SetMessage("[00ff00]브레이크[-]를 눌러서 정지선 사이에 \n바퀴를 맞춰 일시 정지합니다.");
+				++state;
+
+				ShowGuide((int)GUIDE.PEDAL_BREAK);
+			}
+			break;
+
+		case 11:
+			if (tag == GameEvent.TAG.DRIVE_END)
+			{
+				GuideSound("DriveGuide/009",true);
+				NGUITools.PlaySound (alram, DeviceSound.Instance.Effect);
+				SetMessage("[00ff00]엑셀[-]을 눌러 주행을 시작합니다.");
+				++state;
+
+				ShowGuide((int)GUIDE.PEDAL_ACCEL);
+			}
+			break;
+
+		case 12:
+			if (tag == GameEvent.TAG.DRIVE_PEDAL_ACCEL)
+			{
+				GuideSound("DriveGuide/010",true);
+				NGUITools.PlaySound (alram, DeviceSound.Instance.Effect);
+				SetMessage("[00ff00]도작지점[-]까지 주행합니다.");
+				++state;
+				
+				ShowGuide(-1);
+				AllButton();
+				GameEvent.notify (GameEvent.TAG.DRIVE_CENTER_CAUTION);
+			}
+			break;
+
+		case 13:
+			if (tag == GameEvent.TAG.DRIVE_CENTER_CAUTION)
+			{
+				GuideSound("DriveGuide/011",true);
+				SetMessage(" [00ff00]TIP:[-]앞바퀴를 좌측주행선에 바짝 붙여 주행하세요.");
+				++state;
+				
+				Invoke("ResetMessage",6.0f);
+			}
+			break;
+			
+		case 14:
+			break;
+
+		case 15:
+			if (tag == GameEvent.TAG.DRIVE_END_CAUTION)//바퀴가 두개가 들어올때. //STATE.END이고,
+			{
+				GuideSound("DriveGuide/012",true);
+				SetMessage("뒷바퀴가 [ff0000]도착선을 통과할 때까지[-] 전진 하세요.");
+				++state;
+			}
+			break;
+
+		case 16:
+			if (tag == GameEvent.TAG.DRIVE_BACK)
+			{
+				GuideSound("DriveGuide/013",true);
+				SetMessage("[00ff00]브레이크[-]를 누르세요.");
+				++state;
+
+				ShowGuide((int)GUIDE.PEDAL_BREAK);
+			}
+			break;
+
+		case 17:
+			if (tag == GameEvent.TAG.DRIVE_PEDAL_BREAK)
+			{
+				GuideSound("DriveGuide/014",true);
+				NGUITools.PlaySound (alram, DeviceSound.Instance.Effect);
+				SetMessage("기어박스에서 [00ff00]R[-]를 선택합니다.");
+				++state;
+
+				ShowGuide((int)GUIDE.GEAR_R);
+			}
+			break;
+
+		case 18:
+			if (tag == GameEvent.TAG.DRIVE_GEAR_R)
+			{		
+
+				NGUITools.PlaySound (alram, DeviceSound.Instance.Effect);
+				if(!Driving.start_at_end)
+				{
+					SetMessage(" ");
+					++state;
+					
+					ShowGuide(-1);
+					AllButton();
+					GameEvent.notify (GameEvent.TAG.DRIVE_HANDLE);
+				}					
+				else
+				{
+					GuideSound("DriveGuide/015",true);
+					ShowGuide((int)GUIDE.HANDLE);
+					SetMessage("[00ff00]TIP:[-] 핸들을 [ff0000]우측으로 반이상[-] 돌려주세요.");
+					++state;	
+				}
+					
+			}
+			break;
+
+		case 19:
+			if (tag == GameEvent.TAG.DRIVE_HANDLE)
+			{
+				GuideSound("DriveGuide/016",true);
+				NGUITools.PlaySound (alram, DeviceSound.Instance.Effect);
+				SetMessage("뒷바퀴를 볼 수있는[00ff00] 카메라[-]를 누릅니다.");
+				++state;
+				
+				ShowGuide((int)GUIDE.CAMERA_BACK);
+			}
+			break;
+			
+		case 20:
+			if (tag == GameEvent.TAG.DRIVE_CAMERA_REAR)
+			{
+				GuideSound("DriveGuide/017",true);
+				NGUITools.PlaySound (alram, DeviceSound.Instance.Effect);
+				SetMessage("[00ff00]엑셀[-]을 눌러 주행을 시작합니다.");
+				++state;
+				
+				ShowGuide(-1);
+				AllButton();			
+				ShowGuide((int)GUIDE.PEDAL_ACCEL);
+			}
+
+			if(tag == GameEvent.TAG.DRIVE_FINISH_CAUTION)
+			{
+				state = 26;
+			}
+			break;
+			
+
+		case 21:
+			if (tag == GameEvent.TAG.DRIVE_PEDAL_ACCEL)
+			{
+				
+				NGUITools.PlaySound (alram, DeviceSound.Instance.Effect);
+				SetMessage(" ");
+				++state;
+				
+				ShowGuide(-1);
+				AllButton();
+				GameEvent.notify (GameEvent.TAG.DRIVE_BACK_CAUTION);
+			}
+			break;	
+
+		case 22:
+			if (tag == GameEvent.TAG.DRIVE_BACK_CAUTION)
+			{
+				GuideSound("DriveGuide/018",true);
+				SetMessage("[ffaa00]뒷바퀴가 콘에 닿지 않도록 주의 하세요.[-]");
+				++state;	
+				
+				Invoke("ResetMessage",5.0f);		
+				mirror.SetActive(false);
+				tween.SetActive(true);
+			}
+			break;
+			
+		case 23:			
+			break;
+
+		case 24:	
+			if(tag ==GameEvent.TAG.DRIVE_BACK_POINT)
+			{
+				GuideSound("DriveGuide/019",true);
+				SetMessage("[ff0000]TIP:[-] 뒷바퀴와 주행선이 일직선 되었을때\n [00ff00]앞바퀴[-]를 풀어주세요.");
+				++state;	
+
+				Invoke("ResetMessage",10.0f);
+				mirror.SetActive(true);
+				tween.SetActive(false);
+			}
+			break;
+
+		case 25:			
+			break;
+		
+
+		case 26:
+			if(tag == GameEvent.TAG.DRIVE_FINISH_CAUTION)
+			{
+				GuideSound("DriveGuide/020",true);
+				SetMessage("[ff0000]TIP:[-]앞바퀴가 출발선을 통과 할때까지 [00ff00]핸들을 \n천천히 원위치[-] 시키며 계속 후진해 주세요.");
+				++state;
+				
+				Invoke("ResetMessage",5.0f);
+			}
+			break;
+			
+		case 27:
+			break;
+
+		case 28:
+			if(tag == GameEvent.TAG.DRIVE_FINISH)
+			{
+				GuideSound("DriveGuide/021",true);
+				SetMessage("[00ff00]브레이크[-]를 누르세요.");
+				++state;
+
+				ShowGuide((int)GUIDE.PEDAL_BREAK);
+				AllButton();
+			}
+			break;
+
+		case 29:
+			if (tag == GameEvent.TAG.DRIVE_PEDAL_BREAK)
+			{
+				GuideSound("DriveGuide/022",true);
+				NGUITools.PlaySound (alram, DeviceSound.Instance.Effect);
+				SetMessage("기어박스에서 [00ff00]N[-]를 선택합니다.");
+				++state;
+				
+				ShowGuide((int)GUIDE.GEAR_N);
+				AllButton();
+			}
+			break;	
+
+		case 30:
+			if (tag == GameEvent.TAG.DRIVE_GEAR_N)
+			{
+				GuideSound("DriveGuide/023",true);
+				NGUITools.PlaySound (alram, DeviceSound.Instance.Effect);
+				SetMessage("수고하셨습니다.");
+				++state;
+
+				ShowGuide(-1);
+				AllButton();
+
+			}
+			break;
+		
+		}
+		
+		
+	}
+
+	void NextState()
+	{
+		++state;
+		CheckNotify (GameEvent.TAG.NONE);
+	}
+
+	void ShowGuide(int index)
+	{
+		if (this.gameObject.activeSelf == false) {
+			AllButton();
+			
+			for(int i=0; i<guides.Length; ++i)
+			{
+				if (null != guides[i])
+					guides[i].SetActive(false);					
+			}
+			
+			return;
+		}
+
+		for(int i=0; i<guides.Length; ++i)
+		{
+			if (null != guides[i]){
+				guides[i].SetActive(i == index);
+			}
+		}
+	}
+
+
+	void AllButton()
+	{
+		for(int i=0; i<buttons.Length; ++i)
+		{
+			if (null != buttons[i])
+				buttons[i].enabled = true;
+		}
+	}
+	
+}

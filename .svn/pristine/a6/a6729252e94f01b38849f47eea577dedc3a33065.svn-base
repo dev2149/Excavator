@@ -1,0 +1,29 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class DriveOption : MonoBehaviour {
+
+	public UISprite check_Guide;
+	private bool guide_on;
+	public GameObject G;
+
+
+	void Start () 
+	{
+		guide_on = G.activeSelf;
+	}
+	
+
+	public	void Guide()
+	{
+		guide_on = !guide_on;
+		SetSprite (check_Guide, guide_on);
+		G.SetActive (guide_on);
+		
+	}
+
+	void SetSprite(UISprite sprite, bool on)
+	{
+		sprite.spriteName = (on) ? "popup_switch_bg_on" : "popup_switch_bg_off";
+	}
+}

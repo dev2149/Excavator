@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcavatorHMD(2021.01.27).Plugins", "ExcavatorHMD(2021.01.27).Plugins.csproj", "{2095F7CA-0D61-CBC3-49B1-3C55A4857202}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcavatorHMD(2021.01.27)", "ExcavatorHMD(2021.01.27).csproj", "{D694672D-0A13-ED9D-1AFB-9FD3CCFC25B6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcavatorHMD(2021.01.27).Editor", "ExcavatorHMD(2021.01.27).Editor.csproj", "{A3388BA1-5531-07DB-EBDD-F8D683112074}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2095F7CA-0D61-CBC3-49B1-3C55A4857202}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2095F7CA-0D61-CBC3-49B1-3C55A4857202}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2095F7CA-0D61-CBC3-49B1-3C55A4857202}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2095F7CA-0D61-CBC3-49B1-3C55A4857202}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D694672D-0A13-ED9D-1AFB-9FD3CCFC25B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D694672D-0A13-ED9D-1AFB-9FD3CCFC25B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D694672D-0A13-ED9D-1AFB-9FD3CCFC25B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D694672D-0A13-ED9D-1AFB-9FD3CCFC25B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3388BA1-5531-07DB-EBDD-F8D683112074}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3388BA1-5531-07DB-EBDD-F8D683112074}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3388BA1-5531-07DB-EBDD-F8D683112074}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3388BA1-5531-07DB-EBDD-F8D683112074}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

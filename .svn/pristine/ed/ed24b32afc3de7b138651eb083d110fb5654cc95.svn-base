@@ -1,0 +1,101 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class DrivingCamera : MonoBehaviour
+{
+    public Transform source;
+    public Transform center;
+    public Transform fornt;
+    public Transform rear;
+    public float amount = 0.5f;
+
+	//Captrue Camera
+	public Transform CaptureCam;
+	//public GameObject CapCam;
+	public Transform Right_fornt;
+	public Transform Right_rear;
+	public Transform Left_front;
+	public Transform Left_rear;
+	public static int _index;
+
+	[HideInInspector] public Transform target;
+	[HideInInspector] public Transform capture;
+
+    void Start()
+    {
+        target = center;
+		capture = center;
+    }
+
+    void FixedUpdate()
+    {
+        //if (true == Input.GetKeyDown(KeyCode.Q))
+        //{
+        //    target = center;
+        //}
+        //else if (true == Input.GetKeyDown(KeyCode.W))
+        //{
+        //    target = fornt;
+        //}
+        //else if (true == Input.GetKeyDown(KeyCode.E))
+        //{
+        //    target = rear;
+        //}
+
+        //source.localPosition = Vector3.Lerp(source.localPosition, target.localPosition, amount);
+        //source.localRotation = Quaternion.Lerp(source.localRotation, target.localRotation, amount);
+
+
+
+		//Capture Camera Render To Texture
+		switch(_index)
+		{
+			case 0:
+				break;
+				
+			case 11:
+				capture = Right_fornt;
+				break;
+				
+			case 12:
+				capture = Left_front;
+				break;
+				
+			case 13:
+				capture = Right_rear;
+				break;
+				
+			case 14:
+				capture = Left_rear;
+				break;
+		}
+			CaptureCam.localPosition = Vector3.Lerp(CaptureCam.localPosition, capture.localPosition, 0.1f);
+			CaptureCam.localRotation = Quaternion.Lerp(CaptureCam.localRotation, capture.localRotation, 0.1f);
+
+	}
+
+	IEnumerator WheelIndex(int indx)
+	{
+		float time = 0.0f;
+
+//		if(_index == 0)
+//			time = 0.0f;
+//
+//		if (CapCam.activeSelf == true) {
+//			if(_index != indx)
+//				time = 3.0f;
+//		}
+//		else
+//		{
+//			if(_index == indx)
+//				time= 0.0f;
+//			else
+//				time= 0.5f;
+//		}
+//			time = 0.0f;
+
+		yield return new WaitForSeconds (time);
+		_index = indx;
+
+	}
+}

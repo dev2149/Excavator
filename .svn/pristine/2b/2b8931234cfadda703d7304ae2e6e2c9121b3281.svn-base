@@ -1,0 +1,156 @@
+fileFormatVersion: 2
+guid: 3b0eeb3dc6a773341b8408476624d7f3
+timeCreated: 1495174713
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: Bone_bar00
+    100002: Bone_bar01
+    100004: Bone_break
+    100006: Bone_break001
+    100008: Bone_gear_L_0
+    100010: Bone_gear_R_0
+    100012: Bone_handle
+    100014: Bone_handle_ecc
+    100016: Bone_handlePosition
+    100018: con_accelerate
+    100020: con_accelerate003
+    100022: con_back
+    100024: con_bottom1
+    100026: con_bottom2
+    100028: con_break
+    100030: con_break003
+    100032: Cylinder001
+    100034: //RootNode
+    100036: handle_a
+    100038: handle_d
+    100040: handle_pad
+    100042: handle_spot
+    400000: Bone_bar00
+    400002: Bone_bar01
+    400004: Bone_break
+    400006: Bone_break001
+    400008: Bone_gear_L_0
+    400010: Bone_gear_R_0
+    400012: Bone_handle
+    400014: Bone_handle_ecc
+    400016: Bone_handlePosition
+    400018: con_accelerate
+    400020: con_accelerate003
+    400022: con_back
+    400024: con_bottom1
+    400026: con_bottom2
+    400028: con_break
+    400030: con_break003
+    400032: Cylinder001
+    400034: //RootNode
+    400036: handle_a
+    400038: handle_d
+    400040: handle_pad
+    400042: handle_spot
+    2300000: con_accelerate
+    2300002: con_accelerate003
+    2300004: con_back
+    2300006: con_bottom1
+    2300008: con_bottom2
+    2300010: con_break
+    2300012: con_break003
+    2300014: Cylinder001
+    2300016: handle_a
+    2300018: handle_pad
+    2300020: handle_spot
+    3300000: con_accelerate
+    3300002: con_accelerate003
+    3300004: con_back
+    3300006: con_bottom1
+    3300008: con_bottom2
+    3300010: con_break
+    3300012: con_break003
+    3300014: Cylinder001
+    3300016: handle_a
+    3300018: handle_pad
+    3300020: handle_spot
+    4300000: handle_d
+    4300002: con_bottom1
+    4300004: Cylinder001
+    4300006: con_bottom2
+    4300008: con_back
+    4300010: handle_a
+    4300012: handle_spot
+    4300014: handle_pad
+    4300016: con_accelerate
+    4300018: con_break
+    4300020: con_accelerate003
+    4300022: con_break003
+    7400000: Take 001
+    9500000: //RootNode
+    13700000: handle_d
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

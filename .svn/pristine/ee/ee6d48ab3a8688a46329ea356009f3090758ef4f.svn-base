@@ -1,0 +1,57 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class PistonControl : MonoBehaviour 
+{
+	public MovePiston upper;
+	public MovePiston fore;
+	public MovePiston bucket;
+	public float force = 250.0f;
+	
+	void Start () 
+	{
+		
+	}
+
+	void FixedUpdate () 
+	{
+		if (true == Input.GetKey(KeyCode.Q))
+		{
+			upper.AddForce(-force);
+		}
+		else if (true == Input.GetKey(KeyCode.A))
+		{
+			upper.AddForce(force);
+		}
+		else
+		{
+			upper.Stop();
+		}
+
+		if (true == Input.GetKey(KeyCode.W))
+		{
+			fore.AddForce(-force);
+		}
+		else if (true == Input.GetKey(KeyCode.S))
+		{
+			fore.AddForce(force);
+		}
+		else
+		{
+			fore.Stop();
+		}
+
+		if (true == Input.GetKey(KeyCode.E))
+		{
+			bucket.AddForce(-force);
+		}
+		else if (true == Input.GetKey(KeyCode.D))
+		{
+			bucket.AddForce(force);
+		}
+		else
+		{
+			bucket.Stop();
+		}
+	}
+}

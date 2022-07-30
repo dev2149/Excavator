@@ -1,0 +1,194 @@
+fileFormatVersion: 2
+guid: 60754c1c15367e341bb97fd4e9d5a418
+ModelImporter:
+  serializedVersion: 16
+  fileIDToRecycleName:
+    100000: Bone_bar00
+    100002: Bone_bar01
+    100004: Bone_digg_l01
+    100006: Bone_digg_l02
+    100008: Bone_digg_l03
+    100010: Bone_digg_r01
+    100012: Bone_digg_r02
+    100014: Bone_digg_r03
+    100016: Bone_gear_l_0
+    100018: Bone_gear_R_0
+    100020: Bone_handle
+    100022: con_accelerate
+    100024: con_bar
+    100026: con_break
+    100028: con_chair
+    100030: con_digging_bar_l
+    100032: con_digging_bar_r
+    100034: con_door
+    100036: con_etc004
+    100038: con_etc2
+    100040: con_handle
+    100042: con_padle
+    100044: con_side
+    100046: Dummy_con_accelerate
+    100048: Dummy_con_break
+    100050: Dummy_con_chair
+    100052: Dummy_con_door
+    100054: Dummy_con_padle
+    100056: Dummy_digg_l_position
+    100058: Dummy_digg_r_position
+    100060: Dummy_handle_hPosition
+    100062: Dummy_MainBody_ axis
+    100064: Dummy_TopBody_ axis
+    100066: Dummy_TopBody_A
+    100068: //RootNode
+    100070: mirror_body
+    100072: Object002
+    100074: Object005
+    100076: Shape001
+    100078: TopBody_A
+    100080: TopBody_B
+    400000: Bone_bar00
+    400002: Bone_bar01
+    400004: Bone_digg_l01
+    400006: Bone_digg_l02
+    400008: Bone_digg_l03
+    400010: Bone_digg_r01
+    400012: Bone_digg_r02
+    400014: Bone_digg_r03
+    400016: Bone_gear_l_0
+    400018: Bone_gear_R_0
+    400020: Bone_handle
+    400022: con_accelerate
+    400024: con_bar
+    400026: con_break
+    400028: con_chair
+    400030: con_digging_bar_l
+    400032: con_digging_bar_r
+    400034: con_door
+    400036: con_etc004
+    400038: con_etc2
+    400040: con_handle
+    400042: con_padle
+    400044: con_side
+    400046: Dummy_con_accelerate
+    400048: Dummy_con_break
+    400050: Dummy_con_chair
+    400052: Dummy_con_door
+    400054: Dummy_con_padle
+    400056: Dummy_digg_l_position
+    400058: Dummy_digg_r_position
+    400060: Dummy_handle_hPosition
+    400062: Dummy_MainBody_ axis
+    400064: Dummy_TopBody_ axis
+    400066: Dummy_TopBody_A
+    400068: //RootNode
+    400070: mirror_body
+    400072: Object002
+    400074: Object005
+    400076: Shape001
+    400078: TopBody_A
+    400080: TopBody_B
+    2300000: con_accelerate
+    2300002: con_break
+    2300004: con_chair
+    2300006: con_door
+    2300008: con_etc004
+    2300010: con_etc2
+    2300012: con_handle
+    2300014: con_padle
+    2300016: con_side
+    2300018: mirror_body
+    2300020: Object002
+    2300022: Object005
+    2300024: Shape001
+    2300026: TopBody_A
+    2300028: TopBody_B
+    3300000: con_accelerate
+    3300002: con_break
+    3300004: con_chair
+    3300006: con_door
+    3300008: con_etc004
+    3300010: con_etc2
+    3300012: con_handle
+    3300014: con_padle
+    3300016: con_side
+    3300018: mirror_body
+    3300020: Object002
+    3300022: Object005
+    3300024: Shape001
+    3300026: TopBody_A
+    3300028: TopBody_B
+    4300000: TopBody_A
+    4300002: con_door
+    4300004: con_chair
+    4300006: con_side
+    4300008: con_etc2
+    4300010: con_padle
+    4300012: con_break
+    4300014: con_accelerate
+    4300016: con_handle
+    4300018: Object002
+    4300020: TopBody_B
+    4300022: mirror_body
+    4300024: con_bar
+    4300026: con_digging_bar_l
+    4300028: con_digging_bar_r
+    4300030: Shape001
+    4300032: Object005
+    4300034: con_etc004
+    7400000: Take 001
+    9500000: //RootNode
+    13700000: con_bar
+    13700002: con_digging_bar_l
+    13700004: con_digging_bar_r
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: .00999999978
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  additionalBone: 0
+  userData: 

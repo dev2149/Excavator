@@ -1,0 +1,466 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class Diging : MonoBehaviour
+{
+	public static bool tutorial = true;
+//	public static bool start_at_flat = false;
+    public static bool play = false;
+    public DigingBucket DigingBucket;
+
+    public Transform RightJoystick;
+    public Transform leftJoystick;
+    public DigingWarning leversound;        //레버 사운드음
+    public DigingWarning caution;           // 경고
+    public UILabel preMessage;
+
+    //UI 조이스틱 관련
+    private Color color_lever = new Color(0.639f, 0.01f, 0.01f);
+
+    private UIDigLeftControl mUIDigLeftCtl;
+    private UIDigRightControl mUIDigRightCtl;
+
+    public DigingShake digingShake;
+    public DigingWarning digingWarning;
+
+    public Transform RPM_IV;                //알피엠 게이지
+    private int RPM_State; // 알피엠 상태
+
+
+
+    //시간
+
+    public class JOYSTICKPOS
+    {
+        public float left_H;
+        public float left_V;
+        public float Rihgt_H;
+        public float Right_V;
+    }
+
+    private JOYSTICKPOS ShakePos;
+  
+    [System.Serializable]
+    public class AXIS
+    {
+        public Transform node;
+        public float speed;
+        public float min;
+        public float max;
+        [HideInInspector]
+        public float angle;
+        public float angleR;
+        public float angleL;
+    }
+    public AXIS body;
+    public AXIS upper;
+    public AXIS fore;
+    public AXIS bucket;
+
+	public bool keyboard = true;
+
+	public AudioSource diesel;
+    private float correction;
+	private digMap map;
+
+	public AudioClip shakesound;	
+	private float timeSpan = 0.0f;
+    
+	void Start()
+    {
+     //   O_Bydy = 0.0f;
+        ShakePos = new JOYSTICKPOS();
+
+        correction = 0.5f;
+
+		body.angle = 0.0f;
+		upper.angle = 0.0f;
+		fore.angle = 0.0f;
+		bucket.angle = 0.0f;
+        RPM_State = 0;
+
+        mUIDigLeftCtl = leftJoystick.GetComponent<UIDigLeftControl>();
+        mUIDigRightCtl = RightJoystick.GetComponent<UIDigRightControl>();
+
+		map = GameObject.Find ("Map").GetComponent<digMap>();
+    }
+
+    void Update()
+    {
+        if (play == false)
+            return;
+
+        uppermax(map.score / 20); // 평탄일때는 또 어떻게 해야할지.
+
+        if (true == keyboard)
+        {
+            //Right
+            if (true == Input.GetKey(KeyCode.UpArrow))
+            {
+                upper.angle += upper.speed * Time.deltaTime;
+                leversound.On();
+            }
+            else if (true == Input.GetKey(KeyCode.DownArrow))
+            {
+                upper.angle -= upper.speed * Time.deltaTime;
+                leversound.On();
+            }
+
+            if (true == Input.GetKey(KeyCode.LeftArrow))
+            {
+                bucket.angle += bucket.speed * Time.deltaTime;
+                RightJoystick.GetComponent<UIDigRightControl>().widget.localPosition -= new Vector3(bucket.speed * 20f * Time.deltaTime, 0, 0);
+                leversound.On();
+            }
+            else if (true == Input.GetKey(KeyCode.RightArrow))
+            {
+                bucket.angle -= bucket.speed * Time.deltaTime;
+                RightJoystick.GetComponent<UIDigRightControl>().widget.localPosition += new Vector3(bucket.speed * 20f * Time.deltaTime, 0, 0);
+                leversound.On();
+            }
+
+
+            //Left
+            if (true == Input.GetKey(KeyCode.W))
+            {
+                fore.angle -= fore.speed * Time.deltaTime;
+                leversound.On();
+            }
+            else if (true == Input.GetKey(KeyCode.S))
+            {
+                fore.angle += fore.speed * Time.deltaTime;
+                leversound.On();
+            }
+
+            if (true == Input.GetKey(KeyCode.A))
+            {
+                leversound.On();
+                if (DigingBucket.shoveling == true)
+                {
+                    caution.On();
+                    preMessage.text = "버킷이 땅속에 있습니다. 몸체를 움직이는것은 위험합니다.";
+                }
+                else
+                {
+					if (timeSpan < 45F)  // 최대치에서 천천히 속도 붙게..
+						timeSpan += Time.deltaTime * 8F;
+					else 
+						timeSpan = 50F;
+
+					body.angle -= body.speed * Time.deltaTime * timeSpan;
+                    leftJoystick.GetComponent<UIDigLeftControl>().widget.localPosition = new Vector3(-body.speed * Time.deltaTime * 300.8f, 0, 0);
+                }
+                UpdateRightWidgetState();
+                UpdateLeftWidgetState();
+            }
+             else if (true == Input.GetKey(KeyCode.D))
+            {
+			                leversound.On();
+                if (DigingBucket.shoveling == true)
+                {
+                    caution.On();
+                    preMessage.text = "버킷이 땅속에 있습니다. 몸체를 움직이는것은 위험합니다.";
+                }
+                else
+                {	
+					if (timeSpan < 45F)  // 최대치에서 천천히 속도 붙게..
+						timeSpan += Time.deltaTime * 8F;
+					else 
+						timeSpan = 50F;
+					
+					body.angle += body.speed * Time.deltaTime * timeSpan; //1 ~ 50.0f
+					leftJoystick.GetComponent<UIDigLeftControl>().widget.localPosition = new Vector3(body.speed * Time.deltaTime * 300.8f, 0, 0);
+
+
+                }
+                UpdateRightWidgetState();
+                UpdateLeftWidgetState();
+            }
+			else
+			{
+				if (timeSpan > 10F)
+				{
+					timeSpan = 0F;
+					NGUITools.PlaySound(shakesound);
+				}
+
+			}
+			if(timeSpan >= 45.0f)// 45이상일때
+				timeSpan = 50.0f; //최대치 지정. // 속도가 계속올라감. 문제잇음.
+
+
+        }
+        else
+        {
+            //조이스틱 연결
+
+            // 3rd 왼쪽 -> 좌/우 body
+            if (Input.GetAxisRaw("Left_Joystick_Horizontal") > 0.3f || Input.GetAxisRaw("Left_Joystick_Horizontal") < -0.3f)
+            {
+                if (DigingBucket.shoveling == true)
+                {
+                    body.angle += body.speed * Time.deltaTime * Input.GetAxisRaw("Left_Joystick_Horizontal") * 0.01f;
+                    leftJoystick.GetComponent<UIDigLeftControl>().widget.localPosition += new Vector3(body.speed * Time.deltaTime * Input.GetAxisRaw("Left_Joystick_Horizontal") * 0.2f, 0, 0);
+
+                    caution.On();
+                    preMessage.text = "버킷이 땅속에 있습니다. 몸체를 움직이는것은 위험합니다.";
+                    leversound.On();
+                    RPM_State = 2;
+                }
+                else
+                {
+					if (timeSpan < 45F)  // 천천히 속도 붙게..
+						timeSpan += Time.deltaTime * 8F;
+					else 
+						timeSpan = 50F;
+
+                    body.angle += body.speed * Time.deltaTime * Input.GetAxisRaw("Left_Joystick_Horizontal") * correction * timeSpan;
+                    leftJoystick.GetComponent<UIDigLeftControl>().widget.localPosition += new Vector3(body.speed * Input.GetAxisRaw("Left_Joystick_Horizontal") * 1.8f * 50, 0, 0);
+                    leversound.On();
+                    RPM_State = 1;
+                }
+
+			}else{
+				if (timeSpan > 10F)
+				{
+					timeSpan = 0F;
+					NGUITools.PlaySound(shakesound);
+				}
+			}
+
+
+            //4th 왼쪽 -> 위/아래 fore  
+            if (Input.GetAxisRaw("Left_Joystick_Vertical") > 0.3f || Input.GetAxisRaw("Left_Joystick_Vertical") < -0.3f)
+            {
+                fore.angle += fore.speed * Time.deltaTime * Input.GetAxisRaw("Left_Joystick_Vertical") * correction;
+
+                float speed = fore.speed;
+                if (true == DigingBucket.shoveling)
+                {                   
+                    RPM_State = 2;
+
+					if (DigingBucket.forespeed)
+						speed = 0.0f;
+					else
+					{
+						speed = 40.0f;
+
+					}						
+                }
+
+                leftJoystick.GetComponent<UIDigLeftControl>().widget.localPosition += new Vector3(0, -speed * Input.GetAxisRaw("Left_Joystick_Vertical") * 1.8f, 0);
+                leversound.On();
+
+                if (fore.angle >= fore.max)
+                    digingWarning.On();
+                if (fore.angle <= fore.min)
+                    digingWarning.On();
+            }
+
+
+            //5th 오른쪽 -> 좌/우 bucket
+            if (Input.GetAxisRaw("Right_Joystick_Horizontal") > 0.3f || Input.GetAxisRaw("Right_Joystick_Horizontal") < -0.3f)
+            {
+                bucket.angle += bucket.speed * Time.deltaTime * Input.GetAxisRaw("Right_Joystick_Horizontal") * correction;
+                RightJoystick.GetComponent<UIDigRightControl>().widget.localPosition += new Vector3(-bucket.speed * Input.GetAxisRaw("Right_Joystick_Horizontal") * 1.8f, 0, 0);
+                leversound.On();
+
+                if (bucket.angle >= bucket.max)
+                    digingWarning.On();
+                if (bucket.angle <= bucket.min)
+                    digingWarning.On();
+
+            }
+
+
+            //6th 오른쪽 -> 위/아래 upper
+            if (Input.GetAxisRaw("Right_Joystick_Vertical") > 0.3f || Input.GetAxisRaw("Right_Joystick_Vertical") < -0.3f)
+            {
+                upper.angle += upper.speed * Time.deltaTime * Input.GetAxisRaw("Right_Joystick_Vertical") * correction;
+                RightJoystick.GetComponent<UIDigRightControl>().widget.localPosition += new Vector3(0, upper.speed * Input.GetAxisRaw("Right_Joystick_Vertical") * 1.8f, 0);
+                leversound.On();
+
+
+                if (upper.angle >= upper.max)
+                    digingWarning.On();
+                if (upper.angle <= upper.min)
+                    digingWarning.On();
+            }
+
+        }
+
+        //UI 조이스틱 색 변화
+        UpdateRightWidgetState();
+        UpdateLeftWidgetState();
+
+        upper.angle = Mathf.Clamp(upper.angle, upper.min, upper.max);
+        fore.angle = Mathf.Clamp(fore.angle, fore.min, fore.max);
+        bucket.angle = Mathf.Clamp(bucket.angle, bucket.min, bucket.max);
+
+
+
+        body.node.localRotation = Quaternion.Euler(0.0f, 0.0f, body.angle);
+        upper.node.localRotation = Quaternion.Euler(upper.angle, 0.0f, 0.0f);
+        fore.node.localRotation = Quaternion.Euler(fore.angle, 0.0f, 0.0f);
+        bucket.node.localRotation = Quaternion.Euler(bucket.angle, 0.0f, 0.0f);
+
+        if (true == Option.Instance.Sound)
+        {
+            diesel.volume = Mathf.Lerp(0.0f, DeviceSound.Instance.Effect, 120.0f);
+            diesel.audio.loop = true;
+        }
+        else
+        {
+            diesel.audio.volume = 0;
+        }
+
+        if (Input.anyKey == false)           //아무 입력이 없을떄
+        {
+            RPM_State = 0;
+        }
+
+
+    }
+
+	void uppermax(int socre)
+	{
+		switch(socre)
+		{
+		case 0: 
+			break;
+		case 1: //한번
+			upper.max = 13;
+			break;
+		case 2: //두번
+			upper.max = 14;
+			break;
+		case 3: //세번
+			upper.max = 15;
+			break;
+		case 4: //네번째 평탄할때.
+			break; 
+		}
+	}
+	
+	void FixedUpdate()
+	{
+		
+		if (play == false)
+			return;
+
+        if (false == DigingBucket.shoveling)
+        {
+            //흔들림 감지
+            if (0.45f <= Mathf.Abs(ShakePos.left_H - Input.GetAxisRaw("Left_Joystick_Horizontal")) || 0.45f <= Mathf.Abs(ShakePos.left_V - Input.GetAxisRaw("Left_Joystick_Vertical"))
+                || 0.45f <= Mathf.Abs(ShakePos.Rihgt_H - Input.GetAxisRaw("Right_Joystick_Horizontal")) || 0.45f <= Mathf.Abs(ShakePos.Right_V - Input.GetAxisRaw("Right_Joystick_Vertical")))
+            {
+                digingShake.Run();
+            }
+        }
+
+        ShakePos.left_H = Input.GetAxisRaw("Left_Joystick_Horizontal");
+        ShakePos.left_V = Input.GetAxisRaw("Left_Joystick_Vertical");
+        ShakePos.Rihgt_H = Input.GetAxisRaw("Right_Joystick_Horizontal");
+        ShakePos.Right_V = Input.GetAxisRaw("Right_Joystick_Vertical");
+
+		RPM_State = 1;
+		
+		//알피엠 상태
+		if (RPM_State == 0)      //기본
+		{
+			RPM_IV.localRotation = Quaternion.Euler(52.85935f, Random.Range(-140.0f, -145.0f), 121.458f);
+		}
+		else if (RPM_State == 1)    //굴삭시
+		{
+			RPM_IV.localRotation = Quaternion.Euler(52.85935f, Random.Range(-160, -165.0f), 121.458f);
+		}
+		else if (RPM_State == 2)    //과부하
+		{
+			RPM_IV.localRotation = Quaternion.Euler(52.85935f, Random.Range(-180.0f, -185.0f), 121.458f);
+		}
+		
+	}
+	
+	void UpdateRightWidgetState()
+	{
+		if (mUIDigRightCtl.widget.localPosition.y > 30)
+		{
+			mUIDigRightCtl.Down.GetComponent<TweenColor>().from = color_lever;
+			mUIDigRightCtl.Up.GetComponent<TweenColor>().from = Color.white;
+			mUIDigRightCtl.Bucket_pull.GetComponent<TweenColor>().from = Color.white;
+			mUIDigRightCtl.Bucket_push.GetComponent<TweenColor>().from = Color.white;
+		}
+		else if (mUIDigRightCtl.widget.localPosition.y < -30)
+		{
+			mUIDigRightCtl.Down.GetComponent<TweenColor>().from = Color.white;
+			mUIDigRightCtl.Up.GetComponent<TweenColor>().from = color_lever;
+			mUIDigRightCtl.Bucket_pull.GetComponent<TweenColor>().from = Color.white;
+			mUIDigRightCtl.Bucket_push.GetComponent<TweenColor>().from = Color.white;
+		}
+		else if (mUIDigRightCtl.widget.localPosition.x > 30)
+		{
+			mUIDigRightCtl.Bucket_pull.GetComponent<TweenColor>().from = color_lever;
+			mUIDigRightCtl.Bucket_push.GetComponent<TweenColor>().from = Color.white;
+			mUIDigRightCtl.Down.GetComponent<TweenColor>().from = Color.white;
+			mUIDigRightCtl.Up.GetComponent<TweenColor>().from = Color.white;
+		}
+		else if (mUIDigRightCtl.widget.localPosition.x < -30)
+		{
+			mUIDigRightCtl.Bucket_pull.GetComponent<TweenColor>().from = Color.white;
+			mUIDigRightCtl.Bucket_push.GetComponent<TweenColor>().from = color_lever;
+			mUIDigRightCtl.Down.GetComponent<TweenColor>().from = Color.white;
+			mUIDigRightCtl.Up.GetComponent<TweenColor>().from = Color.white;
+		}
+		
+		if (mUIDigRightCtl.widget.localPosition == new Vector3(0, 0, 0))
+		{
+			mUIDigRightCtl.Down.GetComponent<TweenColor>().from = Color.white;
+			mUIDigRightCtl.Up.GetComponent<TweenColor>().from = Color.white;
+			mUIDigRightCtl.Bucket_pull.GetComponent<TweenColor>().from = Color.white;
+			mUIDigRightCtl.Bucket_push.GetComponent<TweenColor>().from = Color.white;
+			preMessage.text = " ";        
+		}
+	}
+	
+	
+	void UpdateLeftWidgetState()
+	{
+		if (mUIDigLeftCtl.widget.localPosition.y > 1)
+		{
+			mUIDigLeftCtl.full.GetComponent<TweenColor>().from = color_lever;
+			mUIDigLeftCtl.push.GetComponent<TweenColor>().from = Color.white;
+			mUIDigLeftCtl.L_turn.GetComponent<TweenColor>().from = Color.white;
+			mUIDigLeftCtl.R_turn.GetComponent<TweenColor>().from = Color.white;
+		}
+		else if (mUIDigLeftCtl.widget.localPosition.y < -30)
+		{
+			mUIDigLeftCtl.full.GetComponent<TweenColor>().from = Color.white;
+			mUIDigLeftCtl.push.GetComponent<TweenColor>().from = color_lever;
+			mUIDigLeftCtl.L_turn.GetComponent<TweenColor>().from = Color.white;
+			mUIDigLeftCtl.R_turn.GetComponent<TweenColor>().from = Color.white;
+		}
+		else if (mUIDigLeftCtl.widget.localPosition.x > 30)
+		{
+			mUIDigLeftCtl.R_turn.GetComponent<TweenColor>().from = color_lever;
+			mUIDigLeftCtl.L_turn.GetComponent<TweenColor>().from = Color.white;
+			mUIDigLeftCtl.push.GetComponent<TweenColor>().from = Color.white;
+			mUIDigLeftCtl.full.GetComponent<TweenColor>().from = Color.white;
+		}
+		else if (mUIDigLeftCtl.widget.localPosition.x < -30)
+		{
+			mUIDigLeftCtl.R_turn.GetComponent<TweenColor>().from = Color.white;
+			mUIDigLeftCtl.L_turn.GetComponent<TweenColor>().from = color_lever;
+			mUIDigLeftCtl.push.GetComponent<TweenColor>().from = Color.white;
+			mUIDigLeftCtl.full.GetComponent<TweenColor>().from = Color.white;
+		}
+		
+		if (mUIDigLeftCtl.widget.localPosition == new Vector3(0, 0, 0))
+		{
+			mUIDigLeftCtl.full.GetComponent<TweenColor>().from = Color.white;
+			mUIDigLeftCtl.push.GetComponent<TweenColor>().from = Color.white;
+			mUIDigLeftCtl.R_turn.GetComponent<TweenColor>().from = Color.white;
+			mUIDigLeftCtl.L_turn.GetComponent<TweenColor>().from = Color.white;
+			preMessage.text = " ";
+		}
+	}
+}

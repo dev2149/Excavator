@@ -1,0 +1,141 @@
+﻿using UnityEngine;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+
+//public delegate void Task();
+public class GearManager : MonoBehaviour
+{
+    //private static Queue<Task> TaskQueue = new Queue<Task>();
+    //private static object _queueLock = new object();
+
+    public static GEAR gear = GEAR.N;
+
+    UIDriveGear uiDriveGear;
+
+    //저장 관련
+    private SaveData data;
+    private Users user = new Users();
+    private Driving dv;
+
+
+    void Awake()
+    {
+        Option.Instance.Load();
+                DontDestroyOnLoad(gameObject);
+
+       // StartCoroutine(GetButtonGear());
+    }
+
+    private void Start()
+    {
+        DeviceSound.Instance.source_bgm.clip = Resources.Load("M_SS_ Tr01 Good Choice") as AudioClip;
+        DeviceSound.Instance.source_bgm.Play();
+
+
+    }
+
+
+    void Update()
+    {
+        //Debug.Log("sound: " + DeviceSound.Instance.BGM);
+        //Debug.Log("EFFect: " + DeviceSound.Instance.Effect);
+      //  Perform.OnMainThread(new Task(delegate
+      //  {
+            SetGear();
+     //   }));
+    }
+
+    //void OnGUI()
+    //{
+    //    GUI.Label(new Rect(100, 50, 500, 500), PlayerPrefs.GetInt("Gear").ToString());
+
+    //    if (Input.anyKey)
+    //    {
+    //        GUI.Label(new Rect(130, 50, 500, 500), "AAAAAAAAAAAAAAA");
+    //    }
+    //}
+
+    void SetGear()
+    {
+        int gearValue = 0;
+
+        if (uiDriveGear == null && GameObject.Find("Main") != null)
+        {
+            uiDriveGear = GameObject.Find("Main").GetComponent<UIDriveGear>();
+        }
+
+        if (dv == null && GameObject.Find("Drive") != null)
+            dv = GameObject.Find("Drive").GetComponent<Driving>();
+
+        if (dv != null && dv.keyboard)
+        {
+            gearValue = (int)dv.gear;
+            if (gearValue == 2) gearValue = -1;
+        }
+
+        if (ViveDriveScene.instance != null && dv != null && !dv.keyboard)
+        {
+            gearValue = (int)ViveDriveScene.instance.steering.GetGearType();
+            // Debug.Log(gearValue);
+        }
+
+        //드라이브 모드
+        if (gearValue == 1)
+        {
+            gear = GEAR.D;
+
+            PlayerPrefs.SetInt("Gear", 1);
+
+            if(GameObject.Find("Main") != null)
+            GameObject.Find("Main").GetComponent<UIDriveGear>().OnSwitchD();
+            //if (uiDriveGear != null)
+            //{
+            //    uiDriveGear.OnSwitchD();
+            //}
+        }
+
+        else if (gearValue == 0)
+        {
+            gear = GEAR.N;
+            PlayerPrefs.SetInt("Gear", 0);
+
+            if (GameObject.Find("Main") != null)
+                GameObject.Find("Main").GetComponent<UIDriveGear>().OnSwitchN();
+            //if (uiDriveGear != null)
+            //{
+            //    uiDriveGear.OnSwitchN();
+            //}
+        }
+        else if (gearValue == -1) //후진모드
+        {
+            gear = GEAR.R;
+            PlayerPrefs.SetInt("Gear", 2);
+
+            if (GameObject.Find("Main") != null)
+                GameObject.Find("Main").GetComponent<UIDriveGear>().OnSwitchR();
+            //if (uiDriveGear != null)
+            //{
+            //    uiDriveGear.OnSwitchR();
+            //}
+        }
+        //else if (Input.GetButtonUp("Reverse"))
+        //{
+        //    gear = GEAR.N;
+        //    PlayerPrefs.SetInt("Gear", 0);
+        //}
+       
+    }
+
+    //종료할때 호출
+    void OnApplicationQuit()
+    {
+
+        //마지막 접속 시간 저장
+    //    data = new SaveData(PlayerPrefs.GetString("UserID"));
+       // data = SaveData.Load(Application.streamingAssetsPath + "\\" + PlayerPrefs.GetString("UserID") + ".xml");
+        //data[user.LastDATE] = System.DateTime.Now.ToString("yyyy-MM-dd-HH-mm");
+        //data.Save();
+    }
+}

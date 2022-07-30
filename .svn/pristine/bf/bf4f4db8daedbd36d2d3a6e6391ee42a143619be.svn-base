@@ -1,0 +1,108 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using VRStandardAssets.Utils;
+
+public enum MoveSceneType
+{
+    Main = 0,
+    Drive,
+    Drive_forword,
+    Drive_back,
+    Dig
+}
+
+ [RequireComponent(typeof (VRInteractiveItem))]
+public class MainSceneMove : MonoBehaviour
+{
+     private VRInteractiveItem m_VRInteractiveItem;
+
+    Coroutine coroutine;
+
+    public float waitTime;
+
+    public MoveSceneType moveSceneType;
+
+    [SerializeField] Texture texture_Normal;
+
+    [SerializeField] Texture texture_Over;
+
+
+    private void OnEnable()
+    {
+        if(GetComponent<VRInteractiveItem>() != null)
+        m_VRInteractiveItem = GetComponent<VRInteractiveItem>();
+
+        m_VRInteractiveItem.waitTime = waitTime;
+
+        m_VRInteractiveItem.OnOver += HandleOver;
+        m_VRInteractiveItem.OnOut += HandleOut;
+
+       // GetComponent<RawImage>().texture = texture_Normal;
+    }
+    private void OnDisable()
+    {
+        m_VRInteractiveItem.OnOver -= HandleOver;
+        m_VRInteractiveItem.OnOut -= HandleOut;
+    }
+
+    private void HandleOver()
+    {
+        if(GetComponent<RawImage>() != null)
+        GetComponent<RawImage>().texture = texture_Over;
+
+        if (coroutine != null)
+        {
+            StopCoroutine(coroutine);
+        }
+
+        coroutine = StartCoroutine(Corount_Seene());
+    }
+
+    private void HandleOut()
+    {
+        if (GetComponent<RawImage>() != null)
+            GetComponent<RawImage>().texture = texture_Normal;
+
+        if (coroutine != null)
+        {
+            StopCoroutine(coroutine);
+        }
+    }
+
+    IEnumerator Corount_Seene()
+    {
+        yield return new WaitForSeconds(waitTime);
+
+        DeviceSound.Instance.source_bgm.Stop();
+
+        if (moveSceneType == MoveSceneType.Main)
+        {
+            SceneManager.LoadScene("ViveMenu");
+        }
+        else if (moveSceneType == MoveSceneType.Drive)
+        {
+            SceneManager.LoadScene("ViveDrive");
+        }
+        else if (moveSceneType == MoveSceneType.Drive_back)
+        {
+            //주행 후진.
+            PlayerPrefs.SetInt("Tutorial", 1); //0-시험, 1-연습모드
+            PlayerPrefs.SetInt("CurrentScene", 2);
+
+            SceneManager.LoadScene("ViveDrive");
+        }
+        else if ((moveSceneType == MoveSceneType.Drive_forword))
+        {
+            PlayerPrefs.SetInt("Tutorial", 1); //0-시험, 1-연습모드
+            PlayerPrefs.SetInt("CurrentScene", 1);
+            SceneManager.LoadScene("ViveDrive");
+        }
+        else if ((moveSceneType == MoveSceneType.Dig))
+        {
+            SceneManager.LoadScene("ViveDig");
+        }
+    }
+}

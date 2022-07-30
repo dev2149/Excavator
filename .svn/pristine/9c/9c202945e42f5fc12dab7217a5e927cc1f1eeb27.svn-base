@@ -1,0 +1,33 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class driveshake : MonoBehaviour {
+	public GameObject Main_body;
+    public GameObject top_body; // 케빈.
+	public float vibvate_num;
+
+    private float acceleration = 0.0f;
+
+
+	void Update()
+	{
+        float amount = Random.Range(0, vibvate_num);
+        Vector3 angle = new Vector3(amount + acceleration, 0, amount + acceleration);
+        top_body.transform.position = Main_body.transform.position + angle;
+
+        if (false)//Input.GetAxisRaw("Accelerate") > -0.9f)
+        {
+            if(acceleration < 0.04)
+                acceleration += 0.002f;
+        }
+        else
+        {
+            acceleration = 0.0f;
+        }
+
+        if (false)//Input.GetAxisRaw("Break") > -0.9f)//|| Input.GetAxisRaw("9th axis") < -0.3f)
+        {
+            acceleration = 0.0f;
+        }
+	}
+}

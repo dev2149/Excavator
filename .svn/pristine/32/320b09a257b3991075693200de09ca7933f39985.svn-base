@@ -1,0 +1,30 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class diggingover : MonoBehaviour {
+
+	public MegaMorph morph;
+	
+	private float invEndTime;
+	private Vector3 _position;
+	private Vector3 _temp;
+	
+    public float value = -15f;
+
+	void Start()
+	{
+		_position = transform.position;
+		invEndTime = 1.2f / morph.looptime;
+	}
+	
+	void LateUpdate ()
+	{
+		_temp = transform.position;
+
+        _temp.y = Mathf.Lerp(_position.y, value, morph.animtime * invEndTime);
+
+        //_temp.y = Mathf.Lerp (_position.y,-15.0f, morph.animtime * invEndTime);
+
+        transform.position = _temp;
+	}
+}

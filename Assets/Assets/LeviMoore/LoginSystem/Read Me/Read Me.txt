@@ -1,0 +1,19 @@
+1. Create mysql database
+
+2. Create table in database
+(see picture 1)
+
+3. Edit DBTools.php use notepad or notepad++ to edit
+	Change $host to your database location (e.g. MySql.Example.com), 
+	Change $username to your database login name
+	Change $password to your database login password
+	Change $dbName  to your database name
+	Change $secretGameKey to your secretGameKey in unity
+	Change $secretServerKeyto your secretServerKey in unity
+(see picture 2)
+
+4. Upload PHP Folder to your server (crossdomain.xml must be placed in the root folder)
+
+5. Change variables on LoginSystem gameobject
+	URL: php files on your server
+	secretGameKey and secretServerKey must be the same as in DBTools.php

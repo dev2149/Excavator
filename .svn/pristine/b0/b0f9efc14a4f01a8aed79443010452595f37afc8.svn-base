@@ -1,0 +1,476 @@
+using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+
+public class DigingBucket : MonoBehaviour 
+{
+	private readonly float DROP_ANIMATETIME = (10.0f / 3.0f);
+	public static bool shoveling = false;
+    public float LimitLine;
+	public static bool droped = false;
+	public bool stall = false;	
+	public bool forespeed;
+
+	public ParticleSystem particeSoil;
+	public MegaPointCache soil;
+	public MegaCrumple soilcrumple;
+	public Transform sourcePosition;
+	public Vector3 shovelingRange = new Vector3(55.0f, 120.0f, 5.0f);
+	public Vector3 pouringRange = new Vector3(80.0f, 120.0f, 0.0f);
+	public Transform point;
+	public MegaMorph digging;
+	public MegaMorph drop;
+	public GameObject reciever;
+	public GameObject target;
+	public GameObject[] delete;
+	public GameObject stone_parent;
+
+	private Transform _transform;
+	private Vector3 distance;
+	private float diggingTime = 0.0f;
+	private float pouringValue = 0.0f;
+	private bool dropCheck = false;
+	private Vector3 dropPosition;
+	private Vector2 dropRange = Vector2.zero;
+	private float dropValue = 0.0f;
+	private bool dropFlatFinish = false;
+	private bool forepush = false;
+	public int shovelingCount = 0; 
+
+	public Diging diging;
+	public DigingShake digingShake;
+	public DigingWarning diesel;
+	public DigMessage guide;
+	public DigingWarning shovelingSound;
+	public UIDigRightControl control_R;
+	public UIDigLeftControl control_L;
+	public int int_foul_overload;
+	public UILabel DIGstage;
+
+	private float bucketangle;
+	private	float foreangle;
+	private float dist;
+
+	private float Angle
+	{
+		get
+		{
+			return Vector3.Angle (Vector3.up, _transform.forward);
+		}
+	}
+
+	private GameObject stone;
+	public GameObject cube;
+	public GameObject cube_;
+	float CUBE_DELAY = 0.3f; 
+	float cubeDelay;
+
+	float shovelingForeX;
+	public int score = 0;
+	private bool angle;
+
+	void Start () 
+	{
+        cubeDelay = CUBE_DELAY;
+
+		DigingBucket.shoveling = false;
+		_transform = this.transform;
+
+		DIGstage.text = "굴삭작업 횟수: " +(score / 20).ToString ();
+	}
+	
+
+	void Update () 
+	{
+	//	print (drop.animtime);
+
+		delete = GameObject.FindGameObjectsWithTag("Stone"); 
+
+		UpdateSoil ();
+		UpdateDropArea ();
+
+        //파티클 멈춤 수정
+        if(particeSoil.isPlaying)
+        {
+            if (gameObject.GetComponentInChildren<MegaPointCache>().time > 0.4f)
+                particeSoil.Stop();
+        }
+
+		if (shoveling)
+			diesel.On ();
+        else
+        {
+            UpdateSpeed(); //서서히 올라가게 
+			diging.fore.min = -75.0f;
+        }
+
+		// 과부하 경고 메시지 16.02.18
+
+		RaycastHit hit;
+		Vector3 down = transform.TransformDirection(Vector3.down) * 10;     //월드 좌표계로 변환
+		Debug.DrawRay (point.position,down,Color.green);
+
+		if (true == Physics.Raycast(point.position, down, out hit)) // 50%이상 잠기면 
+		{
+			dist = Vector3.Distance(point.position, hit.collider.transform.position);
+			
+			if(dist > 6.0f && dist < 13.0f) //50%속도저하
+			{
+				   diging.bucket.speed = 20.0f;
+                diging.fore.speed = 10.0f;
+                diging.upper.speed = 10.0f;
+                diesel.On();
+
+				if (!forepush) //암밀기제한 //digging일때만
+				{
+//					if (Input.GetAxisRaw("LeftJoyV") > 0.3f || Input.GetAxisRaw("LeftJoyV") < -0.3f || Input.GetKey(KeyCode.W))
+//						diging.fore.min = diging.fore.angle; //현재각도로 제한하기.  //여기서 가이드가 이상하게 나옴. 뒤로 못가게 해서. //속도를 줄이는게 좋을듯하다.
+
+					forespeed = true;
+				}
+					
+			}
+			else
+				forespeed = false;
+
+
+			if(angle)
+			{
+				if((int)bucketangle != (int)diging.bucket.angle && (int)foreangle != (int)diging.fore.angle) // 90%이상 잠겨서 암을 움직였다. // || -> && 로 변경
+				{
+					     diging.bucket.speed = 5.0f;
+                    diging.fore.speed = 5.0f;
+					reciever.SendMessage("OnFail", 8);   // 과부하 전달.
+				}
+			}
+		}		
+	}
+	
+	void OnTriggerEnter(Collider other)
+	{	      
+		if (other.tag == "DIG_DIGGING") {
+			forepush = false;
+			if (100.0f < Angle) {
+				DigingBucket.shoveling = true;
+				diggingTime = digging.animtime;
+				shovelingForeX = diging.fore.angle;
+
+			}
+			if (Angle < 100.0f) {
+
+				if(soil.time < 0.5) //흙 퍼고는 이제 경고안나와야함.
+					return;
+
+				DigingBucket.shoveling = false;
+				DeviceVibrate.Play (); 
+				reciever.SendMessage ("OnFail", 18);
+				_Play ();
+			}
+
+		} else if (other.tag == "DIG_OVER") {  // 과부하 경고 메시지 2016.02.18
+
+			if (!angle){
+				bucketangle = diging.bucket.angle;
+				foreangle = diging.fore.angle;
+				angle = true;
+				++int_foul_overload;
+			}	
+
+		}else if (other.tag == "DIG_DROP") 	{
+
+			forepush = true;
+
+			if (false == dropFlatFinish) // 평탄화.
+			{ 				
+				if (3 < shovelingCount)  //평탄
+				{
+					dropCheck = true;
+					dropPosition = _transform.position;
+					dropRange.x = Mathf.Max (drop.animtime - (0.5f * DROP_ANIMATETIME), 0.0f); 
+					dropRange.y = drop.animtime; //drop.animtime
+
+				//	print("dropPosition: "+dropPosition+ ", dropRange.x: "+ dropRange.x +",dropRange.y: "+dropRange.y);
+
+				}	
+				else if(3 >= shovelingCount)
+				{
+					reciever.SendMessage ("OnFail", 7);	//경고 메시지 보내기.
+				}				
+
+			}
+			else 
+			{ 			
+				GameObject finish = GameObject.FindWithTag("DIG_FINISH");
+				finish.collider.enabled = true;
+			}
+		}else if(other.tag == "DIG_FINISH"){
+
+			if(dropFlatFinish)
+			{  
+				Debug.Log ("Score +20");
+				GameEvent.notify (GameEvent.TAG.DIG_FINISH);
+			}
+		}else if (other.tag == "DIG_FAIL"){
+
+			if ("area_line_side" == other.name)			
+				reciever.SendMessage ("OnFail", 12); // "작업영역을 이탈하였습니다."
+			else
+				reciever.SendMessage ("ShowMessage", 11); //굴삭라인 을침범했습니.다			
+				
+		} else if (other.tag == "DIG_FAIL_2") {
+
+			reciever.SendMessage ("ShowMessage", 21); //버킷의 높이가 \n폴대보다 높습니다.";
+		}else if (other.tag == "DIG_FAIL_3") {
+			
+			reciever.SendMessage ("ShowMessage", 20); //n버킷의 높이가 \n폴대보다 낮습니다.";
+			
+		}else if (other.tag == "DIG_FAIL_4") {
+		
+			reciever.SendMessage ("ShowMessage", 12); //"작업영역을 이탈하였습니다."
+		
+		}else if (other.tag == "DIG_WARNNING") {
+
+			reciever.SendMessage ("OnFoulEnter");
+
+		} else if (other.tag == "DIG_TERRAIN") {
+
+			reciever.SendMessage ("OnFail", 12);
+			DeviceVibrate.Play ();
+			stall = true;
+
+		}
+
+	}
+
+
+   void UpdateSpeed()
+    {
+        if (diging.bucket.speed < 30.1f)
+        {
+            diging.bucket.speed = 40.0f;
+        }
+
+        if (diging.fore.speed < 25.1f)
+        {
+            diging.fore.speed = 25.0f;
+        }
+
+        if (diging.upper.speed < 25.1f)
+        {
+            diging.upper.speed = 25.0f;
+        }
+    }
+
+	
+	void OnTriggerExit(Collider other)
+	{
+		if (other.tag == "DIG_DIGGING") {
+			DigingBucket.shoveling = false;
+			pouringValue = 0.0f;
+			reciever.SendMessage ("OnFailExit");
+		} else if (other.tag == "DIG_DROP")
+		{
+			dropCheck = false;
+			diging.upper.max = 10;
+		}
+		else if (other.tag == "DIG_WARNNING") {
+			reciever.SendMessage ("OnFoulExit");
+			reciever.SendMessage ("OnFailExit");
+		} else if (other.tag == "DIG_FAIL") {
+			reciever.SendMessage ("OnFailExit");
+		} else if (other.tag == "DIG_TERRAIN") {
+			reciever.SendMessage ("OnFailExit");
+			stall = false;
+		} else if (other.tag == "DIG_OVER") {
+			angle = false;
+		}
+
+	}
+
+	void UpdateSoil()
+	{
+		if (true == shoveling)
+		{
+			digingShake.vibrateRange = 0.06f; // 땅속에서 과중
+
+            if (control_R.play == true)
+				shovelingSound.On();
+            if (control_L.play)
+				shovelingSound.On();		
+
+            if (soil.time <= 0.4f)
+            {
+                soilcrumple.scale = 1.2f;
+
+                cubeDelay -= Time.deltaTime;
+                if (cubeDelay <= -0.5f)
+                {
+                    Vector3 Base_ = stone_parent.transform.position; //기본 생성위치
+                    stone = Instantiate(cube_, new Vector3(Base_.x + Random.Range(-3, 3), Base_.y + (2 - soil.time), Base_.z), Quaternion.identity) as GameObject; // 랜덤하게 생성되는 위치.
+                    cubeDelay = CUBE_DELAY;
+					stone.transform.parent = stone_parent.transform; //부모안에 생성
+				}
+            }
+
+			float foreDistance = 0.1f *(diging.fore.angle - shovelingForeX);  
+			float invRange = 1.2f / (shovelingRange.y - shovelingRange.x);
+			float angleAmount = 1.0f - Mathf.Clamp01((Angle - shovelingRange.x) * invRange);
+			
+			distance = _transform.position - sourcePosition.position;
+			float distanceAmount = 1.0f - Mathf.Clamp01((distance.y - shovelingRange.z) * (1.0f / shovelingRange.z));
+
+			if (foreDistance > 0.3f)
+				soil.time = Mathf.Min(soil.time, 1.0f - (angleAmount * foreDistance)); //암이안움직이면 흙이 안퍼짐.. 그러면 안되는ㄷㅇ..  
+
+			soil.time = Mathf.Min(soil.time, 1.0f - (distanceAmount * angleAmount));
+			digging.SetAnimTime(diggingTime + (1.0f - soil.time) * 0.25f * DROP_ANIMATETIME);
+
+
+		}
+		else if(1.0f > soil.time)
+		{
+			digingShake.vibrateRange = 0.01f;
+
+			float invRange = 1.0f / (pouringRange.y - pouringRange.x); //0.025
+			float angleAmount = Mathf.Clamp01((Angle - pouringRange.x) * invRange); //항상 0.0f
+
+			float amount = angleAmount * Time.deltaTime;
+
+			if ((1.0f > soil.time) && (0.0f < amount))
+			{
+				if (false == particeSoil.isPlaying)	particeSoil.Play();
+
+				soilcrumple.scale -= 0.0069f;
+
+				cubeDelay -= Time.deltaTime;
+				if (cubeDelay <= 0) {
+					Instantiate (cube, new Vector3 (Random.Range(0.0f,6.0f) , particeSoil.transform.position.y , particeSoil.transform.position.z) , Quaternion.identity); // 랜덤하게 생성되는 위치.
+					cubeDelay = CUBE_DELAY;
+				}
+
+				for(int i = 0 ; i < delete.Length ; i++)
+					delete[i].rigidbody.useGravity = true;
+
+			}
+			else
+			{
+				if (true == particeSoil.isPlaying)
+				{
+					particeSoil.Stop();
+				}
+
+			}
+
+			soil.time += amount;
+
+			if (0.0f >= amount)
+				return;
+
+			RaycastHit hit;
+			if (true == Physics.Raycast(point.position,-Vector3.up, out hit))
+			{
+//		//		print("1");
+				shovelingSound.On ();
+				if (hit.collider.tag == "DIG_DIGGING")
+				{
+					if (1.0f > soil.time) 
+						digging.SetAnimTime(digging.animtime - amount * 0.35f * (10.0f / 3.0f)); //높이에따라 조절 해야함. //0.15f
+
+				}
+				if (hit.collider.tag == "DIG_DROP")
+				{
+					shovelingSound.On ();
+
+					if (1.0f > soil.time)
+					{
+						pouringValue += amount;
+						drop.SetAnimTime(drop.animtime + amount * 0.25f * (10.0f / 3.0f)); //흙이 차오르는 애니메이션 //0.25
+					}
+
+					if (1.0f <= soil.time)
+					{
+						if (0.83f >= pouringValue) //1-0.17
+						{
+							Debug.Log("Lack of Soil");
+							reciever.SendMessage("OnFail", 16);
+						}
+						else
+						{
+							Debug.Log("Soil is abound.");
+							Debug.Log("Score +20");
+
+							score += 20;
+							DIGstage.text = "굴삭작업 횟수: " +(score / 20).ToString ();
+
+							GameEvent.notify(GameEvent.TAG.DIG_POUR);
+						}
+						shovelingCount += 1;
+					}
+				}				
+				if (hit.collider.tag == "DIG_AREA_1")
+				{
+					if (0.1f <= soil.time)
+					{
+						shovelingCount += 1;
+						reciever.SendMessage("OnFail", 10);
+					}
+				}
+			}
+		}
+        else
+        {
+			if (true == particeSoil.isPlaying) {
+				Invoke("DeleteStone",3.0f);
+				particeSoil.Stop();	
+
+				if((int)soilcrumple.scale <= 0.0f)
+					soilcrumple.scale = 0.0f;
+			}
+		}
+
+		soil.time = Mathf.Clamp01(soil.time);
+	}
+
+    void UpdateDropArea()
+    {
+        if (false == dropCheck)
+            return;
+
+        Vector3 v1 = new Vector3(dropPosition.x, 0.0f, dropPosition.z);
+        Vector3 v2 = new Vector3(_transform.position.x, 0.0f, _transform.position.z);
+        Vector3 v3 = v2 - v1;
+        dropValue = Mathf.Max(v3.magnitude * (1.0f / 15.0f), dropValue);
+
+
+        if (4 <= shovelingCount)
+        {
+            if ((false == dropFlatFinish) && (0.6f <= dropValue))
+            {
+                Debug.Log("Score +20");
+                GameEvent.notify(GameEvent.TAG.DIG_FLAT);
+                DIGstage.text = "평탄화작업 단계";
+            }
+
+            dropFlatFinish = (0.6f <= dropValue);
+        }
+
+        drop.SetAnimTime(Mathf.Lerp(dropRange.x, dropRange.y, 1.3f - dropValue));  //자연스럽게 땅이꺼지는 정도 2초 평탄한 땅애니메이션. //1.0f - dropValue	
+
+
+    }
+
+	void _Play()
+	{
+		reciever.SendMessage("OnFail", 18);
+		float time = 0.5f;
+		float amount = 2.0f;
+		iTween.ShakeRotation (target, new Vector3(amount, amount, amount), time);			
+	}
+
+	void DeleteStone()
+	{
+		for(int i = 0 ; i < delete.Length ; i++)
+			Destroy(delete[i]);
+	}
+	
+}

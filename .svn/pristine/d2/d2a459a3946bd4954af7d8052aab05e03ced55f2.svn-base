@@ -1,0 +1,79 @@
+﻿using UnityEngine;
+using System.Collections;
+
+	public class PaletteColorizer : MonoBehaviour
+	{
+		public int colorsPerRow = 4;
+		public int colorIndex = 0;
+		public bool overrideUVs = false;
+		
+		void Awake ()
+		{
+			if(!enabled)
+			{
+				return;
+			}
+			
+			SetUVsToColor(colorIndex);
+		}
+		
+		void Update()
+		{
+		}
+		
+		public void SetUVsToColor(int colorIndex)
+		{
+			if(overrideUVs)
+			{
+				SetUVs(gameObject, GetColorOffset(colorIndex));
+			}
+			else
+			{
+				TranslateUVs(gameObject, GetColorOffset(colorIndex));
+			}
+		}
+		
+		Vector2 GetColorOffset(int colorIndex)
+		{
+			Vector2 offset = new Vector2();
+			float row = Mathf.Floor(colorIndex / colorsPerRow);
+			float step = 1.0f / colorsPerRow;
+			
+			offset.x = (colorIndex - (row * colorsPerRow)) * step;
+			offset.y = (1.0f - (row / colorsPerRow));
+			
+			return offset;
+		}
+		
+		static public void TranslateUVs(GameObject obj, Vector2 offset)
+		{
+			MeshFilter	_meshFilter = obj.GetComponent<MeshFilter>();
+//			var meshFilter = obj.GetComponent();
+			Mesh mesh = _meshFilter.mesh;
+			
+			var newUVs = new Vector2[mesh.uv.Length];
+			
+			for(int i=0; i < mesh.uv.Length; i++)
+			{
+				newUVs[i] = new Vector2(mesh.uv[i].x + offset.x, mesh.uv[i].y + offset.y);
+			}
+			
+			mesh.uv = newUVs;
+		}
+		
+		static public void SetUVs(GameObject obj, Vector2 offset)
+		{
+			MeshFilter	_meshFilter = obj.GetComponent<MeshFilter>();
+			//			var meshFilter = obj.GetComponent();
+			Mesh mesh = _meshFilter.mesh;
+			
+			var newUVs = new Vector2[mesh.uv.Length];
+			
+			for(int i=0; i < mesh.uv.Length; i++)
+			{
+				newUVs[i] = new Vector2(offset.x + 0.01f, offset.y - 0.01f);
+			}
+			
+			mesh.uv = newUVs;
+		}
+	}

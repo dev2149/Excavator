@@ -1,0 +1,161 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public enum GearType
+{
+    reverse = -1,
+    neutral = 0,
+    forward = 1,
+
+}
+
+
+public class Steering : MonoBehaviour
+{
+
+    [SerializeField] GearType gearType;
+
+    [SerializeField] int index;
+
+    [SerializeField] float wheelAngle = 0f;
+
+    [SerializeField] float acceleraterPedal = 0f;
+    [SerializeField] float brakePedal = 0f;
+
+    [SerializeField] bool forwardGear;
+    [SerializeField] bool reverseGear;
+
+    bool isStart;
+
+    void Start()
+    {
+        LogitechGSDK.LogiSteeringInitialize(false);
+
+
+        string[] names = Input.GetJoystickNames();
+
+        for (int i = 0; i < names.Length; i++)
+        {
+            if (LogitechGSDK.LogiIsDeviceConnected(i, 0))
+            {
+                index = i;
+            }
+        }
+    }
+
+    void Update()
+    {
+        LogitechwheelUpdate();
+    }
+
+    public GearType GetGearType()
+    {
+        if (forwardGear && !reverseGear) return GearType.forward;
+
+        else if (!forwardGear && !reverseGear) return GearType.neutral;
+
+        else return GearType.reverse;
+    }
+
+    public float GetWheelAngle()
+    {
+        float _wheelAngle = -1f * wheelAngle / 32767f;
+
+        return _wheelAngle;
+    }
+
+    public float GetAcceleraterPedal()
+    {
+        float accele = -1f * acceleraterPedal / 32767f;
+
+        if (accele < 0)
+        {
+            return 0;
+        }
+        else
+        {
+            return accele;
+        }
+
+    }
+
+    public float GetBrakePedal()
+    {
+        float brake = -1f * brakePedal / 32767f;
+
+        if (brake < 0)
+        {
+            return 0;
+        }
+        else
+        {
+            return brake;
+        }
+    }
+
+    void LogitechwheelUpdate()
+    {
+        //All the test functions are called on the first device plugged in(index = 0)   
+        if (LogitechGSDK.LogiUpdate() && LogitechGSDK.LogiIsConnected(index))
+        {
+            if (!isStart)
+            {
+                if (LogitechGSDK.LogiIsPlaying(index, LogitechGSDK.LOGI_FORCE_SPRING))
+                {
+                    LogitechGSDK.LogiStopSpringForce(index);
+                }
+                else
+                {
+
+                }
+
+                LogitechGSDK.LogiPlaySpringForce(index, 0, 50, 50);
+
+                isStart = true;
+            }
+
+            LogitechGSDK.DIJOYSTATE2ENGINES rec;
+            rec = LogitechGSDK.LogiGetStateCSharp(index);
+
+            wheelAngle = rec.lX;
+
+            acceleraterPedal = rec.lY;
+
+            brakePedal = rec.lRz;
+
+            //전진기어.
+            if (rec.rgbButtons[14] == 128)
+            {
+                forwardGear = true;
+            }
+            else
+            {
+                forwardGear = false;
+            }
+
+            //후진기어.
+            if (rec.rgbButtons[15] == 128)
+            {
+                reverseGear = true;
+            }
+            else
+            {
+                reverseGear = false;
+            }
+
+
+        }
+    }
+
+    void Stop()
+    {
+        LogitechGSDK.LogiSteeringShutdown();
+    }
+
+    void OnApplicationQuit()
+    {
+        Stop();
+    }
+}

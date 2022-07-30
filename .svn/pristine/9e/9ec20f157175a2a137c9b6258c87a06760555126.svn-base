@@ -1,0 +1,24 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class RenderTextureClose : MonoBehaviour
+{
+    void Update()
+    {
+        if (ViveDriveScene.instance.IsVR() == false)
+        {
+            if (this.gameObject.activeSelf)
+            {
+                if (Input.GetButtonDown("Expand Camera"))
+                {
+                    this.gameObject.SetActive(false);
+                }
+
+                if (Input.GetButtonDown("Fire1"))
+                {
+                    this.gameObject.SetActive(false);
+                }
+            }
+        }
+    }
+}

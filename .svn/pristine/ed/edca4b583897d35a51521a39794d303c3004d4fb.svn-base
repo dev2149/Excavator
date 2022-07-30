@@ -1,0 +1,402 @@
+fileFormatVersion: 2
+guid: bac1514007ec1b347ab0ea2433dd6cc6
+ModelImporter:
+  serializedVersion: 16
+  fileIDToRecycleName:
+    100000: ' Bucket'
+    100002: ' Bucket_col'
+    100004: ' Forearm'
+    100006: Bone_bar00
+    100008: Bone_bar01
+    100010: Bone_digg_l01
+    100012: Bone_digg_l02
+    100014: Bone_digg_l03
+    100016: Bone_digg_r01
+    100018: Bone_digg_r02
+    100020: Bone_digg_r03
+    100022: Bone_gear_L_0
+    100024: Bone_gear_R_0
+    100026: Bone_handle
+    100028: Box005
+    100030: con_accelerate
+    100032: con_bar
+    100034: con_break
+    100036: con_chair001
+    100038: con_digging_bar_l
+    100040: con_door
+    100042: con_etc001
+    100044: con_etc003
+    100046: con_etc2
+    100048: con_handle
+    100050: con_padle
+    100052: con_side
+    100054: Dummy_ Bucket_ axis
+    100056: Dummy_ Forearm_ axis
+    100058: Dummy_FA_Piston_A
+    100060: Dummy_FA_Piston_A_UpNode
+    100062: Dummy_FA_Piston_B
+    100064: Dummy_FA_Piston_B_position
+    100066: Dummy_FA_Piston_B_UpNode
+    100068: Dummy_FA_Piston_B_UpNode001
+    100070: Dummy_FA_Piston_C
+    100072: Dummy_FA_Piston_E
+    100074: Dummy_FA_Piston_E_UpNode
+    100076: Dummy_handle_hPosition
+    100078: Dummy_MainBody_ axis
+    100080: Dummy_Mass_center
+    100082: Dummy_TopBody_ axis
+    100084: Dummy_UA_pipe_B_Position
+    100086: Dummy_UA_pipe_C_Position
+    100088: Dummy_UA_pipe_D_Position
+    100090: Dummy_UA_pipe_RootPosition
+    100092: Dummy_UA_Side_Piston_A
+    100094: Dummy_UA_Side_Piston_A_position
+    100096: Dummy_UA_Side_Piston_A_UpNode
+    100098: Dummy_UA_Side_Piston_A_UpNode001
+    100100: Dummy_UA_Side_Piston_B
+    100102: Dummy_UA_Side_Piston_B_UpNode
+    100104: Dummy_UA_Side_Piston_B_UpNode001
+    100106: Dummy_UA_Top_pipe_A_pA
+    100108: Dummy_UA_Top_pipe_A_pB
+    100110: Dummy_UA_Top_Piston_A
+    100112: Dummy_UA_Top_Piston_A_UpNode
+    100114: Dummy_UA_Top_Piston_B
+    100116: Dummy_UA_Top_Piston_B_posion
+    100118: Dummy_UA_Top_Piston_B_Upnode
+    100120: Dummy_UpperArm_ axis
+    100122: Dummy_Wheel_F_L
+    100124: Dummy_Wheel_F_L001
+    100126: Dummy_Wheel_F_R
+    100128: //RootNode
+    100130: FA_Piston_A
+    100132: FA_Piston_B
+    100134: FA_Piston_C
+    100136: FA_Piston_E
+    100138: MainBody
+    100140: mirror_A
+    100142: mirror_body
+    100144: Object004
+    100146: Object005
+    100148: Object006
+    100150: Object007
+    100152: phone
+    100154: pipe_ Forearm_A
+    100156: Plane002
+    100158: Plane003
+    100160: Shape001
+    100162: spotLight002
+    100164: spotLight1
+    100166: TopBody_A
+    100168: UA_pipe_A
+    100170: UA_pipe_B
+    100172: UA_pipe_C
+    100174: UA_pipe_C_Root
+    100176: UA_pipe_D
+    100178: UA_Side_Piston_A
+    100180: UA_Top_Piston_A
+    100182: UA_Top_Piston_A 1
+    100184: UA_Top_Piston_B
+    100186: UpperArm
+    100188: Wheel_Base_Front
+    100190: Wheel_Base_Rear
+    100192: Wheel_F_L
+    100194: Wheel_F_R
+    100196: Wheel_R_L
+    100198: Wheel_R_R
+    400000: ' Bucket'
+    400002: ' Bucket_col'
+    400004: ' Forearm'
+    400006: Bone_bar00
+    400008: Bone_bar01
+    400010: Bone_digg_l01
+    400012: Bone_digg_l02
+    400014: Bone_digg_l03
+    400016: Bone_digg_r01
+    400018: Bone_digg_r02
+    400020: Bone_digg_r03
+    400022: Bone_gear_L_0
+    400024: Bone_gear_R_0
+    400026: Bone_handle
+    400028: Box005
+    400030: con_accelerate
+    400032: con_bar
+    400034: con_break
+    400036: con_chair001
+    400038: con_digging_bar_l
+    400040: con_door
+    400042: con_etc001
+    400044: con_etc003
+    400046: con_etc2
+    400048: con_handle
+    400050: con_padle
+    400052: con_side
+    400054: Dummy_ Bucket_ axis
+    400056: Dummy_ Forearm_ axis
+    400058: Dummy_FA_Piston_A
+    400060: Dummy_FA_Piston_A_UpNode
+    400062: Dummy_FA_Piston_B
+    400064: Dummy_FA_Piston_B_position
+    400066: Dummy_FA_Piston_B_UpNode
+    400068: Dummy_FA_Piston_B_UpNode001
+    400070: Dummy_FA_Piston_C
+    400072: Dummy_FA_Piston_E
+    400074: Dummy_FA_Piston_E_UpNode
+    400076: Dummy_handle_hPosition
+    400078: Dummy_MainBody_ axis
+    400080: Dummy_Mass_center
+    400082: Dummy_TopBody_ axis
+    400084: Dummy_UA_pipe_B_Position
+    400086: Dummy_UA_pipe_C_Position
+    400088: Dummy_UA_pipe_D_Position
+    400090: Dummy_UA_pipe_RootPosition
+    400092: Dummy_UA_Side_Piston_A
+    400094: Dummy_UA_Side_Piston_A_position
+    400096: Dummy_UA_Side_Piston_A_UpNode
+    400098: Dummy_UA_Side_Piston_A_UpNode001
+    400100: Dummy_UA_Side_Piston_B
+    400102: Dummy_UA_Side_Piston_B_UpNode
+    400104: Dummy_UA_Side_Piston_B_UpNode001
+    400106: Dummy_UA_Top_pipe_A_pA
+    400108: Dummy_UA_Top_pipe_A_pB
+    400110: Dummy_UA_Top_Piston_A
+    400112: Dummy_UA_Top_Piston_A_UpNode
+    400114: Dummy_UA_Top_Piston_B
+    400116: Dummy_UA_Top_Piston_B_posion
+    400118: Dummy_UA_Top_Piston_B_Upnode
+    400120: Dummy_UpperArm_ axis
+    400122: Dummy_Wheel_F_L
+    400124: Dummy_Wheel_F_L001
+    400126: Dummy_Wheel_F_R
+    400128: //RootNode
+    400130: FA_Piston_A
+    400132: FA_Piston_B
+    400134: FA_Piston_C
+    400136: FA_Piston_E
+    400138: MainBody
+    400140: mirror_A
+    400142: mirror_body
+    400144: Object004
+    400146: Object005
+    400148: Object006
+    400150: Object007
+    400152: phone
+    400154: pipe_ Forearm_A
+    400156: Plane002
+    400158: Plane003
+    400160: Shape001
+    400162: spotLight002
+    400164: spotLight1
+    400166: TopBody_A
+    400168: UA_pipe_A
+    400170: UA_pipe_B
+    400172: UA_pipe_C
+    400174: UA_pipe_C_Root
+    400176: UA_pipe_D
+    400178: UA_Side_Piston_A
+    400180: UA_Top_Piston_A
+    400182: UA_Top_Piston_A 1
+    400184: UA_Top_Piston_B
+    400186: UpperArm
+    400188: Wheel_Base_Front
+    400190: Wheel_Base_Rear
+    400192: Wheel_F_L
+    400194: Wheel_F_R
+    400196: Wheel_R_L
+    400198: Wheel_R_R
+    2300000: ' Bucket'
+    2300002: ' Bucket_col'
+    2300004: ' Forearm'
+    2300006: Box005
+    2300008: con_accelerate
+    2300010: con_break
+    2300012: con_chair001
+    2300014: con_door
+    2300016: con_etc001
+    2300018: con_etc003
+    2300020: con_etc2
+    2300022: con_handle
+    2300024: con_padle
+    2300026: con_side
+    2300028: FA_Piston_A
+    2300030: FA_Piston_B
+    2300032: FA_Piston_C
+    2300034: FA_Piston_E
+    2300036: MainBody
+    2300038: mirror_A
+    2300040: mirror_body
+    2300042: Object004
+    2300044: Object005
+    2300046: Object006
+    2300048: Object007
+    2300050: phone
+    2300052: pipe_ Forearm_A
+    2300054: Plane002
+    2300056: Plane003
+    2300058: Shape001
+    2300060: TopBody_A
+    2300062: UA_pipe_C_Root
+    2300064: UA_Side_Piston_A
+    2300066: UA_Top_Piston_A
+    2300068: UA_Top_Piston_A 1
+    2300070: UA_Top_Piston_B
+    2300072: UpperArm
+    2300074: Wheel_Base_Front
+    2300076: Wheel_Base_Rear
+    2300078: Wheel_F_L
+    2300080: Wheel_F_R
+    2300082: Wheel_R_L
+    2300084: Wheel_R_R
+    3300000: ' Bucket'
+    3300002: ' Bucket_col'
+    3300004: ' Forearm'
+    3300006: Box005
+    3300008: con_accelerate
+    3300010: con_break
+    3300012: con_chair001
+    3300014: con_door
+    3300016: con_etc001
+    3300018: con_etc003
+    3300020: con_etc2
+    3300022: con_handle
+    3300024: con_padle
+    3300026: con_side
+    3300028: FA_Piston_A
+    3300030: FA_Piston_B
+    3300032: FA_Piston_C
+    3300034: FA_Piston_E
+    3300036: MainBody
+    3300038: mirror_A
+    3300040: mirror_body
+    3300042: Object004
+    3300044: Object005
+    3300046: Object006
+    3300048: Object007
+    3300050: phone
+    3300052: pipe_ Forearm_A
+    3300054: Plane002
+    3300056: Plane003
+    3300058: Shape001
+    3300060: TopBody_A
+    3300062: UA_pipe_C_Root
+    3300064: UA_Side_Piston_A
+    3300066: UA_Top_Piston_A
+    3300068: UA_Top_Piston_A 1
+    3300070: UA_Top_Piston_B
+    3300072: UpperArm
+    3300074: Wheel_Base_Front
+    3300076: Wheel_Base_Rear
+    3300078: Wheel_F_L
+    3300080: Wheel_F_R
+    3300082: Wheel_R_L
+    3300084: Wheel_R_R
+    4300000: Wheel_Base_Front
+    4300002: Wheel_R_L
+    4300004: Wheel_Base_Rear
+    4300006: Wheel_R_R
+    4300008: MainBody
+    4300010: TopBody_A
+    4300012: mirror_body
+    4300014: mirror_A
+    4300016: FA_Piston_E
+    4300018: ' Bucket_col'
+    4300020: ' Bucket'
+    4300022: Plane003
+    4300024: FA_Piston_A
+    4300026: ' Forearm'
+    4300028: Plane002
+    4300030: UA_Top_Piston_B
+    4300032: FA_Piston_C
+    4300034: FA_Piston_B
+    4300036: UA_pipe_C_Root
+    4300038: pipe_ Forearm_A
+    4300040: UpperArm
+    4300042: UA_Top_Piston_A
+    4300044: UA_Top_Piston_A
+    4300046: UA_pipe_A
+    4300048: UA_pipe_C
+    4300050: UA_pipe_B
+    4300052: UA_pipe_D
+    4300054: UA_Side_Piston_A
+    4300056: con_handle
+    4300058: Object004
+    4300060: con_door
+    4300062: con_chair001
+    4300064: con_side
+    4300066: con_etc2
+    4300068: Shape001
+    4300070: con_etc001
+    4300072: phone
+    4300074: con_etc003
+    4300076: Box005
+    4300078: Object006
+    4300080: Object005
+    4300082: Object007
+    4300084: con_bar
+    4300086: con_digging_bar_l
+    4300088: con_padle
+    4300090: con_break
+    4300092: con_accelerate
+    4300094: Wheel_F_L
+    4300096: Wheel_F_R
+    7400000: Excavator_doosan_160204_03
+    9500000: //RootNode
+    13700000: con_bar
+    13700002: con_digging_bar_l
+    13700004: UA_pipe_A
+    13700006: UA_pipe_B
+    13700008: UA_pipe_C
+    13700010: UA_pipe_D
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  additionalBone: 0
+  userData: 

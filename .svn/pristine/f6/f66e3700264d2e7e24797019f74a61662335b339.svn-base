@@ -1,0 +1,50 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class MovePiston : MonoBehaviour 
+{
+	public Transform target;
+	public float positive = 1.0f;
+
+	private Vector3 offset;
+	private Vector3 up;
+
+	void Start () 
+	{
+		offset = transform.localPosition;
+	}
+
+	void Update()
+	{
+		transform.localPosition = offset;
+		up = target.position - transform.position;
+		transform.up = up.normalized * positive;
+	}
+
+	public void AddForce(float force)
+	{
+		//transform.position += transform.up * force * Time.fixedDeltaTime;
+		GetComponent<Rigidbody>().AddForce(transform.up * force);
+		//rigidbody.MovePosition (rigidbody.position + transform.up * force * Time.fixedDeltaTime);
+	}
+
+	public void Stop()
+	{
+		GetComponent<Rigidbody>().velocity = Vector3.zero;
+	}
+	/*
+	void FixedUpdate () 
+	{
+		if (true == Input.GetButton ("Fire1")) 
+		{
+			//rigidbody.MovePosition(rigidbody.position + Vector3.up * Time.deltaTime);
+			rigidbody.AddForce(transform.up * torque);
+		}
+		else if (true == Input.GetButton ("Fire2")) 
+		{
+			//rigidbody.MovePosition(rigidbody.position - Vector3.up * Time.deltaTime);
+			rigidbody.AddForce(transform.up *-torque);
+		}
+	}
+	/**/
+}

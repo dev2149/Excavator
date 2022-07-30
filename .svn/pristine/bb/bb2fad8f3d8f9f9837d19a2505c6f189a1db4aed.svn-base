@@ -1,0 +1,45 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class ConCollision : MonoBehaviour
+{
+	public AudioClip clip;
+    public Sender sender;
+	private	int _index = 0;
+	private DrivingCamera Cam;
+
+	void Start()
+	{
+		Cam = GameObject.Find ("DrivingCamera").GetComponent<DrivingCamera>();
+	}
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (true == Driving.finish)
+            return;
+	
+		if (other.transform.tag != "Body")
+			return;
+
+		if (other.transform.name == "Wheel_F_R") 
+			_index = 11;
+		if (other.transform.name == "Wheel_F_L") 
+			_index = 12;		
+		if (other.transform.name == "Wheel_R_R") 
+			_index = 13;	
+		if (other.transform.name == "Wheel_R_L") 
+			_index = 14;	
+
+	
+
+		//DeviceVibrate.Play ();
+        sender.SendMessage("OnCollisionCon", _index);
+		Cam.SendMessage ("WheelIndex",_index);
+		Destroy (this.gameObject);
+
+		if (null != clip)
+			DeviceSound.Instance.Play (clip,DeviceSound.Instance.Effect);	
+
+    }
+
+}

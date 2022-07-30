@@ -1,0 +1,40 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class FlatRange : MonoBehaviour {
+
+
+	public float targetAngle;
+	public Transform angle;
+	public Transform target;
+	public MegaMorph drop;
+	public AudioClip pongdang;
+
+
+	// Use this for initialization
+	void Start () {
+	
+//		if (Diging.start_at_flat) {
+//			drop.GetChannel("digging_area_a002").Percent = 100.0F;
+//			drop.GetChannel("digging_area_a003").Percent = 100.0F;
+//		
+//		}
+
+		target.localPosition = new Vector2 (-80F, (int)drop.GetChannel("digging_area_a002").Percent *0.2f); 
+
+	}
+	
+	// Update is called once per frame
+	void Update () {
+	
+		angle.localPosition = new Vector2 (-37F,(int)drop.GetChannel("digging_area_a002").Percent);
+
+		if (target.localPosition.y >= angle.localPosition.y) 
+		{
+			this.gameObject.SetActive (false);
+			NGUITools.PlaySound(pongdang,DeviceSound.Instance.Effect);		
+		}
+			
+
+	}
+}

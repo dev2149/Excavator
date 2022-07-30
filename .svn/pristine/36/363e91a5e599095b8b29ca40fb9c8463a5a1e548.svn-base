@@ -1,0 +1,23 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class DrawMeshVertex : MonoBehaviour {
+
+	public Vector3[] vertices; //540
+	public float explosionRadius = 5.0F;
+
+	void Start() {
+//
+		Mesh mesh = GetComponent<MeshFilter>().mesh;
+		vertices = mesh.vertices;
+		Color[] colors = new Color[vertices.Length];
+		int i = 0;
+		while (i < vertices.Length) {
+			colors[i] = Color.Lerp(Color.black, Color.white, vertices[i].y);
+			i++;
+		}
+		mesh.colors = colors;
+	}
+
+
+}

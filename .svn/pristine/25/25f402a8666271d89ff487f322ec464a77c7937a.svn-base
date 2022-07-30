@@ -1,0 +1,42 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class ResultManager : MonoBehaviour
+{
+    bool[]  quiz = new bool [3];
+
+    public UILabel[] labels = new UILabel[3];
+
+    public UITexture[] check_O = new UITexture[3];
+
+    public UITexture[] check_X = new UITexture[3];
+
+    int a = 0;
+
+    void Start()
+    {
+
+    }
+
+    public void Check(bool isbool)
+    {
+        if (isbool)
+        {
+            check_O[a].gameObject.SetActive(true);
+        }
+        else
+        {
+            check_X[a].gameObject.SetActive(true);
+        }
+
+        a++;
+    }
+
+    public void OnResult(string[] srt)
+    {
+        for (int i =0; i < labels.Length; i++)
+        {
+            labels[i].text = srt[i];
+        }
+    }
+}

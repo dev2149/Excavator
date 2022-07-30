@@ -1,0 +1,144 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.VR;
+
+public enum MenuType
+{
+    Main,
+    DriveMode,
+    DriveExerciseSelect,
+    DigMode,
+}
+
+public class MainSceneManager : MonoBehaviour
+{
+    [SerializeField] GameObject[] buttons = new GameObject[4];
+
+    [SerializeField] RoomPlaneControl roomPlaneControl;
+
+    #region 싱글톤.
+
+    static MainSceneManager instance;
+
+    public static MainSceneManager Instance
+    {
+        get { return instance; }
+    }
+
+    void Awake()
+    {
+        instance = this;
+
+    }
+    #endregion
+
+    private void Start()
+    {
+        SetMenuType(MenuType.Main, null);
+
+    }
+
+
+
+    public void SetMenuType(MenuType type, string buttonName)
+    {
+        Initialization();
+
+        if (buttonName == "Drving_forword")
+        {
+            //주행 전진.
+            PlayerPrefs.SetInt("Tutorial", 1); //0-시험, 1-연습모드
+            PlayerPrefs.SetInt("CurrentScene", 1);
+
+            SceneManager.LoadScene("ViveDrive");
+
+            return;
+        }
+        else if (buttonName == "Driving_back") 
+        {
+            //주행 후진.
+            PlayerPrefs.SetInt("Tutorial", 1); //0-시험, 1-연습모드
+            PlayerPrefs.SetInt("CurrentScene", 2);
+
+            SceneManager.LoadScene("ViveDrive");
+
+            return;
+        }
+        else if (buttonName == "DrivingTest")
+        {
+            //주행 시험.
+            PlayerPrefs.SetInt("Tutorial", 0); //0-시험, 1-연습모드
+            PlayerPrefs.SetInt("CurrentScene", 1);
+
+            SceneManager.LoadScene("ViveDrive");
+
+            return;
+        }
+
+        else if (buttonName == "DiggingExercise")
+        {
+            //굴삭 테스트.
+            PlayerPrefs.SetInt("Tutorial", 1); //0-시험, 1-연습모드
+            PlayerPrefs.SetInt("CurrentScene", 0);
+
+            SceneManager.LoadScene("ViveDig");
+            return;
+        }
+        else if (buttonName == "DiggingTest")
+        {
+            //굴삭 시험.
+            PlayerPrefs.SetInt("Tutorial", 0); //0-시험, 1-연습모드
+
+            SceneManager.LoadScene("ViveDig");
+            return;
+        }
+
+        if (type == MenuType.Main)
+        {
+            for (int i = 0; i < roomPlaneControl.objs.Length; i++)
+            {
+                roomPlaneControl.objs[i].SetActive(false);
+            }
+
+            roomPlaneControl.objs[0].SetActive(true);
+            roomPlaneControl.objs[0].GetComponent<Animation>().Play();
+            roomPlaneControl.toAngle = 0;
+        }
+        if (type == MenuType.DriveMode)
+        {
+            for (int i = 0; i < roomPlaneControl.objs.Length; i++)
+            {
+                roomPlaneControl.objs[i].SetActive(false);
+            }
+
+            roomPlaneControl.objs[1].SetActive(true);
+
+            roomPlaneControl.objs[1].GetComponent<Animation>().Play();
+            roomPlaneControl.toAngle = 90;
+        }
+        else if (type == MenuType.DigMode)
+        {
+            for (int i = 0; i < roomPlaneControl.objs.Length; i++)
+            {
+                roomPlaneControl.objs[i].SetActive(false);
+            }
+
+            roomPlaneControl.objs[2].SetActive(true);
+            roomPlaneControl.objs[2].GetComponent<Animation>().Play();
+            roomPlaneControl.toAngle = -90;
+        }
+
+        buttons[(int)type].SetActive(true);
+    }
+
+    void Initialization()
+    {
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            buttons[i].SetActive(false);
+        }
+    }
+
+}

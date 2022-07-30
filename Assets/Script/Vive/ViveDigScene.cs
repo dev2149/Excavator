@@ -1,0 +1,80 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class ViveDigScene : MonoBehaviour {
+
+    public static ViveDigScene instance;
+
+    public Text laptime;
+    public TextMesh laptime_mesh;
+    public Text countdown;
+    public Text message;
+    public Text laptime_Canvas;
+    public Text laptime_Text;
+
+
+    public Texture[] gearTextures;
+    public Material gearMaterial;
+
+    private bool _isVR = true;
+    public Steering steering { get; private set; }
+
+    private void Awake()
+    {
+        ViveDigScene.instance = this;
+
+        //Diging.play = false;
+        GameObject.Find("DeviceSound").GetComponent<DeviceSound>().practiceLapTime = 0;
+
+        if (PlayerPrefs.GetInt("Tutorial") == 1)
+        {
+            //Diging.tutorial = true;
+            laptime_Text.text = "연습시간";
+        }
+        else
+        {
+            //Diging.tutorial = false;
+            laptime_Text.text = "제한시간";
+        }
+
+
+        steering = Steering.Instance;
+        steering.SpringForceOff();
+    }
+
+    public bool IsVR()
+    {
+        return _isVR;
+    }
+
+    private void Update()
+    {
+        if (steering != null)
+        {
+            switch (steering.GetGearType())
+            {
+                case GearType.forward:
+                    {
+                        gearMaterial.mainTexture = gearTextures[1];
+                    }
+                    break;
+
+                case GearType.neutral:
+                    {
+                        gearMaterial.mainTexture = gearTextures[0];
+                    }
+                    break;
+
+                case GearType.reverse:
+                    {
+                        gearMaterial.mainTexture = gearTextures[2];
+                    }
+                    break;
+
+
+            }
+        }
+    }
+   }

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SaveData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <fileName>simg</fileName>
+  <serializedTypes>
+    <string>System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</string>
+    <string>System.Collections.Generic.List`1[[System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</string>
+  </serializedTypes>
+  <serializedData>
+    <DataContainer>
+      <key>ID</key>
+      <value xsi:type="string">simg</value>
+    </DataContainer>
+    <DataContainer>
+      <key>PASSWORD</key>
+      <value xsi:type="string">simg</value>
+    </DataContainer>
+    <DataContainer>
+      <key>NAME</key>
+      <value xsi:type="string">simg</value>
+    </DataContainer>
+    <DataContainer>
+      <key>Email</key>
+      <value xsi:type="string">simg</value>
+    </DataContainer>
+    <DataContainer>
+      <key>Log</key>
+      <value xsi:type="ArrayOfString">
+        <string>- 주행연습 -  2016-11-18-16-54</string>
+      </value>
+    </DataContainer>
+    <DataContainer>
+      <key>Content</key>
+      <value xsi:type="ArrayOfString">
+        <string>콘에 부딪힌 횟수: 8번</string>
+      </value>
+    </DataContainer>
+    <DataContainer>
+      <key>LastDATE</key>
+      <value xsi:type="string">2016-11-21-16-52</value>
+    </DataContainer>
+  </serializedData>
+</SaveData>

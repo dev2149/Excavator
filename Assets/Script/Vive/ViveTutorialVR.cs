@@ -1,0 +1,262 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using UnityEngine.VR;
+
+
+public class ViveTutorialVR : MonoBehaviour {
+
+    private const int BTN_OFF = 0;
+    private const int BTN_ON = 1;
+
+    //public UIKeyBinding keybinding;
+    public AudioClip sound_success;
+    public AudioClip sound_fail;
+
+    public Text FoulLabel;
+    public Text Encourage;
+    public AudioSource audio_;
+
+    public AudioSource diesel;
+
+    public RawImage imgBtn_Reset;
+    public RawImage imgBtn_End;
+
+    public Texture[] texBtnReset;
+    public Texture[] texBtnEnd;
+
+
+    float handleValue = 0;
+    string nextSceneName = "";
+
+    //저장 관련
+    private SaveData data;
+    private Users user = new Users();
+    private List<string> lLog = new List<string>();
+    private List<string> lContent = new List<string>();
+    
+    void Start()
+    {
+       // imgBtn_Reset.texture = texBtnReset[BTN_OFF];
+       // imgBtn_End.texture = texBtnEnd[BTN_OFF];
+    }
+
+    void Update()
+    {
+
+        return;
+
+        if (VRSettings.isDeviceActive)
+        {
+            handleValue = Mathf.Clamp(Input.GetAxisRaw("Handle"), -1, 1);
+        }
+        else
+        {
+            if (Input.GetKey(KeyCode.LeftArrow))
+                handleValue = -1;
+            else if (Input.GetKey(KeyCode.RightArrow))
+                handleValue = 1;
+        }
+
+
+        if (handleValue < 0) //left
+        {
+            imgBtn_Reset.texture = texBtnReset[BTN_ON];
+            imgBtn_End.texture = texBtnEnd[BTN_OFF];
+
+            nextSceneName = "ViveDig";
+        }
+        else if (handleValue > 0) //right
+        {
+            imgBtn_Reset.texture = texBtnReset[BTN_OFF];
+            imgBtn_End.texture = texBtnEnd[BTN_ON];
+
+            nextSceneName = "ViveMenu";
+        }
+
+        if (VRSettings.isDeviceActive && Input.GetAxisRaw("Accelerate") == 1f && !nextSceneName.Equals(""))
+        {
+            changeScene();
+        }
+        else if (VRSettings.isDeviceActive == false && Input.GetButtonDown("Fire1") && !nextSceneName.Equals(""))
+        {
+            changeScene();
+        }
+    }
+
+    void changeScene()
+    {
+        Debug.Log("Next Scene=" + nextSceneName);
+        //SceneManager.LoadScene(nextSceneName);
+
+        if (nextSceneName.Equals("ViveDig"))
+        {
+            OnReset_Dig();
+        }
+        else if (nextSceneName.Equals("ViveMenu"))
+        {
+            OnEnd_dig();
+        }
+    }
+
+    void OnEnable()
+    {
+       // Time.timeScale = 0.0f;
+        //활성화시 데이터 로드
+       // data = SaveData.Load(Application.streamingAssetsPath + "\\" + PlayerPrefs.GetString("UserID") + ".xml");
+
+       // lLog = data.GetValue<List<string>>(user.Log);
+       // lContent = data.GetValue<List<string>>(user.Content);
+    }
+
+    void OnDisable()
+    {
+        Time.timeScale = 1.0f;
+    }
+
+
+    void Save()
+    {
+        /*lLog.Add("- 굴삭연습 -  " + System.DateTime.Now.ToString("yyyy-MM-dd-HH-mm"));
+        lContent.Add(FoulLabel.text);
+        data[user.Log] = lLog;
+        data[user.Content] = lContent;
+        data.Save();*/
+    }
+
+    public void DigTutorial(int[] Foul) //dig
+    {
+        if (gameend)
+        {
+            gameend = false;
+            DeviceSound.Instance.AudioPuase();
+            diesel.Stop();
+
+            int int_foul = Foul[0] + Foul[1] + Foul[2] + Foul[3] + Foul[4];
+
+            if (int_foul >= 3)
+            {       //연습모드 중간에 결과를 평가 받을 경우.
+                NGUITools.PlaySound(sound_fail, DeviceSound.Instance.Effect);
+
+                FoulLabel.text = "▶케빈 흔들림 : " + Foul[0] + "번 ▶작업영역 이탈 : " + Foul[1] + "번 \n▶흙덩이 낙하 : " + Foul[2] + "번 ▶과부하 : " + Foul[3] + "번\n▶RPM 수치 비정상 : " + Foul[4] + "번";
+                Encourage.text = "끝까지 도전하여 평가 받아보세요.";
+
+
+                Save();
+            }
+            else
+            {
+                NGUITools.PlaySound(sound_fail, DeviceSound.Instance.Effect);
+
+                FoulLabel.text = "▶케빈 흔들림 : " + Foul[0] + "번 ▶작업영역 이탈 : " + Foul[1] + "번 \n▶흙덩이 낙하 : " + Foul[2] + "번 ▶과부하 : " + Foul[3] + "번\n▶RPM 수치 비정상 : " + Foul[4] + "번";
+                Encourage.text = "포기하지 마시고 끝까지 노력해주세요.";
+
+
+                Save();
+            }
+        }
+        //keybinding.enabled = false;
+    }
+    bool gameend = true;
+
+    public void DigOnOpen(int[] Foul)
+    {
+        if (gameend)
+        {
+            gameend = false;
+            DeviceSound.Instance.AudioPuase();
+            diesel.Stop();
+
+            int int_foul = Foul[0] + Foul[1] + Foul[2] + Foul[3] + Foul[4];
+            if (GameObject.Find("Map").GetComponent<digMap>().lack_soil != 1)
+            {
+                GuideSound("DigResult/Result_002", true);
+                NGUITools.PlaySound(sound_success, DeviceSound.Instance.Effect);
+                if (GameObject.Find("Map").GetComponent<digMap>().lack_soil > 1)
+                {
+                    FoulLabel.text = "▶케빈 흔들림: " + Foul[0] + "번 ▶작업영역 이탈: " + Foul[1] + "번 \n▶흙덩이 낙하: " + Foul[2] + "번 ▶과부하: " + Foul[3] + "번\n▶RPM 수치 비정상 : " + Foul[4] + "번 ▶흙량 부족 : "+ (GameObject.Find("Map").GetComponent<digMap>().lack_soil - 1) + "번";
+                    Encourage.text = "포기하지 마시고 끝까지 노력해주세요.";
+                }
+                else if (GameObject.Find("Map").GetComponent<digMap>().lack_soil < 1)
+                {
+                    FoulLabel.text = "▶케빈 흔들림: " + Foul[0] + "번 ▶작업영역 이탈: " + Foul[1] + "번 \n▶흙덩이 낙하: " + Foul[2] + "번 ▶과부하: " + Foul[3] + "번\n▶RPM 수치 비정상 : " + Foul[4] + "번 ▶흙량 부족 : " + ((GameObject.Find("Map").GetComponent<digMap>().lack_soil * -1) -1) + "번\n▶안전벨트 및 안전바 미착용";
+                    Encourage.text = "포기하지 마시고 끝까지 노력해주세요.";
+                }
+            }
+            else
+            {
+                if (int_foul == 0 || int_foul == 1)
+                {
+                    GuideSound("DigResult/Result_003", true);
+                    NGUITools.PlaySound(sound_success, DeviceSound.Instance.Effect);
+                    FoulLabel.text = "▶케빈 흔들림: " + Foul[0] + "번 ▶작업영역 이탈: " + Foul[1] + "번 \n▶흙덩이 낙하: " + Foul[2] + "번 ▶과부하: " + Foul[3] + "번\n▶RPM 수치 비정상 : " + Foul[4] + "번";
+                    Encourage.text = "시험모드에 도전 하셔도 되겠어요!";
+                    // Save();
+                    if (GameObject.Find("SIMG").GetComponent<SimgLauncherUnity>().enabled)
+                    {
+                        SimgLauncherUnity.Instance.ToJson(2, 2, "합격"); // 굴착 연습
+                    }
+                }
+                else if (int_foul == 2 && Foul[0] + Foul[2] == 2)
+                {
+                    GuideSound("DigResult/Result_004", true);
+                    NGUITools.PlaySound(sound_success, DeviceSound.Instance.Effect);
+                    FoulLabel.text = "▶케빈 흔들림: " + Foul[0] + "번 ▶작업영역 이탈: " + Foul[1] + "번 \n▶흙덩이 낙하: " + Foul[2] + "번 ▶과부하: " + Foul[3] + "번\n▶RPM 수치 비정상 : " + Foul[4] + "번";
+                    Encourage.text = "거의 합격인데… 조금 더 노력해주세요.";
+
+                    //Save();
+                }
+                else
+                {       //연습모드를 끝마쳤을 경우.
+                    GuideSound("DigResult/Result_002", true);
+                    NGUITools.PlaySound(sound_success, DeviceSound.Instance.Effect);
+                    FoulLabel.text = "▶케빈 흔들림: " + Foul[0] + "번 ▶작업영역 이탈: " + Foul[1] + "번 \n▶흙덩이 낙하: " + Foul[2] + "번 ▶과부하: " + Foul[3] + "번\n▶RPM 수치 비정상 : " + Foul[4] + "번";
+                    Encourage.text = "포기하지 마시고 끝까지 노력해주세요.";
+
+                    // Save();
+                }
+            }
+        }
+    }
+
+    public void OnEnd_dig()
+    {
+        DeviceVibrate.Play();
+        DeviceSound.Instance.source_bgm.Stop();
+
+        SceneManager.LoadScene("ViveMenu");
+
+        DeviceSound.Instance.source_bgm.clip = Resources.Load("M_SS_ Tr01 Good Choice") as AudioClip;
+        DeviceSound.Instance.source_bgm.Play();
+
+    }
+
+    public void OnReset_Dig()
+    {
+        DeviceVibrate.Play();
+        DeviceSound.Instance.source_bgm.Stop();
+
+        SceneManager.LoadScene("ViveDig");
+    }
+
+    void GuideSound(string str, bool on)
+    {
+        if (ViveDigScene.instance.IsVR())
+        {
+            DeviceSound.Instance.Play(Resources.Load(str.ToString()) as AudioClip, DeviceSound.Instance.Effect);
+            return;
+        }
+
+        if (on)
+        {
+            if (!audio_.isPlaying)
+            {
+                audio_.clip = Resources.Load(str.ToString()) as AudioClip;
+                audio_.Play();
+            }
+            on = false;
+        }
+    }
+}

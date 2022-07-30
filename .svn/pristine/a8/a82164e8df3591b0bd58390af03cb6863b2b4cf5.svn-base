@@ -1,0 +1,352 @@
+fileFormatVersion: 2
+guid: 83b4fa857b1db71459d5c27190d17cec
+ModelImporter:
+  serializedVersion: 16
+  fileIDToRecycleName:
+    100000: ' Forearm'
+    100002: Bucket
+    100004: Dummy_ Bucket_ axis
+    100006: Dummy_ Forearm_ axis
+    100008: Dummy_FA_Piston_A
+    100010: Dummy_FA_Piston_B
+    100012: Dummy_FA_Piston_C
+    100014: Dummy_FA_Piston_E
+    100016: Dummy_MainBody_ axis
+    100018: Dummy_TopBody_ axis
+    100020: Dummy_UA_Side_Piston_A
+    100022: Dummy_UA_Side_Piston_B
+    100024: Dummy_UA_Top_Piston_A
+    100026: Dummy_UA_Top_Piston_B
+    100028: Dummy_UpperArm_ axis
+    100030: //RootNode
+    100032: MainBody
+    100034: TopBody
+    100036: UpperArm
+    100038: Wheel_Base_Front
+    100040: Wheel_Base_Rear
+    100042: Wheel_F_L
+    100044: Wheel_F_R
+    100046: Wheel_R_L
+    100048: Wheel_R_R
+    100050: ' Bucket'
+    100052: Dummy_Mass_center
+    100054: Dummy_pipe_ Forearm_A
+    100056: Dummy_pipe_ Forearm_B
+    100058: Dummy_pipe_ Forearm_C
+    100060: Dummy_pipe_ Forearm_D
+    100062: Dummy_pipe_ Forearm_E
+    100064: Dummy_pipe_ Forearm_F
+    100066: Dummy_pipe_ Forearm_F 1
+    100068: Dummy_pipe_ UpperArm_A
+    100070: Dummy_pipe_ UpperArm_B
+    100072: Dummy_pipe_ UpperArm_C
+    100074: Dummy_pipe_ UpperArm_E
+    100076: Dummy_pipe_UpperArm_D
+    100078: Dummy_pipe_UpperArm_F
+    100080: Dummy_Wheel_F_L
+    100082: Dummy_Wheel_F_R
+    100084: FA_Piston_A
+    100086: FA_Piston_B
+    100088: FA_Piston_C
+    100090: FA_Piston_E
+    100092: mirror_A
+    100094: mirror_body
+    100096: pipe_ Forearm_A
+    100098: pipe_ Forearm_B
+    100100: pipe_ Forearm_C
+    100102: pipe_ Forearm_D
+    100104: pipe_ Forearm_E
+    100106: TopBody_A
+    100108: TopBody_B
+    100110: UA_Side_Piston_A
+    100112: UA_Top_Piston_A
+    100114: UA_Top_Piston_A 1
+    100116: UA_Top_Piston_B
+    100118: Circle_ Bucket_ axis
+    100120: Circle_ Forearm
+    100122: Circle_Bucket
+    100124: Circle_FA_Piston_C
+    100126: Dummy_FA_Piston_A_UpNode
+    100128: Dummy_FA_Piston_B_position
+    100130: Dummy_FA_Piston_B_UpNode
+    100132: Dummy_FA_Piston_E_UpNode
+    100134: Dummy_spline_A_a
+    100136: Dummy_UA_Side_Piston_A_position
+    100138: Dummy_UA_Side_Piston_A_UpNode
+    100140: Dummy_UA_Side_Piston_B_UpNode
+    100142: Dummy_UA_Top_Piston_A_UpNode
+    100144: Dummy_UA_Top_Piston_B_posion
+    100146: Dummy_UA_Top_Piston_B_Upnode
+    100148: IK Chain001
+    100150: IK Chain003
+    100152: IK Chain004
+    100154: IK Chain005
+    100156: Line_spline_A
+    100158: pipe_ Forearm_F
+    100160: Dummy_UA_pipe_B_Position
+    100162: Dummy_UA_pipe_C_Position
+    100164: Dummy_UA_pipe_D_Position
+    100166: Dummy_UA_pipe_RootPosition
+    100168: Dummy_UA_Top_pipe_A_pA
+    100170: Dummy_UA_Top_pipe_A_pB
+    100172: UA_pipe_A
+    100174: UA_pipe_B
+    100176: UA_pipe_C
+    100178: UA_pipe_C_Root
+    100180: UA_pipe_D
+    400000: ' Forearm'
+    400002: Bucket
+    400004: Dummy_ Bucket_ axis
+    400006: Dummy_ Forearm_ axis
+    400008: Dummy_FA_Piston_A
+    400010: Dummy_FA_Piston_B
+    400012: Dummy_FA_Piston_C
+    400014: Dummy_FA_Piston_E
+    400016: Dummy_MainBody_ axis
+    400018: Dummy_TopBody_ axis
+    400020: Dummy_UA_Side_Piston_A
+    400022: Dummy_UA_Side_Piston_B
+    400024: Dummy_UA_Top_Piston_A
+    400026: Dummy_UA_Top_Piston_B
+    400028: Dummy_UpperArm_ axis
+    400030: //RootNode
+    400032: MainBody
+    400034: TopBody
+    400036: UpperArm
+    400038: Wheel_Base_Front
+    400040: Wheel_Base_Rear
+    400042: Wheel_F_L
+    400044: Wheel_F_R
+    400046: Wheel_R_L
+    400048: Wheel_R_R
+    400050: ' Bucket'
+    400052: Dummy_Mass_center
+    400054: Dummy_pipe_ Forearm_A
+    400056: Dummy_pipe_ Forearm_B
+    400058: Dummy_pipe_ Forearm_C
+    400060: Dummy_pipe_ Forearm_D
+    400062: Dummy_pipe_ Forearm_E
+    400064: Dummy_pipe_ Forearm_F
+    400066: Dummy_pipe_ Forearm_F 1
+    400068: Dummy_pipe_ UpperArm_A
+    400070: Dummy_pipe_ UpperArm_B
+    400072: Dummy_pipe_ UpperArm_C
+    400074: Dummy_pipe_ UpperArm_E
+    400076: Dummy_pipe_UpperArm_D
+    400078: Dummy_pipe_UpperArm_F
+    400080: Dummy_Wheel_F_L
+    400082: Dummy_Wheel_F_R
+    400084: FA_Piston_A
+    400086: FA_Piston_B
+    400088: FA_Piston_C
+    400090: FA_Piston_E
+    400092: mirror_A
+    400094: mirror_body
+    400096: pipe_ Forearm_A
+    400098: pipe_ Forearm_B
+    400100: pipe_ Forearm_C
+    400102: pipe_ Forearm_D
+    400104: pipe_ Forearm_E
+    400106: TopBody_A
+    400108: TopBody_B
+    400110: UA_Side_Piston_A
+    400112: UA_Top_Piston_A
+    400114: UA_Top_Piston_A 1
+    400116: UA_Top_Piston_B
+    400118: Circle_ Bucket_ axis
+    400120: Circle_ Forearm
+    400122: Circle_Bucket
+    400124: Circle_FA_Piston_C
+    400126: Dummy_FA_Piston_A_UpNode
+    400128: Dummy_FA_Piston_B_position
+    400130: Dummy_FA_Piston_B_UpNode
+    400132: Dummy_FA_Piston_E_UpNode
+    400134: Dummy_spline_A_a
+    400136: Dummy_UA_Side_Piston_A_position
+    400138: Dummy_UA_Side_Piston_A_UpNode
+    400140: Dummy_UA_Side_Piston_B_UpNode
+    400142: Dummy_UA_Top_Piston_A_UpNode
+    400144: Dummy_UA_Top_Piston_B_posion
+    400146: Dummy_UA_Top_Piston_B_Upnode
+    400148: IK Chain001
+    400150: IK Chain003
+    400152: IK Chain004
+    400154: IK Chain005
+    400156: Line_spline_A
+    400158: pipe_ Forearm_F
+    400160: Dummy_UA_pipe_B_Position
+    400162: Dummy_UA_pipe_C_Position
+    400164: Dummy_UA_pipe_D_Position
+    400166: Dummy_UA_pipe_RootPosition
+    400168: Dummy_UA_Top_pipe_A_pA
+    400170: Dummy_UA_Top_pipe_A_pB
+    400172: UA_pipe_A
+    400174: UA_pipe_B
+    400176: UA_pipe_C
+    400178: UA_pipe_C_Root
+    400180: UA_pipe_D
+    2300000: ' Forearm'
+    2300002: Bucket
+    2300004: MainBody
+    2300006: TopBody
+    2300008: UpperArm
+    2300010: Wheel_Base_Front
+    2300012: Wheel_Base_Rear
+    2300014: Wheel_F_L
+    2300016: Wheel_F_R
+    2300018: Wheel_R_L
+    2300020: Wheel_R_R
+    2300022: ' Bucket'
+    2300024: Dummy_pipe_ Forearm_F 1
+    2300026: FA_Piston_A
+    2300028: FA_Piston_B
+    2300030: FA_Piston_C
+    2300032: FA_Piston_E
+    2300034: mirror_A
+    2300036: mirror_body
+    2300038: pipe_ Forearm_A
+    2300040: pipe_ Forearm_B
+    2300042: pipe_ Forearm_C
+    2300044: pipe_ Forearm_D
+    2300046: pipe_ Forearm_E
+    2300048: TopBody_A
+    2300050: TopBody_B
+    2300052: UA_Side_Piston_A
+    2300054: UA_Top_Piston_A
+    2300056: UA_Top_Piston_A 1
+    2300058: UA_Top_Piston_B
+    2300060: pipe_ Forearm_F
+    2300062: UA_pipe_A
+    2300064: UA_pipe_B
+    2300066: UA_pipe_C
+    2300068: UA_pipe_C_Root
+    2300070: UA_pipe_D
+    3300000: ' Forearm'
+    3300002: Bucket
+    3300004: MainBody
+    3300006: TopBody
+    3300008: UpperArm
+    3300010: Wheel_Base_Front
+    3300012: Wheel_Base_Rear
+    3300014: Wheel_F_L
+    3300016: Wheel_F_R
+    3300018: Wheel_R_L
+    3300020: Wheel_R_R
+    3300022: ' Bucket'
+    3300024: Dummy_pipe_ Forearm_F 1
+    3300026: FA_Piston_A
+    3300028: FA_Piston_B
+    3300030: FA_Piston_C
+    3300032: FA_Piston_E
+    3300034: mirror_A
+    3300036: mirror_body
+    3300038: pipe_ Forearm_A
+    3300040: pipe_ Forearm_B
+    3300042: pipe_ Forearm_C
+    3300044: pipe_ Forearm_D
+    3300046: pipe_ Forearm_E
+    3300048: TopBody_A
+    3300050: TopBody_B
+    3300052: UA_Side_Piston_A
+    3300054: UA_Top_Piston_A
+    3300056: UA_Top_Piston_A 1
+    3300058: UA_Top_Piston_B
+    3300060: pipe_ Forearm_F
+    3300062: UA_pipe_A
+    3300064: UA_pipe_B
+    3300066: UA_pipe_C
+    3300068: UA_pipe_C_Root
+    3300070: UA_pipe_D
+    4300000: MainBody
+    4300002: TopBody
+    4300004: UpperArm
+    4300006: ' Forearm'
+    4300008: Bucket
+    4300010: Wheel_Base_Front
+    4300012: Wheel_F_L
+    4300014: Wheel_F_R
+    4300016: Wheel_Base_Rear
+    4300018: Wheel_R_L
+    4300020: Wheel_R_R
+    4300022: TopBody_A
+    4300024: TopBody_B
+    4300026: mirror_body
+    4300028: mirror_A
+    4300030: pipe_ Forearm_A
+    4300032: Dummy_pipe_ Forearm_F
+    4300034: FA_Piston_B
+    4300036: FA_Piston_C
+    4300038: ' Bucket'
+    4300040: FA_Piston_E
+    4300042: pipe_ Forearm_B
+    4300044: pipe_ Forearm_E
+    4300046: FA_Piston_A
+    4300048: pipe_ Forearm_C
+    4300050: UA_Top_Piston_B
+    4300052: pipe_ Forearm_D
+    4300054: UA_Top_Piston_A
+    4300056: UA_Top_Piston_A
+    4300058: UA_Side_Piston_A
+    4300060: pipe_ Forearm_F
+    4300062: UA_pipe_C_Root
+    4300064: UA_pipe_A
+    4300066: UA_pipe_C
+    4300068: UA_pipe_B
+    4300070: UA_pipe_D
+    7400000: Take 001
+    9500000: //RootNode
+    11100000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: .00999999978
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 1
+    tangentImportMode: 1
+  importAnimation: 0
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  additionalBone: 0
+  userData: 

@@ -1,0 +1,74 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class ModeOption : MonoBehaviour {
+
+	
+	public UISprite check_guide;
+	public UISprite check_lever;
+	public UISprite check_zoom;
+	public UISprite check_shake;
+	
+	private bool guide_on;
+	private bool lever_on;
+	public bool levershake_on;
+	public bool zoom_on;
+	
+	public GameObject R;
+	public GameObject L;
+	public GameObject G;
+	public GameObject GP;
+
+	void OnEnable() //일시정지.
+	{
+		Time.timeScale = 0.0f;
+	}
+	
+	void OnDisable()
+	{
+		Time.timeScale = 1.0f;
+	}
+
+
+	void Start()
+	{
+		guide_on = G.activeSelf;
+		lever_on = R.activeSelf;
+	}
+	
+	public	void Guide()
+	{
+		guide_on = !guide_on;
+		SetSprite (check_guide, guide_on);
+		G.SetActive (guide_on);
+		GP.SetActive (guide_on);
+		
+	}
+	
+	public void Lever()
+	{
+		lever_on = !lever_on;
+		SetSprite (check_lever, lever_on);
+		R.SetActive (lever_on);
+		L.SetActive (lever_on);
+	}
+	
+	public void Zoom()
+	{
+		zoom_on = !zoom_on;
+		SetSprite (check_zoom, zoom_on);
+	}
+	
+	
+	public void LeverShake()
+	{
+		levershake_on = !levershake_on;
+		SetSprite (check_shake, levershake_on);
+	}
+	
+	
+	void SetSprite(UISprite sprite, bool on)
+	{
+		sprite.spriteName = (on) ? "popup_switch_bg_on" : "popup_switch_bg_off";
+	}
+}

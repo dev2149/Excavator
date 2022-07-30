@@ -1,0 +1,53 @@
+﻿using UnityEngine;
+using System.Collections;
+using UnityEngine.VR;
+
+public class HMDManager : MonoBehaviour {
+
+	// Use this for initialization
+	void Start ()
+    {
+      if(Application.loadedLevelName == "dig" || Application.loadedLevelName == "drive" || Application.loadedLevelName == "drive_C")
+        {
+            if (PlayerPrefs.GetInt("selected_Mode") == 0)
+            {
+                VRSettings.enabled = true;
+                VRSettings.showDeviceView = true;
+                InputTracking.Recenter();
+              
+                Debug.Log("VRSettings.enabled");
+            }
+        }
+        else 
+        {
+            VRSettings.enabled = false;
+        }
+
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Application.loadedLevelName == "dig" || Application.loadedLevelName == "drive" || Application.loadedLevelName == "drive_C")
+        {
+            if (PlayerPrefs.GetInt("selected_Mode") == 0)
+            {
+                if (Input.GetKeyDown(KeyCode.Escape))
+                {
+                    Application.LoadLevel("menu");
+                }
+                if (Input.GetKeyDown(KeyCode.F5))
+                {
+                    InputTracking.Recenter();
+                }
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.F5))
+        {
+            InputTracking.Recenter();
+        }
+        //  Debug.Log(InputTracking.GetLocalPosition(VRNode.Head));
+    }
+}

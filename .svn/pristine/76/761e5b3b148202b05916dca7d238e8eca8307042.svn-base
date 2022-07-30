@@ -1,0 +1,196 @@
+fileFormatVersion: 2
+guid: 3ac50c29cdf5ce748b977ac525a9864c
+ModelImporter:
+  serializedVersion: 16
+  fileIDToRecycleName:
+    100000: Dummy_ Bucket_ axis
+    100002: Dummy_ Forearm_ axis
+    100004: Dummy_FA_Piston_A
+    100006: Dummy_FA_Piston_A_UpNode
+    100008: Dummy_FA_Piston_B
+    100010: Dummy_FA_Piston_B_position
+    100012: Dummy_FA_Piston_C
+    100014: Dummy_FA_Piston_E
+    100016: Dummy_MainBody_ axis
+    100018: Dummy_TopBody_ axis
+    100020: Dummy_UA_pipe_B_Position
+    100022: Dummy_UA_pipe_C_Position
+    100024: Dummy_UA_pipe_D_Position
+    100026: Dummy_UA_pipe_RootPosition
+    100028: Dummy_UA_Side_Piston_A
+    100030: Dummy_UA_Side_Piston_B
+    100032: Dummy_UA_Top_pipe_A_pA
+    100034: Dummy_UA_Top_pipe_A_pB
+    100036: Dummy_UA_Top_Piston_A
+    100038: Dummy_UA_Top_Piston_A_UpNode
+    100040: Dummy_UA_Top_Piston_B
+    100042: Dummy_UA_Top_Piston_B_posion
+    100044: Dummy_UA_Top_Piston_B_Upnode
+    100046: Dummy_UpperArm_ axis
+    100048: //RootNode
+    100050: FA_Piston_A
+    100052: FA_Piston_B
+    100054: FA_Piston_C
+    100056: FA_Piston_E
+    100058: Object001
+    100060: Object002
+    100062: pipe_ Forearm_A
+    100064: UA_pipe_A
+    100066: UA_pipe_B
+    100068: UA_pipe_C
+    100070: UA_pipe_C_Root
+    100072: UA_pipe_D
+    100074: UA_Side_Piston_A002
+    100076: UA_Top_Piston_A
+    100078: UA_Top_Piston_A 1
+    100080: UA_Top_Piston_B
+    100082: UpperArm
+    400000: Dummy_ Bucket_ axis
+    400002: Dummy_ Forearm_ axis
+    400004: Dummy_FA_Piston_A
+    400006: Dummy_FA_Piston_A_UpNode
+    400008: Dummy_FA_Piston_B
+    400010: Dummy_FA_Piston_B_position
+    400012: Dummy_FA_Piston_C
+    400014: Dummy_FA_Piston_E
+    400016: Dummy_MainBody_ axis
+    400018: Dummy_TopBody_ axis
+    400020: Dummy_UA_pipe_B_Position
+    400022: Dummy_UA_pipe_C_Position
+    400024: Dummy_UA_pipe_D_Position
+    400026: Dummy_UA_pipe_RootPosition
+    400028: Dummy_UA_Side_Piston_A
+    400030: Dummy_UA_Side_Piston_B
+    400032: Dummy_UA_Top_pipe_A_pA
+    400034: Dummy_UA_Top_pipe_A_pB
+    400036: Dummy_UA_Top_Piston_A
+    400038: Dummy_UA_Top_Piston_A_UpNode
+    400040: Dummy_UA_Top_Piston_B
+    400042: Dummy_UA_Top_Piston_B_posion
+    400044: Dummy_UA_Top_Piston_B_Upnode
+    400046: Dummy_UpperArm_ axis
+    400048: //RootNode
+    400050: FA_Piston_A
+    400052: FA_Piston_B
+    400054: FA_Piston_C
+    400056: FA_Piston_E
+    400058: Object001
+    400060: Object002
+    400062: pipe_ Forearm_A
+    400064: UA_pipe_A
+    400066: UA_pipe_B
+    400068: UA_pipe_C
+    400070: UA_pipe_C_Root
+    400072: UA_pipe_D
+    400074: UA_Side_Piston_A002
+    400076: UA_Top_Piston_A
+    400078: UA_Top_Piston_A 1
+    400080: UA_Top_Piston_B
+    400082: UpperArm
+    2300000: FA_Piston_A
+    2300002: FA_Piston_B
+    2300004: FA_Piston_C
+    2300006: FA_Piston_E
+    2300008: Object001
+    2300010: Object002
+    2300012: pipe_ Forearm_A
+    2300014: UA_pipe_A
+    2300016: UA_pipe_B
+    2300018: UA_pipe_C
+    2300020: UA_pipe_C_Root
+    2300022: UA_pipe_D
+    2300024: UA_Side_Piston_A002
+    2300026: UA_Top_Piston_A
+    2300028: UA_Top_Piston_A 1
+    2300030: UA_Top_Piston_B
+    2300032: UpperArm
+    3300000: FA_Piston_A
+    3300002: FA_Piston_B
+    3300004: FA_Piston_C
+    3300006: FA_Piston_E
+    3300008: Object001
+    3300010: Object002
+    3300012: pipe_ Forearm_A
+    3300014: UA_pipe_A
+    3300016: UA_pipe_B
+    3300018: UA_pipe_C
+    3300020: UA_pipe_C_Root
+    3300022: UA_pipe_D
+    3300024: UA_Side_Piston_A002
+    3300026: UA_Top_Piston_A
+    3300028: UA_Top_Piston_A 1
+    3300030: UA_Top_Piston_B
+    3300032: UpperArm
+    4300000: FA_Piston_E
+    4300002: FA_Piston_A
+    4300004: UA_Top_Piston_B
+    4300006: FA_Piston_C
+    4300008: FA_Piston_B
+    4300010: UA_pipe_C_Root
+    4300012: pipe_ Forearm_A
+    4300014: UpperArm
+    4300016: UA_Top_Piston_A
+    4300018: UA_Top_Piston_A
+    4300020: UA_pipe_A
+    4300022: UA_pipe_C
+    4300024: UA_pipe_B
+    4300026: UA_pipe_D
+    4300028: UA_Side_Piston_A002
+    4300030: Object001
+    4300032: Object002
+    7400000: Excavator_doosan_0
+    9500000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  additionalBone: 0
+  userData: 

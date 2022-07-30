@@ -1,0 +1,154 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class DeviceSound : MonoBehaviour
+{
+    #region #Singleton Encapsulate
+    private static DeviceSound _instance = null;
+    public static DeviceSound Instance
+    {
+        get
+        {
+            return DeviceSound._instance;
+        }
+    }
+    #endregion
+
+    public AudioListener listenerA;
+
+    public float BGM;
+    public float Effect;
+
+
+
+    public AudioSource source_bgm;
+    public AudioSource source_effect;
+
+    //포즈 기능
+    public bool TimePause;
+
+    public float practiceLapTime = 0;
+
+    void Awake()
+    {
+        if (null == DeviceSound._instance)
+        {
+            DeviceSound._instance = this;
+            GameObject.DontDestroyOnLoad(this.gameObject);
+        }
+        else
+        {
+            DeviceSound.Destroy(this.gameObject);
+            return;
+        }
+    }
+
+
+    void Start()
+    {
+     //   PlayerPrefs.SetInt("Gear", 0);
+        Enable = Option.Instance.Sound;
+        source_bgm.loop = true;
+
+        TimePause = false;
+    }
+
+
+    void Update()
+    {
+        //일시정지
+        if (Input.GetKeyDown(KeyCode.Space) && Application.loadedLevelName == "drive")
+        {
+            if (Driving.tutorial == true)
+            {
+                TimePause = !TimePause;
+            }
+        }
+
+        if (TimePause && Application.loadedLevelName == "drive")
+        {
+
+            Time.timeScale = 0.0f;
+            Option.Instance.Sound = DeviceSound.Instance.Enable;
+        }
+        else if (!TimePause && Application.loadedLevelName == "drive" )
+        {
+            Time.timeScale = 1.0f;
+
+           // if(DeviceSound.Instance.Enable)
+                Option.Instance.Sound = DeviceSound.Instance.Enable;
+        }
+
+        if (true == Option.Instance.Sound)
+        {
+            source_bgm.GetComponent<AudioSource>().volume = DeviceSound.Instance.BGM;
+            source_effect.GetComponent<AudioSource>().volume = DeviceSound.Instance.Effect;
+            NGUITools.soundVolume = DeviceSound.Instance.Effect;
+        }
+        else
+        {
+            source_bgm.volume = 0.0f;
+            source_effect.volume = 0.0f;
+            NGUITools.soundVolume = 0.0f;
+        }
+    }
+
+
+    public bool Enable
+    {
+        get
+        {
+            return listenerA.enabled;
+        }
+
+        set
+        {
+            listenerA.enabled = value;
+            NGUITools.soundVolume = 0.0f;
+        }
+    }
+
+    public void Play(AudioClip clip)
+    {
+        if (false == Option.Instance.Sound)
+            return;
+
+        source_bgm.GetComponent<AudioSource>().PlayOneShot(clip);
+        source_bgm.GetComponent<AudioSource>().volume = DeviceSound.Instance.BGM;
+    }
+
+    public void PlayG(AudioClip clip, float volume) //Effect
+    {
+        if (false == Option.Instance.Sound)
+            return;
+        source_effect.Stop();
+        //if (!source_effect.isPlaying)
+        {
+            source_effect.clip = clip;
+            source_effect.Play();
+            source_effect.volume = volume;
+        }            
+    }
+
+
+    public void Play(AudioClip clip, float volume) //Effect
+    {
+        if (false == Option.Instance.Sound)
+            return;
+
+        source_effect.PlayOneShot(clip, volume);
+    }
+
+    public void AudioPuase()
+    {
+        if (false == Option.Instance.Sound)
+            return;
+
+        source_bgm.Stop();
+        source_effect.Stop();
+        NGUITools.soundVolume = 0.0f;
+
+    }
+
+
+}

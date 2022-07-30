@@ -1,0 +1,72 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class UIDrivePedal : MonoBehaviour 
+{
+	public Driving driving;
+	public UISprite imgAccel;
+	public UISprite imgBreak;
+    private int iGear;
+    private string GearState;
+
+	void Start()
+	{
+		imgAccel.spriteName = "ex_Driv_Button_Accel_Normal";
+        iGear = 1;
+        GearState = "저속 모드";
+	}
+
+
+    public void OnGearTwo()
+    {
+        iGear = 20;
+        GearState = "고속 모드";
+    }
+
+
+    public void OffGearTwo()
+    {
+        iGear = 1;
+        GearState = "저속 모드";
+    }
+
+
+    public void OnPressAccel()
+	{
+        if (iGear == 1 && driving.motor > 3)
+        {
+            driving.motor -= 0.1f;
+        }
+
+        if (driving.motor < 3 * iGear)
+        {
+            driving.motor += 0.1f;        //패달 밟기에 따라 가속 처리
+            imgAccel.spriteName = "ex_Driv_Button_Accel_Push";
+
+            GameEvent.notify(GameEvent.TAG.DRIVE_PEDAL_ACCEL);
+        }
+	}
+
+
+    public void OnReleaseAccel()
+	{
+		driving.motor = 0.0f;
+		imgAccel.spriteName = "ex_Driv_Button_Accel_Normal";
+	}
+
+
+    public void OnPressBreak()
+	{
+		driving.brake = 1.0f;
+		imgBreak.spriteName = "ex_Driv_Button_Break_Push";
+
+		GameEvent.notify (GameEvent.TAG.DRIVE_PEDAL_BREAK);
+	}
+
+
+    public void OnReleaseBreak()
+	{
+		driving.brake = 0.0f;
+		imgBreak.spriteName = "ex_Driv_Button_Break_Normal";
+	}
+}

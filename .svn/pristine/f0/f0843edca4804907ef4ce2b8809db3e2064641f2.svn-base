@@ -1,0 +1,30 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class mirrorshake : MonoBehaviour {
+
+	public GameObject target;
+	
+	private bool play = true; 
+	
+	public void Run()
+	{
+		GameEvent.notify (GameEvent.TAG.DIG_SHAKE);
+		if (true == play)
+			return;
+		
+//		play = true;
+		StartCoroutine ("_Play");
+	}
+	
+	IEnumerator _Play()
+	{
+		
+		float time = 0.2f;
+		float amount = 1.0f;
+		iTween.ShakeRotation (target, new Vector3(amount, amount, amount), time);
+		yield return new WaitForSeconds (3.0f);
+//		play = false;
+	}
+
+}

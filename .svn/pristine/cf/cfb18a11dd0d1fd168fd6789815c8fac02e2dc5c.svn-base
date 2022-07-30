@@ -1,0 +1,158 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using VRStandardAssets.Utils;
+
+public class MenuButton : MonoBehaviour
+{
+
+    enum ButtonType
+    {
+        Back = -1,
+        Next = 0,
+        Digging_practice,
+        Digging_test,
+        Driving_practice_1,
+        Driving_practice_2,
+        Driving_test,
+        Manu
+    }
+
+    [SerializeField] private VRInteractiveItem m_VRInteractiveItem; // The VRInteractiveItem that needs to be looked at for the textures to play.
+
+    [SerializeField] Texture texture_Normal;
+
+    [SerializeField] Texture texture_Over;
+
+    //[SerializeField] ButtonType buttonType;
+
+    [SerializeField] MenuType menuType;
+
+    Vector3 scaleSave;
+
+   public float waitTime;
+
+    Coroutine coroutine;
+
+    MeshRenderer meshRenderer;
+
+    bool isScale;
+
+    private void Awake()
+    {
+        meshRenderer = this.GetComponent<MeshRenderer>();
+
+        if(texture_Normal != null)
+        meshRenderer.material.SetTexture("_MainTex", texture_Normal);
+
+        scaleSave = transform.lossyScale;
+
+    }
+
+    private void OnEnable()
+    {
+        m_VRInteractiveItem.waitTime = waitTime;
+
+        m_VRInteractiveItem.OnOver += HandleOver;
+        m_VRInteractiveItem.OnOut += HandleOut;
+    }
+    private void OnDisable()
+    {
+        m_VRInteractiveItem.OnOver -= HandleOver;
+        m_VRInteractiveItem.OnOut -= HandleOut;
+    }
+
+    private void HandleOver()
+    {
+        isScale = true;
+
+        if (texture_Over != null)
+            meshRenderer.material.SetTexture("_MainTex", texture_Over);
+
+        if(coroutine != null)
+        {
+            StopCoroutine(coroutine);
+        }
+
+        coroutine = StartCoroutine(Corount_Seene());
+    }
+
+    private void HandleOut()
+    {
+        isScale = false;
+
+        if (texture_Normal != null)
+            meshRenderer.material.SetTexture("_MainTex", texture_Normal);
+
+        if (coroutine != null)
+        {
+            StopCoroutine(coroutine);
+        }
+    }
+
+    IEnumerator Corount_Seene()
+    {
+        yield return new WaitForSeconds(waitTime);
+
+        if (texture_Normal != null)
+            meshRenderer.material.SetTexture("_MainTex", texture_Normal);
+
+        if (MainSceneManager.Instance != null)
+        {
+            Debug.Log(gameObject.name);
+
+            MainSceneManager.Instance.SetMenuType(menuType, gameObject.name);
+        }
+        /*
+        if (texture_Normal != null)
+            meshRenderer.material.SetTexture("_MainTex", texture_Normal);
+
+        if (buttonType == ButtonType.Digging_practice)
+        {
+            //굴삭 테스트.
+            PlayerPrefs.SetInt("Tutorial", 1); //0-시험, 1-연습모드
+            PlayerPrefs.SetInt("CurrentScene", 0);
+
+            SceneManager.LoadScene("ViveDig");
+        }
+        else if (buttonType == ButtonType.Digging_test)
+        {
+            //굴삭 시험.
+            PlayerPrefs.SetInt("Tutorial", 0); //0-시험, 1-연습모드
+
+            SceneManager.LoadScene("ViveDig");
+        }
+        else if (buttonType == ButtonType.Driving_practice_1)
+        {
+            //주행 전진.
+            PlayerPrefs.SetInt("Tutorial", 1); //0-시험, 1-연습모드
+            PlayerPrefs.SetInt("CurrentScene", 1);
+
+            SceneManager.LoadScene("ViveDrive");
+        }
+        else if (buttonType == ButtonType.Driving_practice_2)
+        {
+            //주행 후진.
+            PlayerPrefs.SetInt("Tutorial", 1); //0-시험, 1-연습모드
+            PlayerPrefs.SetInt("CurrentScene", 2);
+
+            SceneManager.LoadScene("ViveDrive");
+        }
+        else if(buttonType == ButtonType.Driving_test)
+        {
+            //주행 시험.
+            PlayerPrefs.SetInt("Tutorial", 0); //0-시험, 1-연습모드
+
+            SceneManager.LoadScene("ViveDrive");
+        }
+        else if (buttonType == ButtonType.Manu)
+        {
+          
+            SceneManager.LoadScene("ViveMenu");
+        }
+        */
+    }
+
+}

@@ -1,0 +1,20 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class OutCollision : MonoBehaviour {
+
+	public AudioClip clip;
+	public Sender sender;
+	
+	void OnTriggerEnter(Collider other)
+	{
+		if (other.transform.tag != "Body")
+			return;
+		
+		DeviceVibrate.Play ();
+		sender.SendMessage();
+		
+		if (null != clip)
+			DeviceSound.Instance.Play (clip,DeviceSound.Instance.Effect);
+	}
+}

@@ -1,0 +1,18 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class DrivePoint : MonoBehaviour
+{
+    public GameObject recieve;
+    public string method;
+
+    void OnTriggerEnter(Collider other)
+    {
+        recieve.SendMessage(method + "Enter", other.gameObject);
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        recieve.SendMessage(method + "Exit", other.gameObject);
+    }
+}

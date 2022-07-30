@@ -1,0 +1,58 @@
+﻿using UnityEngine;
+using System.Collections;
+using UnityEngine.VR;
+
+public class SelectMode : MonoBehaviour {
+
+    public GameObject[] Monitor;
+    public GameObject[] HMD;
+    public GameObject SetPositionGear;
+    // Use this for initialization
+    void Start ()
+    {
+        if(PlayerPrefs.GetInt("selected_Mode") == 0)
+        {
+            Debug.Log("HMD");
+            VRSettings.loadedDevice = VRDeviceType.Oculus;
+            VRSettings.enabled = true;
+            InputTracking.Recenter();
+
+            if(Application.loadedLevelName == "drive")
+            {
+                SetPositionGear.transform.Find("D").transform.localPosition = new Vector3(-88, -288, 0);
+                SetPositionGear.transform.Find("R").transform.localPosition = new Vector3(82.5f, -288, 0);
+                SetPositionGear.transform.Find("N").transform.localPosition = new Vector3(-2.5f, -288, 0);
+                SetPositionGear.transform.Find("Sprite").transform.localPosition = new Vector3(-6, -288, 0);
+                SetPositionGear.transform.Find("Sprite").transform.localRotation = Quaternion.EulerAngles(0, 0, 1.572f);
+            }
+       
+            for (int j = 0; j < Monitor.Length; j++)
+            {
+                Monitor[j].SetActive(false);
+            }
+
+            for (int i = 0; i < HMD.Length; i++)
+            {
+                HMD[i].SetActive(true);
+            }
+         
+        }
+        else
+        {
+            Debug.Log("MONITOR");
+            VRSettings.enabled = false;
+            for (int j = 0; j < Monitor.Length; j++)
+            {
+                Monitor[j].SetActive(true);
+            }
+
+            for (int i = 0; i < HMD.Length; i++)
+            {
+                HMD[i].SetActive(false);
+            }
+        }
+	
+	}
+	
+
+}

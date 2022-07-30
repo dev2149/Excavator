@@ -1,0 +1,37 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class DigingWarning : MonoBehaviour 
+{
+	public bool listen = false;
+	public float volume = 0.0f;
+	
+	
+	// Update is called once per frame
+	void Update () 
+	{
+        //if (Option.Instance.Sound)
+        //{
+        //    this.GetComponent<AudioSource>().volume = DeviceSound.Instance.Effect;
+        //    //if (true == listen)
+        //    //    this.audio.volume += Time.deltaTime * DeviceSound.Instance.Effect;
+        //    //else
+        //    //    this.audio.volume -= Time.deltaTime * DeviceSound.Instance.Effect;	
+
+        //    volume = this.GetComponent<AudioSource>().volume;// Mathf.Clamp01(this.audio.volume);
+        //}
+        //else
+        //{
+        //    this.GetComponent<AudioSource>().volume = 0.0f;
+        //}
+
+        //listen = false;
+    }
+	
+	public void On()
+	{
+		listen = true;
+	}
+	
+	
+}

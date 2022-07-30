@@ -1,0 +1,48 @@
+﻿using UnityEngine;
+using System.Collections;
+using System.IO;
+
+public class safequiz : MonoBehaviour {
+
+	public UILabel quest;
+
+	void Start()
+	{
+//		TextAsset textAssets = (TextAsset)Resources.Load ("Test");
+//		string txtContents = textAssets.text;
+//		quest.text = txtContents;
+
+		TextAsset data = Resources.Load("Test", typeof(TextAsset)) as TextAsset;
+		StringReader sr = new StringReader(data.text);
+		
+				
+		string source = sr.ReadLine();
+		string [] values;                // 쉼표로 구분된 데이터들을 저장할 배열 (values[0]이면 첫번째 데이터 )
+		
+		
+		while (source != null)
+		{
+			values = source.Split(','); 
+			if( values.Length == 0 )
+			{
+				sr.Close();
+				return;
+			}
+			source = sr.ReadLine();   
+
+			quest.text = values[0] + values[1] + values[4];
+		}
+	}
+
+
+	public void Parse()
+	{
+
+
+	}
+
+
+
+
+
+}

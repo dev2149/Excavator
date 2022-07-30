@@ -1,0 +1,112 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class ViveDriveScene : MonoBehaviour {
+
+    public static ViveDriveScene instance;
+    public Text message;
+    public RawImage[] widgets;
+    public Texture[] widgetsON;
+    public Texture[] widgetsOFF;
+
+    public Sprite[] gearSpr;
+    public Texture[] gearTextures;
+    public Material gearMaterial;
+    public Image gearObj;
+    public Steering steering { get; private set; }
+
+    public TextMesh laptime_mesh;
+    public Text laptime_Canvas;
+    public Text laptime_Text;
+
+    private bool _isVR = true;
+	
+
+	void Awake ()
+    {
+        ViveDriveScene.instance = this;
+
+        GameObject.Find("DeviceSound").GetComponent<DeviceSound>().practiceLapTime = 0;
+        //Camera[] cam = FindObjectsOfType<Camera>();
+
+        //for (int i = 0; i < cam.Length; i++)
+        //{
+        //    if (cam[i].name.Equals("Camera(head)"))
+        //    {
+        //        cam[i].transform.position = Vector3.zero;
+        //    }
+        //}
+        steering = Steering.Instance;
+        steering.SpringForceOff();
+
+        if (PlayerPrefs.GetInt("Tutorial") == 1)
+        {
+            //Driving.tutorial = true;
+
+            if (PlayerPrefs.GetInt("CurrentScene") == 1)
+            {
+                Driving.start_at_end = false; //전진
+            }
+            else if (PlayerPrefs.GetInt("CurrentScene") == 2)
+            {
+                Driving.start_at_end = true; //후진
+
+                Animation[] ani = FindObjectsOfType<Animation>();
+
+                for (int i = 0; i < ani.Length; i++) {
+
+                    if (ani[i].clip.name.Equals("Take 001")
+                    || ani[i].clip.name.Equals("Handle Animation")
+                    || ani[i].clip.name.Equals("safe Animation"))
+                    {
+                        ani[i].Play();
+                        BoxCollider[] boxc = ani[i].gameObject.GetComponents<BoxCollider>();
+                        if (boxc != null)
+                        {
+                            for (int p = 0; p < boxc.Length; p++)
+                            {
+                                boxc[p].enabled = false;
+                            }
+                        }
+                    }
+                }
+                ani = null;
+            }
+            laptime_Text.text = "연습시간";
+        }
+        else
+        {
+            Driving.start_at_end = false; //전진
+
+            //Driving.tutorial = false;
+            laptime_Text.text = "제한시간";
+        }
+	}
+
+    public bool IsVR()
+    {
+        return _isVR;
+    }
+
+    public void SetColor(GEAR gear)
+    {
+        for (int i = 0; i < widgets.Length; i++)
+        {
+            GEAR _gear = (GEAR)i;
+
+            if (i == (int)gear)
+            {
+                gearMaterial.mainTexture = gearTextures[i];
+                widgets[i].texture = widgetsON[i];
+                gearObj.sprite = gearSpr[i];
+            }
+            else
+            {
+                widgets[i].texture = widgetsOFF[i];
+            }
+        }        
+    }
+
+}

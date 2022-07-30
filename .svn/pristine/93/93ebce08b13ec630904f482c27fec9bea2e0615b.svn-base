@@ -1,0 +1,17 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class JointOffset : MonoBehaviour 
+{
+	private Vector3 offset;
+
+	void Start () 
+	{
+		offset = transform.localPosition;
+	}
+	
+	void Update () 
+	{
+		transform.localPosition = offset;
+	}
+}

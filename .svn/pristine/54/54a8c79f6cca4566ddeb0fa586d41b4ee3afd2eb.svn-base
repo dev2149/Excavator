@@ -1,0 +1,63 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class CameraTurn : MonoBehaviour
+{
+
+    public GameObject area_line;
+    public GameObject area_line2;
+    public digMap map;
+
+    public bool turn;
+    public float distX;
+    public GameObject MainCamera;
+    public ModeOption option;
+
+    private DigMessage DigMsg;
+
+    void Start()
+    {
+        DigMsg = GameObject.Find("GuideMessage").GetComponent<DigMessage>();
+    }
+    
+    void Update()
+    {
+    //    Debug.Log(DigMsg.state);
+        if (!option.zoom_on)
+            return;
+
+        //버킷이 지면에 닿아 있기때메 시작시 바로 확대되는 부분 방지
+        if (DigMsg.state < 2)
+            return;
+
+
+        distX = transform.position.x - area_line.transform.position.x;
+
+        float distZ = transform.position.z - area_line2.transform.position.z;
+
+        if (distZ <= 0F && distZ >= -25F)
+        {
+            float dist = transform.position.x - area_line.transform.position.x; //땅과 버킷칼날의 거리.
+
+
+            if (transform.position.y <= area_line.transform.position.y)
+            {
+                if (dist <= 10.0f && dist >= -10.0f)
+                {
+
+                    if (map.score >= 80)
+                        return;
+
+                    turn = true;
+                    MainCamera.GetComponent<SmoothFollow>().enabled = true;
+                }
+            }
+        }
+
+        if (transform.position.y >= area_line.transform.position.y)
+        {
+            turn = false;
+        }
+
+    }
+}

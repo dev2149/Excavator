@@ -1,0 +1,26 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class DiggingTrigger : MonoBehaviour 
+{
+	public MegaMorph morph;
+
+	private float invEndTime;
+	private Vector3 _position;
+	private Vector3 _temp;
+
+	void Start()
+	{
+		_position = transform.position;
+		invEndTime = 1.0f / morph.looptime;
+	}
+
+	void LateUpdate ()
+	{
+		_temp = transform.position;
+
+		_temp.y = Mathf.Lerp (_position.y,-10.138916f, morph.animtime * invEndTime); //-5
+
+		transform.position = _temp;
+	}
+}

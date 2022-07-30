@@ -1,0 +1,109 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using VRStandardAssets.Utils;
+
+[RequireComponent(typeof(VRInteractiveItem))]
+public class NextGuideMessage : MonoBehaviour
+{
+    private VRInteractiveItem m_VRInteractiveItem;
+
+    public float waitTime;
+
+    Coroutine coroutine;
+
+    [SerializeField] GameObject sendMessageObj;
+
+    [SerializeField] GameObject setOBJ;
+
+    bool isOn;
+
+    [SerializeField] Animation hndOBJ;
+
+    void Start()
+    {
+      
+
+    }
+
+    private void OnEnable()
+    {
+
+        //if (GetComponent<Animation>() != null)
+          //  GetComponent<Animation>().Stop();
+
+        if (GetComponent<VRInteractiveItem>() != null)
+            m_VRInteractiveItem = GetComponent<VRInteractiveItem>();
+
+        m_VRInteractiveItem.waitTime = waitTime;
+
+        m_VRInteractiveItem.OnOver += HandleOver;
+        m_VRInteractiveItem.OnOut += HandleOut;
+
+        // GetComponent<RawImage>().texture = texture_Normal;
+    }
+    private void OnDisable()
+    {
+        m_VRInteractiveItem.OnOver -= HandleOver;
+        m_VRInteractiveItem.OnOut -= HandleOut;
+    }
+
+    private void HandleOver()
+    {
+        if (coroutine != null)
+        {
+            StopCoroutine(coroutine);
+        }
+
+        coroutine = StartCoroutine(Corount_Seene());
+    }
+
+    private void HandleOut()
+    {
+        if (coroutine != null)
+        {
+            StopCoroutine(coroutine);
+        }
+
+    }
+
+    public void SetObjOn()
+    {
+        if (setOBJ != null)
+            setOBJ.SetActive(true);
+    }
+
+    IEnumerator Corount_Seene()
+    {
+        yield return new WaitForSeconds(waitTime);
+
+        if (!isOn)
+        {
+            isOn = true;
+
+            if (GetComponent<Animation>() != null)
+                GetComponent<Animation>().Play();
+
+            if (hndOBJ != null)
+            {
+                hndOBJ.Play();
+            }
+
+           
+
+            m_VRInteractiveItem.enabled = false;
+
+            BoxCollider[] colliders = GetComponents<BoxCollider>();
+
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                colliders[i].enabled = false;
+            }
+
+           
+
+
+             sendMessageObj.SendMessage("SetGuide");
+        }
+    }
+}

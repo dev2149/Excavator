@@ -1,0 +1,97 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public enum JoystickType
+{
+    Handle,
+    Right,
+    Left
+}
+
+public class GetJoysticks : MonoBehaviour
+{
+
+    bool isJoy1Find;
+
+    public  int right;
+    public  int left;
+
+    string[] ctrlrNames;
+
+    #region 싱글톤.
+
+    private static GetJoysticks _instance = null;
+
+    public static GetJoysticks Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                GameObject obj = new GameObject();
+                obj.name = "DataManager";
+                _instance = obj.AddComponent<GetJoysticks>();
+                DontDestroyOnLoad(obj);
+            }
+
+            return _instance;
+        }
+    }
+
+    #endregion
+
+
+    private void Awake()
+    {
+        right = -100;
+        left = -100;
+
+        ctrlrNames = Input.GetJoystickNames();
+    }
+
+    public int GetJoystickNumber(JoystickType joystickType)
+    {
+        GetJoyNames();
+
+        switch (joystickType)
+        {
+            case JoystickType.Right:
+                {
+                    return right; break;
+                }
+
+            case JoystickType.Left:
+                {
+                    return left; break;
+                }
+            default:
+                {
+                    return -100; break;
+                }
+        }
+    }
+
+    void GetJoyNames()
+    {
+        for (int i = 0; i < ctrlrNames.Length; i++)
+        {
+
+            if (ctrlrNames[i].Contains("T.16000M"))
+            {
+                if (Input.GetAxis(i + "_Joystick_3") != 0 && Input.GetAxis(i + "_Joystick_3") > 0.6f)
+                {
+                    left = i;
+
+                }
+                else if (Input.GetAxis(i + "_Joystick_3") != 0 && Input.GetAxis(i + "_Joystick_3") < -0.6f)
+                {
+
+                    right = i;
+                }
+            }
+            
+        }
+    }
+
+}

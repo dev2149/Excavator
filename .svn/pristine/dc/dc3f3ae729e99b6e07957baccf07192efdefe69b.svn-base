@@ -1,0 +1,46 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class DigingShake : MonoBehaviour {
+	
+	public AudioClip Clip;
+	public GameObject main_body; // 충돌
+    public GameObject top_body; // 케빈.
+	public float vibrateRange = 0.015f;
+
+	private bool play = false; 
+
+	public void Run()
+	{
+		if (!this.gameObject.activeSelf) 
+			return;
+		
+		GameEvent.notify (GameEvent.TAG.DIG_SHAKE);
+
+		if (true == play)
+			return;
+
+		play = true;
+		StartCoroutine ("_Play");
+	}
+
+	IEnumerator _Play()
+	{
+		DeviceSound.Instance.Play (Clip,DeviceSound.Instance.Effect);
+
+		float time = 0.2f;
+		float amount = 1f;
+		iTween.ShakeRotation (main_body, new Vector3(amount, amount, amount), time);
+		yield return new WaitForSeconds (1.0f);
+		play = false;
+	}
+
+
+	void Update()
+	{
+		float amount = Random.Range (0, vibrateRange);
+		Vector3 angle = new Vector3(amount,12,amount);
+		//top_body.transform.position = angle;
+	}
+	
+}

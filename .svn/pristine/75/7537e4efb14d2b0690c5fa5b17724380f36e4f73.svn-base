@@ -1,0 +1,15 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class PistonLookAt : MonoBehaviour
+{
+	public Transform target;
+	public Vector3 correct;
+
+	// Update is called once per frame
+	void Update ()
+	{
+		transform.LookAt (target);
+		transform.Rotate (correct);
+	}
+}

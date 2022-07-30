@@ -1,0 +1,97 @@
+using UnityEngine;
+using System.Collections;
+
+public class UIDriveResult : MonoBehaviour 
+{
+	public GameObject success;
+	public GameObject fail;
+	public UIKeyBinding keybinding;
+    public AudioClip sound_success;
+    public AudioClip sound_fail;
+	public AudioSource diesel;
+	public AudioSource audio_;
+	public UILabel mistake_label;
+
+	private bool result = false;
+	public DriveMap map;
+
+	void OnEnable()
+	{
+		Time.timeScale = 0.0f;
+	}
+	
+	void OnDisable()
+	{
+		Time.timeScale = 1.0f;
+	}
+
+	
+	public void OnOpen(bool _success)
+	{
+		diesel.audio.loop = false;
+		diesel.audio.Stop ();
+		DeviceSound.Instance.AudioPuase ();
+		result = _success;
+
+		if (true == result)
+		{
+			success.SetActive(true);
+			fail.SetActive(false);
+			NGUITools.PlaySound(sound_success,DeviceSound.Instance.Effect);
+			GuideSound("DriveTest/success",true);
+
+			if(map.mistake < 1)	mistake_label.text = "[0000ff]Perfect!![-]";
+			else mistake_label.text = "[ff0000]미정지 -5점[-]";
+		}
+		else
+		{
+			success.SetActive(false);
+			fail.SetActive(true);
+			NGUITools.PlaySound(sound_fail,DeviceSound.Instance.Effect);
+			GuideSound("DriveTest/fail",true);
+			mistake_label.text = "[ff0000]실격[-]";
+		}
+
+
+		keybinding.enabled = false;
+	}
+
+
+	void SetTime (UILabel label, float time)
+	{
+		int minute = Mathf.FloorToInt (time / 60.0f);
+		int second = Mathf.FloorToInt (time) % 60;
+		int msecond = Mathf.FloorToInt (time * 100) % 100;
+		label.text = string.Format ("{0:00}:{1:00}:{2:00}", minute, second, msecond);
+	}
+
+
+	public void OnEnd()
+	{
+		DeviceVibrate.Play();
+		DeviceSound.Instance.source_bgm.Stop();
+		Application.LoadLevel ("drive_mode");
+
+		DeviceSound.Instance.source_bgm.clip =  Resources.Load("M_SS_ Tr01 Good Choice") as AudioClip;
+		DeviceSound.Instance.source_bgm.Play ();
+		
+	}
+
+	public void OnReset()
+	{
+		DeviceVibrate.Play();
+		DeviceSound.Instance.source_bgm.Stop();
+		Application.LoadLevel ("drive");
+	}
+
+	void GuideSound(string str, bool on)
+	{
+		if (on) {
+			if (!audio_.isPlaying) {
+				audio_.clip = Resources.Load (str.ToString()) as AudioClip;
+				audio_.Play();
+			}
+			on = false;
+		}
+	}
+}

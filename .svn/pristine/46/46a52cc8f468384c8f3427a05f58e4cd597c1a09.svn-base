@@ -1,0 +1,141 @@
+﻿using UnityEngine;
+using UnityEngine.UI;
+using System.Collections;
+
+public class cControlBox : MonoBehaviour
+{
+    public Diging.AXIS mHandle;
+    public Diging.AXIS mRightBar;
+    public Diging.AXIS mLeftBar;
+    public Diging.AXIS mAccelerate;
+    public Diging.AXIS mLeftCaterPiller;
+    public Diging.AXIS mRightCaterPiller;
+    public Diging.AXIS mBreak;
+    public Diging.AXIS mGear;
+
+    public DigingWarning dieselsteam;
+
+    public float HandleValue;
+
+    Steering steering;
+
+    void Start()
+    {
+
+
+        mHandle.angle = 0.0f;
+        mRightBar.angleR = 0.0f;
+        mLeftBar.angleR = 0.0f;
+        mRightBar.angleL = 0.0f;
+        mLeftBar.angleL = 0.0f;
+
+        mLeftCaterPiller.angle = 0.0f;
+        mRightCaterPiller.angle = 0.0f;
+
+        mAccelerate.angle = 0.0f;
+        mBreak.angle = 0.0f;
+        mGear.angle = 0.0f;
+
+        if (ViveDriveScene.instance != null)
+        {
+            steering = ViveDriveScene.instance.steering;
+        }
+        else
+        {
+            steering = ViveDigScene.instance.steering;
+        }
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        InputControlAnim();
+    }
+
+    void InputControlAnim()
+    {
+        //핸들
+        if (mHandle.node != null)
+        {
+            mHandle.angle = Mathf.Clamp(steering.GetWheelAngle(), -1, 1) * 600;
+
+            mHandle.node.localRotation = Quaternion.Euler(mHandle.angle, mHandle.node.transform.rotation.y, mHandle.node.transform.rotation.z);
+
+            if (mHandle.angle >= 550 || mHandle.angle <= -550)      // 핸들 스팀소리
+            {
+                dieselsteam.On();
+            }
+        }
+
+        //왼쪽w
+        if (mLeftBar.node != null)
+        {
+           
+            int joy2 = GetJoysticks.Instance.GetJoystickNumber(JoystickType.Left);
+
+            if (joy2 >= 0)
+            {
+                mLeftBar.angleR = Mathf.Clamp(Input.GetAxisRaw(joy2 + "_Joystick_Horizontal"), -1, 1) * 30;
+                mLeftBar.angleL = -1f * Mathf.Clamp(Input.GetAxis(joy2 + "_Joystick_Vertical"), -1, 1) * 30;
+                //  mLeftBar.angle += mHandle.speed * Time.deltaTime * Input.GetAxisRaw("Horizontal");
+                //  mLeftBar.angleR = Mathf.Clamp(Input.GetAxis("Left_Joystick_Horizontal"), -1, 1) * 30;
+                //  mLeftBar.angleL = -1 * Mathf.Clamp(Input.GetAxis("Left_Joystick_Vertical"), -1, 1) * 30;
+
+                mLeftBar.node.localRotation = Quaternion.Euler(0.0f, 0.0f + mLeftBar.angleR, mLeftBar.angleL);
+            }
+
+            
+        }
+
+        //////오른쪽
+        if (mRightBar.node != null)
+        {
+            int joy1 = GetJoysticks.Instance.GetJoystickNumber(JoystickType.Right);
+
+            if (joy1 >= 0)
+            {
+                mRightBar.angleR = Mathf.Clamp(Input.GetAxisRaw(joy1 + "_Joystick_Horizontal"), -1, 1) * 30;
+                mRightBar.angleL = -1f * Mathf.Clamp(Input.GetAxis(joy1 + "_Joystick_Vertical"), -1, 1) * 30;
+
+                // mRightBar.angleR = -1 * Mathf.Clamp(Input.GetAxis("Right_Joystick_Horizontal"), -1, 1) * 30;
+                // mRightBar.angleL = Mathf.Clamp(Input.GetAxis("Right_Joystick_Vertical"), -1, 1) * 30;
+                mRightBar.node.localRotation = Quaternion.Euler(0.0f, 0.0f + mRightBar.angleR, mRightBar.angleL);
+            }
+        }
+
+        ////엑셀
+        if (mAccelerate.node != null)
+        {
+            //mAccelerate.angle += mAccelerate.speed * Time.deltaTime * Input.GetAxisRaw("Horizontal");
+            mAccelerate.angle = Mathf.Clamp(steering.GetAcceleraterPedal(), 0, 1) * 42f;
+            mAccelerate.node.localRotation = Quaternion.Euler(mAccelerate.node.transform.rotation.x, mAccelerate.node.transform.rotation.y, 42f + mAccelerate.angle);
+        }
+
+        ////브레이크
+        if (mBreak.node != null)
+        {
+            mBreak.angle = Mathf.Clamp(steering.GetBrakePedal(), 0, 1) * 42f;
+            mBreak.node.localRotation = Quaternion.Euler(mBreak.node.transform.rotation.x, mBreak.node.transform.rotation.y , 42.0f + mBreak.angle);
+        }
+
+        // 기어w
+
+        if (mGear.node != null)
+        {
+            if (steering.GetGearType() == GearType.reverse)
+                mGear.angle = 0.0f;
+            else if (steering.GetGearType() == GearType.forward)
+                mGear.angle = -54.0f;
+            else
+                mGear.angle = -27.0f;//Mathf.Clamp(Input.GetAxisRaw("Break"), 0, 1) * 40;
+
+            mGear.node.localRotation = Quaternion.Euler(82.61371f, 61.92733f, mGear.angle);
+        }
+        //if (Input.GetAxisRaw("7th axis") > 0.3f || Input.GetAxisRaw("7th axis") < -0.3f)
+        //{
+        //    // steer = Mathf.Clamp(Input.GetAxisRaw("7th axis"), -1, 1);
+
+        //}
+    }
+}

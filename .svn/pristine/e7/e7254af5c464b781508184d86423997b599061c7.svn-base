@@ -1,0 +1,921 @@
+using UnityEngine;
+using System.Collections;
+using UnityEngine.UI;
+using System;
+
+public class digMap : MonoBehaviour
+{
+    public UILabel laptime;
+    public UILabel countdown;
+    public GameObject message;
+    public GameObject pause;
+    public GameObject result;
+    public GameObject result_VR;
+    public GameObject tutorial;
+    public GameObject tutorial_VR;
+
+    public GameObject Upper;
+    public GameObject Fore;
+
+    public DigingWarning digingWarning;
+    public DigingWarning MessageWarning;
+    public DigingBucket bucket;
+    public ModeOption option;
+
+    public GameObject topUI;
+    public GameObject guide;
+    public GameObject guideButton_option;
+    private AudioClip TestMode;
+    private AudioClip PraticeMode;
+    public AudioClip failwhistle;
+
+    private int foul = 0;
+    private float foulTime = 0.0f;
+    private int controlShake = 0;
+    public int score = 0;
+    private bool updateTime = true;
+    private float _laptime = 240.0f;
+    private int lack_soil;
+
+
+    public int mistake;
+    private int int_foul_shake;
+    private int int_foul_exit;
+    private int int_foul_soil;
+    public int[] Foul = new int[] { 0, 0, 0, 0 };
+
+    private AudioClip startment;
+    private AudioClip numberment;
+    private AudioClip cautionment;
+    public AudioSource audio_;
+
+
+    private GameObject Sound;
+
+    string Result;
+
+    public GameObject messageVR;
+    public Sprite[] PpMsgIcon;
+
+    private int beforeIndex = -1;
+    private float delayTime = 0;
+
+    void Awake()
+    {
+        GameEvent.notify += OnGameEventNotify;
+        Sound = GameObject.Find("Sound");
+    }
+
+    void OnDestroy()
+    {
+        GameEvent.notify -= OnGameEventNotify;
+    }
+
+
+    void SoundMute()
+    {
+        if (DeviceSound.Instance.Enable)
+        {
+            for (int i = 0; i < Sound.GetComponentsInChildren<AudioSource>().Length; i++)
+            {
+                Sound.GetComponentsInChildren<AudioSource>()[i].mute = false;
+
+                if(ViveDigScene.instance.IsVR() == false)
+                    NGUITools.soundVolume = DeviceSound.Instance.Effect;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < Sound.GetComponentsInChildren<AudioSource>().Length; i++)
+            {
+                Sound.GetComponentsInChildren<AudioSource>()[i].mute = true;
+
+                if (ViveDigScene.instance.IsVR() == false)
+                    NGUITools.soundVolume = 0.0f;
+            }
+        }
+    }
+
+    IEnumerator Start()
+    {
+
+        if (ViveDigScene.instance.IsVR() == true)
+        {
+            tutorial = tutorial_VR;
+            result = result_VR;
+        }
+
+        Sound.SetActive(true);
+        SoundMute();
+
+        lack_soil = 0;
+
+        GameEvent.notify(GameEvent.TAG.DIG_READY);
+
+        if (ViveDigScene.instance.IsVR() == false)
+        {
+            if (true == Diging.tutorial)
+            {
+                laptime.text = "--:--:--";
+                topUI.SetActive(false);
+                guide.SetActive(true);
+            }
+
+            if (true == Diging.tutorial)
+            {
+                DeviceSound.Instance.source_bgm.clip = Resources.Load("새소리") as AudioClip;
+                if (DeviceSound.Instance.Enable)
+                {
+                    DeviceSound.Instance.source_bgm.volume = DeviceSound.Instance.BGM;
+                    DeviceSound.Instance.source_bgm.Play();
+                    GuideSound("DigGuide/Guide_001", true);
+                }
+
+                LogManager.Instance.Save(" 굴삭 시험 모드 시작! ");
+            }
+            else
+            {
+                //레버를 없애려고 2번호출.
+                option.Lever();
+                option.Lever();
+
+                guideButton_option.SetActive(false);
+                DeviceSound.Instance.source_bgm.clip = Resources.Load("새소리") as AudioClip;
+                if (DeviceSound.Instance.Enable)
+                {
+                    DeviceSound.Instance.source_bgm.volume = DeviceSound.Instance.BGM;
+                    DeviceSound.Instance.source_bgm.Play();
+                    GuideSound("DigTest/Test_001", true);
+                }
+
+                LogManager.Instance.Save(" 굴삭 시험 모드 시작! ");
+            }
+
+            if (DeviceSound.Instance.Enable)
+            {
+                countdown.text = "Ready";
+                yield return new WaitForSeconds(1.0f);
+
+                countdown.text = "3";
+                GuideSound("DigTest/Test_007", true);
+                yield return new WaitForSeconds(1.0f);
+
+                countdown.text = "2";
+                GuideSound("DigTest/Test_006", true);
+                yield return new WaitForSeconds(1.0f);
+
+                countdown.text = "1";
+                if (false == Diging.tutorial)
+                    GuideSound("DigTest/Test_005", true);
+                yield return new WaitForSeconds(1.0f);
+
+                NGUITools.PlaySound(failwhistle, DeviceSound.Instance.Effect);
+                countdown.text = "Go!!";
+                yield return new WaitForSeconds(1.0f);
+            }
+        }
+        else //VR
+        {
+            if (true == Diging.tutorial)
+            {
+               ViveDigScene.instance.laptime.text = "--:--:--";
+                topUI.SetActive(false);
+                guide.SetActive(true);
+            }
+
+            if (true == Diging.tutorial)
+            {
+                DeviceSound.Instance.source_bgm.clip = Resources.Load("새소리") as AudioClip;
+                if (DeviceSound.Instance.Enable)
+                {
+                    DeviceSound.Instance.source_bgm.volume = DeviceSound.Instance.BGM;
+                    DeviceSound.Instance.source_bgm.Play();
+                    GuideSound("DigGuide/Guide_001", true);
+                }
+
+                //LogManager.Instance.Save(" 굴삭 시험 모드 시작! ");
+            }
+            else
+            {
+                //레버를 없애려고 2번호출.
+                option.Lever();
+                option.Lever();
+
+                guideButton_option.SetActive(false);
+                DeviceSound.Instance.source_bgm.clip = Resources.Load("새소리") as AudioClip;
+                if (DeviceSound.Instance.Enable)
+                {
+                    DeviceSound.Instance.source_bgm.volume = DeviceSound.Instance.BGM;
+                    DeviceSound.Instance.source_bgm.Play();
+                    GuideSound("DigTest/Test_001", true);
+                }
+
+                //LogManager.Instance.Save(" 굴삭 시험 모드 시작! ");
+            }
+
+            if (DeviceSound.Instance.Enable)
+            {
+                ViveDigScene.instance.countdown.text = "Ready";
+                yield return new WaitForSeconds(1.0f);
+
+                ViveDigScene.instance.countdown.text = "3";
+                GuideSound("DigTest/Test_007", true);
+                yield return new WaitForSeconds(1.0f);
+
+                ViveDigScene.instance.countdown.text = "2";
+                GuideSound("DigTest/Test_006", true);
+                yield return new WaitForSeconds(1.0f);
+
+                ViveDigScene.instance.countdown.text = "1";
+                if (false == Diging.tutorial)
+                    GuideSound("DigTest/Test_005", true);
+                yield return new WaitForSeconds(1.0f);
+
+                NGUITools.PlaySound(failwhistle, DeviceSound.Instance.Effect);
+                ViveDigScene.instance.countdown.text = "Go!!";
+                yield return new WaitForSeconds(1.0f);
+            }
+
+            message = messageVR;
+        }
+
+        ViveDigScene.instance.countdown.text = "";
+        Diging.play = true;
+    }
+
+    void Update()
+    {
+        SoundMute();
+
+        if (DeviceSound.Instance.Enable && !DeviceSound.Instance.source_bgm.isPlaying)
+        {
+            DeviceSound.Instance.source_bgm.Play();
+        }
+        else if (!DeviceSound.Instance.Enable && DeviceSound.Instance.source_bgm.isPlaying)
+        {
+            DeviceSound.Instance.source_bgm.Stop();
+        }
+
+        if (Diging.play == false)
+            return;
+
+
+        UpdateLaptime();
+
+        if (0 < foul)
+        {
+            digingWarning.On(); //경고.음			
+
+            foulTime += Time.deltaTime;
+
+            if (3.0f <= foulTime)
+            {
+                StartCoroutine(ShowMessage(12));
+                foul = 0;
+                foulTime = 0;
+            }
+        }
+
+        if (message.activeSelf != false)
+        {
+            if (Diging.tutorial)
+                MessageWarning.On();
+        }
+
+        if (delayTime <= 3) //18번 메세지 ---- 버킷이 땅에 닿을때 딜레이
+        {
+            delayTime += Time.deltaTime;
+        }
+        else
+        {
+            if (beforeIndex == 18 && message.activeSelf)
+            {
+                message.SetActive(false);
+            }
+        }
+    }
+
+    void OnGameEventNotify(GameEvent.TAG tag)
+    {
+        print(tag);
+
+        if (GameEvent.TAG.DIG_SHAKE == tag)
+        {
+
+            if (!option.levershake_on) //옵션에서 비활성화 되어있을때는 레버흔들림이 없다.
+                return;
+
+            int_foul_shake++;
+
+            controlShake += 1;
+
+            if (1 <= controlShake)
+            {
+                StartCoroutine(ShowMessage(9));
+            }
+        }
+        else if (GameEvent.TAG.DIG_POUR == tag)
+        {
+            score += 20;
+
+        }
+        else if (GameEvent.TAG.DIG_FLAT == tag)
+        {
+            score += 20;
+        }
+        else if (GameEvent.TAG.DIG_FINISH == tag)
+        { // 평탄까지 끝냈을경우
+            score += 20;
+            Invoke("ClearMessage", 1.0f); //test
+        }
+        else if (GameEvent.TAG.DIG_READY == tag)
+        {
+            print("DIG_READY");
+        }
+        else if (GameEvent.TAG.DIG_DIGGING == tag)
+        {
+            print("DIG_DIGGING");
+        }
+        else
+        {
+            print("GameEvent.TAG ERROR!!");
+        }
+    }
+
+    void ClearMessage() // 미션을 클리어했을때.
+    {
+        if (!Diging.tutorial)
+        {
+            result.SetActive(true);
+            Sound.SetActive(false);
+            result.SendMessage("OnOpen", true);
+            Diging.play = false;
+        }
+        else ShowTutorial(true);
+
+    }
+
+
+    void OnFail(int index) //작업영역이탈
+    {
+       if (beforeIndex == index && index == 18 && delayTime < 3)
+            return;
+
+        beforeIndex = index;
+        delayTime = 0;
+
+
+        //		int_foul_exit++;
+        StartCoroutine(ShowMessage(index));
+    }
+
+
+    void OnFailExit()
+    {
+        if (!Diging.tutorial)
+            return;
+
+        if (beforeIndex == 18 && delayTime < 3)
+            return;
+
+        message.SetActive(false);
+    }
+
+
+    void OnFoulEnter()//작업영역이탈
+    {
+        if (0 == foul)
+            foulTime = 0.0f;
+
+        foul += 1;
+        //		int_foul_exit ++;
+    }
+
+    void OnFoulExit()
+    {
+        foul -= 1;
+    }
+
+    public void OnEnd() //종료버.튼
+    {
+        updateTime = false;
+        pause.SetActive(false);
+        message.SetActive(false);
+
+        if (score >= 20)
+        {
+            if (score == 80)
+            {
+                StartCoroutine(ShowMessage(14));
+            }
+            else if (score == 100)
+            {
+                StartCoroutine(ShowMessage(15));
+            }
+
+            ShowTutorial(false);    // 연습 중간점수 보여주기.
+            TestCautionResult(0);    // 시험 중간점수 보여주기. //감점이 몇점이냐.
+        }
+        else // 그냥 강제퇴장
+        {
+            Sound.SetActive(false);
+
+            DeviceVibrate.Play();
+            DeviceSound.Instance.source_bgm.Stop();
+            if (ViveDigScene.instance.IsVR() == false)
+            {
+                Application.LoadLevel("dig_mode");
+            }
+            else
+            {
+                Application.LoadLevel("ViveMenu");
+            }
+
+            DeviceSound.Instance.source_bgm.clip = Resources.Load("M_SS_ Tr01 Good Choice") as AudioClip;
+            DeviceSound.Instance.source_bgm.Play();
+        }
+
+        Diging.play = false;
+
+    }
+
+
+
+    IEnumerator ShowMessage(int index)
+    {
+        string desc = "";
+
+        if (ViveDigScene.instance.IsVR() == false)
+        {
+            switch (index)
+            {
+                case 2:
+                    GuideSound("DigCaution/Caution_001", true);
+                    desc = "[ff0000][실격요인][-] \n시험 시간이 \n종료되었습니다.";
+
+                    if (!LogManager.Instance.Exist("[실격요인] 시험 시간이 종료되었습니다."))
+                    {
+                        LogManager.Instance.Save("[실격요인] 시험 시간이 종료되었습니다.");
+                    }
+                    break;
+
+                case 7:
+                    desc = "[ff0000][실격요인][-] \n굴삭작업 영역이 \n아닙니다.";
+
+                    if (!LogManager.Instance.Exist("[실격요인] 굴삭작업 영역이 아닙니다."))
+                    {
+                        LogManager.Instance.Save("[실격요인] 굴삭작업 영역이 아닙니다.");
+                    }
+                    break;
+
+                case 8:
+                    GuideSound("DigCaution/Caution_002", true);
+                    desc = "[ff0000][실격요인][-] \n엔진이 \n과부하되었습니다.";
+
+                    if (!LogManager.Instance.Exist("[실격요인] 엔진이 과부하되었습니다."))
+                    {
+                        LogManager.Instance.Save("[실격요인] 엔진이 과부하되었습니다.");
+                    }
+                    mistake++;
+                    break;
+
+                case 9:
+                    GuideSound("DigCaution/Caution_003", true);
+                    desc = "[ff0000][감점요인][-] \n굴삭레버 흔들림이 \n반복 되었습니다.";
+
+                    if (!LogManager.Instance.Exist("[실격요인] 굴삭레버 흔들림이 반복 되었습니다."))
+                    {
+                        LogManager.Instance.Save("[실격요인] 굴삭레버 흔들림이 반복 되었습니다.");
+                    }
+
+                    mistake++;
+                    break;
+
+                case 10:
+                    GuideSound("DigCaution/Caution_004", true);
+                    desc = "[ff0000][감점요인][-] \n흙덩이가 \n낙하되었습니다.";
+
+                    if (!LogManager.Instance.Exist("[실격요인] 흙덩이가 낙하되었습니다."))
+                    {
+                        LogManager.Instance.Save("[실격요인] 흙덩이가 낙하되었습니다.");
+                    }
+
+                    int_foul_soil++;
+                    break;
+
+                case 11:
+                    desc = "[ff0000][실격요인][-] \n굴삭구간 라인을 \n침범하였습니다.";
+
+                    if (!LogManager.Instance.Exist("[실격요인] 굴삭구간 라인을 침범하였습니다."))
+                    {
+                        LogManager.Instance.Save("[실격요인] 굴삭구간 라인을 침범하였습니다.");
+                    }
+
+                    int_foul_exit++;
+                    break;
+
+                case 12:
+                    GuideSound("DigCaution/Caution_005", true);
+                    desc = "[ff0000][실격요인][-] \n작업영역을 \n이탈하였습니다.";
+
+                    if (!LogManager.Instance.Exist("[실격요인] 작업영역을 이탈하였습니다."))
+                    {
+                        LogManager.Instance.Save("[실격요인] 작업영역을 이탈하였습니다.");
+                    }
+
+                    int_foul_exit++;
+                    break;
+
+                case 13:
+                    GuideSound("DigCaution/Caut1ion_006", true);
+                    desc = "[ff0000][실격요인][-] \n앞바퀴가 \n들렸습니다.";
+
+                    if (!LogManager.Instance.Exist("[실격요인] 앞바퀴가 들렸습니다."))
+                    {
+                        LogManager.Instance.Save("[실격요인] 앞바퀴가 들렸습니다.");
+                    }
+                    break;
+
+                case 14:
+                    desc = "마무리 작업을 \n생략했습니다.";
+
+                    if (!LogManager.Instance.Exist("마무리 작업을 생략했습니다."))
+                    {
+                        LogManager.Instance.Save("마무리 작업을 생략했습니다.");
+                    }
+                    break;
+
+                case 15:
+                    desc = "버킷을 \n내려놓지 않았습니다.";
+
+                    if (!LogManager.Instance.Exist("버킷을 내려놓지 않았습니다."))
+                    {
+                        LogManager.Instance.Save("버킷을 내려놓지 않았습니다.");
+                    }
+                    break;
+
+                case 16:
+                    GuideSound("DigCaution/Caution_007", true);
+                    desc = "[ff0000][실격요인][-] \n흙량이 \n부족합니다..";
+
+                    if (!LogManager.Instance.Exist("[실격요인] 흙량이 부족합니다."))
+                    {
+                        LogManager.Instance.Save("[실격요인] 흙량이 부족합니다.");
+                    }
+                    lack_soil += 1;
+                    break;
+
+                case 17:
+                    GuideSound("DigCaution/Caution_007", true);
+                    desc = "[ff0000][실격요인][-] \n흙량이 \n부족합니다..";
+
+                    if (!LogManager.Instance.Exist("[실격요인] 흙량이 부족합니다."))
+                    {
+                        LogManager.Instance.Save("[실격요인] 흙량이 부족합니다.");
+                    }
+                    break;
+
+                case 18:
+                    GuideSound("DigCaution/Caution_008", true);
+                    desc = "[ff0000][감점요인][-] \n버킷을 열고 작업을 \n시작해주세요.";
+
+                    if (!LogManager.Instance.Exist("[감점요인] 버킷을 열고 작업을 시작해주세요."))
+                    {
+                        LogManager.Instance.Save("[감점요인] 버킷을 열고 작업을 시작해주세요.");
+                    }
+                    Upper.transform.rotation = Quaternion.Euler(new Vector3(-15.0f, 0.0f, 0.0f));
+                    break;
+
+                case 19:
+                    GuideSound("DigCaution/Caution_009", true);
+                    desc = "[ff0000][감점요인][-] \n버킷이 \n땅속에 있습니다.";
+
+                    if (!LogManager.Instance.Exist("[감점요인] 버킷이 땅속에 좌/우로 움직임이 있습니다."))
+                    {
+                        LogManager.Instance.Save("[감점요인] 버킷이 땅속에 좌/우로 움직임이 있습니다.");
+                    }
+                    break;
+
+                case 20:
+                    desc = "[ff0000][실격요인][-] \n버킷의 높이가 \n폴대보다 낮습니다.";
+
+                    if (!LogManager.Instance.Exist("[실격요인] 버킷의 높이가 폴대보다 낮습니다."))
+                    {
+                        LogManager.Instance.Save("[실격요인] 버킷의 높이가 폴대보다 낮습니다.");
+                    }
+                    int_foul_exit++;
+                    break;
+
+                case 21:
+                    desc = "[ff0000][실격요인][-] \n버킷의 높이가 \n폴대보다 높습니다.";
+
+                    if (!LogManager.Instance.Exist("[실격요인] 버킷의 높이가 폴대보다 높습니다."))
+                    {
+                        LogManager.Instance.Save("[실격요인] 버킷의 높이가 폴대보다 높습니다.");
+                    }
+                    int_foul_exit++;
+                    break;
+            }
+        }
+        else //VR
+        {
+            switch (index)
+            {
+                case 2:
+                    GuideSound("DigCaution/Caution_001", true);
+                    desc = "<color=#ff0000>[실격요인]</color> 시험 시간이 종료되었습니다.";
+                    break;
+
+                case 7:
+                    desc = "<color=#ff0000>[실격요인]</color> 굴삭작업 영역이 아닙니다.";
+                    break;
+
+                case 8:
+                    GuideSound("DigCaution/Caution_002", true);
+                    desc = "<color=#ff0000>[실격요인]</color> 엔진이 과부하되었습니다.";
+
+                    mistake++;
+                    break;
+
+                case 9:
+                    GuideSound("DigCaution/Caution_003", true);
+                    desc = "<color=#ff0000>[감점요인]</color> 굴삭레버 흔들림이 반복 되었습니다.";
+
+                    mistake++;
+                    break;
+
+                case 10:
+                    GuideSound("DigCaution/Caution_004", true);
+                    desc = "<color=#ff0000>[감점요인]</color> 흙덩이가 낙하되었습니다.";
+
+                    int_foul_soil++;
+                    break;
+
+                case 11:
+                    desc = "<color=#ff0000>[실격요인]</color> 굴삭구간 라인을 침범하였습니다.";
+
+                    int_foul_exit++;
+                    break;
+
+                case 12:
+                    GuideSound("DigCaution/Caution_005", true);
+                    desc = "<color=#ff0000>[실격요인]</color> 작업영역을 이탈하였습니다.";
+
+                    int_foul_exit++;
+                    break;
+
+                case 13:
+                    GuideSound("DigCaution/Caut1ion_006", true);
+                    desc = "<color=#ff0000>[실격요인]</color> 앞바퀴가 들렸습니다.";
+
+                    break;
+
+                case 14:
+                    desc = "마무리 작업을 생략했습니다.";
+
+                    break;
+
+                case 15:
+                    desc = "버킷을 내려놓지 않았습니다.";
+
+                    break;
+
+                case 16:
+                    GuideSound("DigCaution/Caution_007", true);
+                    desc = "<color=#ff0000>[실격요인]</color> 흙량이 부족합니다..";
+
+                    lack_soil += 1;
+                    break;
+
+                case 17:
+                    GuideSound("DigCaution/Caution_007", true);
+                    desc = "<color=#ff0000>[실격요인]</color> 흙량이 부족합니다..";
+
+                    break;
+
+                case 18:
+                    GuideSound("DigCaution/Caution_008", true);
+                    desc = "<color=#ff0000>[감점요인]</color> 버킷을 열고 작업을 시작해주세요.";
+
+                    Upper.transform.rotation = Quaternion.Euler(new Vector3(-15.0f, 0.0f, 0.0f));
+                    break;
+
+                case 19:
+                    GuideSound("DigCaution/Caution_009", true);
+                    desc = "<color=#ff0000>[감점요인]</color> 버킷이 땅속에 있습니다.";
+
+                    break;
+
+                case 20:
+                    desc = "<color=#ff0000>[실격요인]</color> 버킷의 높이가 폴대보다 낮습니다.";
+
+                    int_foul_exit++;
+                    break;
+
+                case 21:
+                    desc = "<color=#ff0000>[실격요인]</color> 버킷의 높이가 폴대보다 높습니다.";
+
+                    int_foul_exit++;
+                    break;
+            }
+        }
+
+
+        if (index == 2 || index == 7 || index == 8 || index == 11 || index == 12 || index == 13 || index == 16 || index == 17 || index == 20 || index == 21)
+        {
+            Result = desc;
+        }
+
+
+        if (!message.activeSelf) //경고창이 떠있을 때에는 다시 반복하지 않아야함.
+            message.SetActive(true);
+
+
+        if (ViveDigScene.instance.IsVR() == false)
+        {
+            if (index >= 17)
+                message.GetComponentInChildren<UISprite>().spriteName = string.Format("ex_PpMsg_icon_07");
+            else
+                message.GetComponentInChildren<UISprite>().spriteName = string.Format("ex_PpMsg_icon_{0}", index.ToString("D2"));
+            message.GetComponentInChildren<UILabel>().text = desc;
+
+            NGUITools.PlaySound(failwhistle, DeviceSound.Instance.Effect);
+        }
+        else
+        {
+            message.transform.Find("img_icon").GetComponent<Image>().sprite = getPpMsgIcon(index);
+            message.GetComponentInChildren<Text>().text = desc;
+            //효과음... 
+            NGUITools.PlaySound(failwhistle, DeviceSound.Instance.Effect);
+        }
+
+        yield return new WaitForSeconds(2.0f);
+
+        message.SetActive(false);
+
+        TestCautionResult(index);  // 실격일때만 가능.
+    }
+
+    private Sprite getPpMsgIcon(int index)
+    {
+        Sprite sp = null;
+
+        String spName = "";
+        if (index >= 17)
+            spName = string.Format("ex_PpMsg_icon_07");
+        else
+            spName = string.Format("ex_PpMsg_icon_{0}", index.ToString("D2"));
+
+        for (int i = 0; i < PpMsgIcon.Length; i++)
+        {
+            if (PpMsgIcon[i].name.Equals(spName))
+            {
+                sp = PpMsgIcon[i];
+            }
+        }
+
+       return sp;
+    }
+
+    void TestCautionResult(int index) //bool pass  //무조건 실패했을경우.
+    {
+        if (Diging.tutorial) //연습모드는 꺼지거라.
+            return;
+
+        if (index == 10 && mistake <= 4 || index == 9 && mistake <= 4 || index == 18 && mistake <= 4) //감점요인. 실격은 아님.
+        {
+
+        } 
+        else
+        {
+            Debug.Log(Result);
+            result.SetActive(true);
+            if (ViveDigScene.instance.IsVR() == false)
+            {
+                result.GetComponent<UIDigResult>().label.text = Result;
+            }
+            else
+            {
+                result.GetComponent<ViveResultVR>().label.text = Result;
+            }
+            Sound.SetActive(false);
+            result.SendMessage("OnOpen", false);
+
+            Diging.play = false;
+        }
+    }
+
+
+    void ShowTutorial(bool clear)
+    {
+        if (!Diging.tutorial) //시험일때는 안됨.
+            return;
+
+        Foul[0] = int_foul_shake;
+        Foul[1] = int_foul_exit;
+        Foul[2] = int_foul_soil;
+        Foul[3] = bucket.int_foul_overload;
+
+        tutorial.SetActive(true);
+        Sound.SetActive(false);
+        Diging.play = false;
+
+        if (clear)
+        {
+            tutorial.SendMessage("DigOnOpen", Foul);
+        }
+        else
+        {
+            tutorial.SendMessage("DigTutorial", Foul);
+        }
+    }
+
+    void PositionReset()
+    {
+        if (ViveDigScene.instance.IsVR() == false)
+        {
+            Application.LoadLevel("dig");
+        }
+        else
+        {
+            Application.LoadLevel("ViveDig");
+        }
+    }
+
+    void UpdateLaptime()
+    {
+        if (false == updateTime)
+            return;
+
+        if (true == Diging.tutorial)
+        {
+            if (ViveDigScene.instance.IsVR() == true)
+            {
+                DeviceSound.Instance.practiceLapTime += Time.deltaTime;
+
+                int minute2 = Mathf.FloorToInt(DeviceSound.Instance.practiceLapTime / 60.0f);
+                int second2 = Mathf.FloorToInt(DeviceSound.Instance.practiceLapTime) % 60;
+                int msecond2 = Mathf.FloorToInt(DeviceSound.Instance.practiceLapTime * 100) % 100;
+
+                ViveDigScene.instance.laptime_Canvas.text = string.Format("{0:00}:{1:00}:{2:00}", minute2, second2, msecond2);
+            }
+            return;
+        }
+
+        _laptime -= Time.deltaTime;
+
+        int minute = Mathf.FloorToInt(_laptime / 60.0f);
+        int second = Mathf.FloorToInt(_laptime) % 60;
+        int msecond = Mathf.FloorToInt(_laptime * 100) % 100;
+
+        if (ViveDigScene.instance.IsVR() == false)
+        {
+            laptime.text = string.Format("{0:00}:{1:00}:{2:00}", minute, second, msecond);
+        }
+        else
+        {
+            //ViveDigScene.instance.laptime.text = string.Format("{0:00}:{1:00}:{2:00}", minute, second, msecond);
+            //ViveDigScene.instance.laptime_mesh.text = string.Format("{0:00}:{1:00}:{2:00}", minute, second, msecond);
+            ViveDigScene.instance.laptime_Canvas.text = string.Format("{0:00}:{1:00}:{2:00}", minute, second, msecond);
+        }
+
+        if (0.01f >= _laptime && updateTime == true)
+        {
+            _laptime = 0.0f;
+            updateTime = false;
+            StartCoroutine(ShowMessage(2));
+
+        }
+    }
+
+    public void OnVibration()
+    {
+        if (!Option.Instance.Vibration)
+            return;
+    }
+
+
+    void GuideSound(string str, bool on)
+    {
+        if (ViveDigScene.instance.IsVR())
+        {
+            DeviceSound.Instance.Play(Resources.Load(str.ToString()) as AudioClip, DeviceSound.Instance.Effect);
+            return;
+        }
+
+        if (ViveDigScene.instance.IsVR() == false)
+        {
+            if (on)
+            {
+                if (!audio_.isPlaying)
+                {
+                    audio_.clip = Resources.Load(str.ToString()) as AudioClip;
+                    audio_.Play();
+                }
+                on = false;
+            }
+        }
+    }
+
+}
+

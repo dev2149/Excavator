@@ -1,0 +1,684 @@
+using UnityEngine;
+using System.Collections;
+using UnityEngine.VR;
+
+
+public enum GEAR
+{
+    N,
+    D,
+    R,
+}
+public class Driving : MonoBehaviour
+{
+	public static bool tutorial = false;
+    public static bool start_at_end = false;
+    public static bool finish = false;
+
+	public Rigidbody body;
+	public AudioSource soundEngine;
+    public Transform centerOfMass;
+    public WheelCollider[] wheels;
+    public float steer_max = 20.0f;
+    public float motor_max = 10.0f;
+    public float brake_max = 200.0f;
+	public bool keyboard = true;
+	private float volume;
+    private bool b_Once = false;
+
+    public Transform SpeedIV;
+    public Transform RPMIV;
+    private bool b_AccelIV;
+    private bool b_gearIV;
+    private float MySpeed;
+    private float MyRPM;
+
+    public AudioSource diesel;
+
+    //캐터필드.
+    public bool Mode_Caterpiller;
+    public Renderer[] Caterpillers;
+    private float addPow;
+    float LeftAdd = 0;
+    float RightAdd = 0;
+
+    [HideInInspector] public float steer = 0;
+	[HideInInspector] public float motor = 0;
+	[HideInInspector] public float brake = 0;
+	[HideInInspector] public GEAR gear = GEAR.N;
+
+
+    public float _steer = 0;
+    public float _motor = 0;
+    public float _brake = 0;
+    public float _forword2 = 0;
+
+
+    public bool isDone;
+
+    private float Forward
+    {
+        get
+        {
+            switch (gear)
+            {
+                case GEAR.D:
+                    return 1.0f;
+                case GEAR.R:
+                    return -1.0f;
+			}
+
+            return 0.0f;
+        }
+    }
+
+
+    void Start()
+    {
+        body.centerOfMass = centerOfMass.localPosition;
+        //  Debug.Log(GameObject.Find("Main").gameObject.name);
+        //    Input.ResetInputAxes();
+
+        b_AccelIV = false;
+        b_gearIV = false;
+        MySpeed = -100.0f;
+        MyRPM = 80.0f;
+
+        if (VRSettings.isDeviceActive == false)
+        {
+            keyboard = true;
+        }
+    }
+
+    public void UpdateButtonsVR()
+    {
+        if (PlayerPrefs.GetInt("Gear") == 1)
+        {
+
+            gear = GEAR.D;
+            b_gearIV = true;
+        }
+        else if (PlayerPrefs.GetInt("Gear") == 0)
+        {
+            gear = GEAR.N;
+            b_AccelIV = false;
+            b_gearIV = false;
+        }
+        else if (PlayerPrefs.GetInt("Gear") == 2) //후진모드
+        {
+            gear = GEAR.R;
+            b_gearIV = true;
+        }
+
+        ////확대
+        //if (Input.GetButtonDown("Expand Camera") && GameObject.Find("MiniTexture").activeSelf == true)
+        //{
+        //    if (GameObject.Find("Zoom").GetComponent<BoxCollider>().enabled == true)
+        //    {
+        //        GameObject.Find("Main").GetComponent<UIDriveCamera>().OnSwitchExpand();
+        //    }
+        //}
+
+        //핸들
+        if (ViveDriveScene.instance.steering.GetWheelAngle() > 0.1f || ViveDriveScene.instance.steering.GetWheelAngle() < -0.1f)//Input.GetAxisRaw("Handle") > 0.1f || Input.GetAxisRaw("Handle") < -0.1f)
+        {
+            steer = Mathf.Clamp(-ViveDriveScene.instance.steering.GetWheelAngle(), - 1, 1);
+            GameEvent.notify(GameEvent.TAG.DRIVE_HANDLE);
+        }
+
+
+        //가속 패달
+        if (ViveDriveScene.instance.steering.GetAcceleraterPedal() > 0f)
+        {
+            GameObject.Find("Main").GetComponent<UIDrivePedal>().OnPressAccel();
+            motor = Mathf.Clamp(ViveDriveScene.instance.steering.GetAcceleraterPedal(), 0, 1);
+            b_AccelIV = true;
+        }
+        else
+        {
+            GameObject.Find("Main").GetComponent<UIDrivePedal>().OnReleaseAccel();
+            b_AccelIV = false;
+        }
+
+        // 브레이크
+        if (ViveDriveScene.instance.steering.GetBrakePedal() > 0f)
+        {
+            GameObject.Find("Main").GetComponent<UIDrivePedal>().OnPressBreak();
+
+            brake = Mathf.Clamp(ViveDriveScene.instance.steering.GetBrakePedal() + 0.5f, 0, 1);
+
+            if (MySpeed > -100.0f)
+            {
+                MySpeed = MySpeed - 80.0f * Time.deltaTime;
+                SpeedIV.localRotation = Quaternion.Euler(90, MySpeed, 0);
+            }
+        }
+        else
+        {
+            GameObject.Find("Main").GetComponent<UIDrivePedal>().OnReleaseBreak();
+            brake = 0;
+        }
+    }
+
+
+    public void UpdateButtons()
+    {
+        if (!b_Once)
+        {
+            b_Once = true;
+         //   Input.ResetInputAxes();
+        }
+        //else
+        //{
+        //    b_Once = false;
+        //}
+        ////고속(2단)
+        //if (Input.GetButton("High Speed"))
+        //{
+        //    GameObject.Find("Main").GetComponent<UIDrivePedal>().OffGearTwo();
+
+        //}
+        //else if (Input.GetButton("Low Speed"))     //저속(1단)
+        //{
+        //    GameObject.Find("Main").GetComponent<UIDrivePedal>().OnGearTwo();
+        //}
+
+        //드라이브 모드
+        if (PlayerPrefs.GetInt("Gear") == 1)
+        {
+           // if (gear != GEAR.D)
+           // {
+            if (!LogManager.Instance.Exist("GEAR : " + gear.ToString()))
+            {
+                LogManager.Instance.Save("GEAR : " + gear.ToString());
+            }
+           // }
+
+            gear = GEAR.D;
+         //  GameObject.Find("Main").GetComponent<UIDriveGear>().OnSwitchD();
+            b_gearIV = true;
+
+            //LogManager.Instance.Save("");
+            
+           
+        }
+        else if (PlayerPrefs.GetInt("Gear") == 0)
+        {
+            //if(gear != GEAR.N)
+            //{
+        
+            if (body.gameObject.name != "Excavator_caterpiller" && !LogManager.Instance.Exist("GEAR : " + gear.ToString()))
+            {
+                LogManager.Instance.Save("GEAR : " + gear.ToString());
+            }
+           // }
+
+            gear = GEAR.N;
+           // GameObject.Find("Main").GetComponent<UIDriveGear>().OnSwitchN();
+            b_AccelIV = false;
+            b_gearIV = false;
+
+            //LogManager.Instance.Save("");
+          
+        }
+        else if (PlayerPrefs.GetInt("Gear") == 2) //후진모드
+        {
+            //if (gear != GEAR.R)
+           // {
+            if (!LogManager.Instance.Exist("GEAR : " + gear.ToString()))
+            {
+                LogManager.Instance.Save("GEAR : " + gear.ToString());
+            }
+           // }
+
+            gear = GEAR.R;
+           // GameObject.Find("Main").GetComponent<UIDriveGear>().OnSwitchR();
+            b_gearIV = true;
+
+            //LogManager.Instance.Save("");
+        }
+
+        //카메라
+        //전방
+        if (Input.GetButtonDown("Front Camera"))
+        {
+           GameObject.Find("Main").GetComponent<UIDriveCamera>().OnSwitchCenter();
+            //LogManager.Instance.Save("");
+            LogManager.Instance.Save("Front Camera!");
+        }
+
+        //센터
+        if (Input.GetButtonDown("Center Camera"))
+        {
+            GameObject.Find("Main").GetComponent<UIDriveCamera>().OnSwitchFront();
+            //LogManager.Instance.Save("");
+            LogManager.Instance.Save("Center Camera!");
+        }
+
+        //후방
+        if (Input.GetButtonDown("Back Camera"))
+        {
+            GameObject.Find("Main").GetComponent<UIDriveCamera>().OnSwitchRear();
+            //LogManager.Instance.Save("");
+            LogManager.Instance.Save("Rear Camera!");
+        }
+
+        //확대
+        if (Input.GetButtonDown("Expand Camera") && GameObject.Find("MiniTexture").activeSelf == true)
+        {
+            if (GameObject.Find("Zoom").GetComponent<BoxCollider>().enabled == true)
+            {
+               GameObject.Find("Main").GetComponent<UIDriveCamera>().OnSwitchExpand();
+                //LogManager.Instance.Save("");
+                LogManager.Instance.Save("Enlargement Camera!");
+            }
+        }
+
+        //핸들
+        if (Input.GetAxisRaw("Handle") > 0.1f || Input.GetAxisRaw("Handle") < -0.1f)
+        {
+            steer = Mathf.Clamp(Input.GetAxisRaw("Handle"), -1, 1);
+            GameEvent.notify(GameEvent.TAG.DRIVE_HANDLE);
+
+        }
+
+        //가속 패달
+        if (Input.GetAxisRaw("Accelerate") > -0.9f)
+        {
+            GameObject.Find("Main").GetComponent<UIDrivePedal>().OnPressAccel();
+          //  b_shake = true;
+            motor = Mathf.Clamp(Input.GetAxis("Accelerate"), 0, 1);
+            b_AccelIV = true;
+
+
+            if(motor > 0 && 0.2f > motor)
+            {
+                //LogManager.Instance.Save("");
+                LogManager.Instance.Save("SPEED : 4 ");
+            }
+            else if(motor >= 0.2f && 0.4f > motor)
+            {
+                LogManager.Instance.Save("SPEED : 3 ");
+            }
+            else if(motor >= 0.4f && 0.6f > motor)
+            {
+                //LogManager.Instance.Save("");
+                LogManager.Instance.Save("SPEED : 2 ");
+            }
+            else if(motor >= 0.6f && 0.8f > motor)
+            {
+                //LogManager.Instance.Save("");
+                LogManager.Instance.Save("SPEED : 1 ");
+            }
+            else
+            {
+                //LogManager.Instance.Save("");
+                LogManager.Instance.Save("SPEED : 0 ");
+            }
+            //motor = 3;// Mathf.Clamp(Input.GetAxisRaw("9th axis"), 0, 1);
+
+        }
+        else
+        {
+         //   b_shake = false;
+            GameObject.Find("Main").GetComponent<UIDrivePedal>().OnReleaseAccel();
+            b_AccelIV = false;
+            //   motor = Mathf.Clamp(Input.GetAxis("8th axis"), 0, 1);
+            //    motor = 0;
+            //    motor = Mathf.Clamp(Input.GetAxisRaw("9th axis"), 1, 0);
+        }
+
+        // 브레이크
+        if (Input.GetAxisRaw("Break") > -0.9f)//|| Input.GetAxisRaw("9th axis") < -0.3f)
+        {
+         //   b_shake = false;
+            GameObject.Find("Main").GetComponent<UIDrivePedal>().OnPressBreak();
+            brake = -1 * Mathf.Clamp(((Input.GetAxis("Break") + 1) * 0.5f), 0, -1);
+
+            if (MySpeed > -100.0f)
+            {
+                MySpeed = MySpeed - 80.0f * Time.deltaTime;
+                SpeedIV.localRotation = Quaternion.Euler(90, MySpeed, 0);
+            }
+        }
+        else
+        {
+            GameObject.Find("Main").GetComponent<UIDrivePedal>().OnReleaseBreak();
+            brake = 0;// -1 * Mathf.Clamp(((Input.GetAxis("9th axis") + 1) * 0.5f), 0, -1);
+            //   brake = -1 * Mathf.Clamp(Input.GetAxis("9th axis"), -1, 0);
+            //      brake = -1 * Mathf.Clamp(Input.GetAxisRaw("8th axis"), -1, 0);
+        }
+    }
+
+
+    void SetSpeedIV()
+    {
+        if (b_gearIV)        //기어가 들어가면 바늘이 떨리게
+        {
+            //   Debug.Log("1111");
+            SpeedIV.localRotation = Quaternion.EulerRotation(new Vector3(0, 0, +0.1f));
+            if (b_AccelIV)       //악셀을 밟았을때 속도계
+            {
+
+                //알피엠
+                RPMIV.localRotation = Quaternion.Euler(90.0f, Random.Range(80.0f, 75.0f), 0.0f);
+
+                if (MySpeed < Random.Range(-20.0f, -10.0f))
+                {
+                    //  스피드
+                    MySpeed = MySpeed + Random.Range(10.0f, 25.0f) * Time.deltaTime;
+                    SpeedIV.localRotation = Quaternion.Euler(90, MySpeed, 0);
+                }
+                else
+                {
+                    MySpeed = MySpeed - 40.0f * Time.deltaTime;
+                    SpeedIV.localRotation = Quaternion.Euler(90, MySpeed, 0);
+                }
+            }
+            else if (MySpeed > -97.0f)
+            {
+                MySpeed = MySpeed - 40.0f * Time.deltaTime;
+                SpeedIV.localRotation = Quaternion.Euler(90, MySpeed, 0);
+            }
+            else
+            {
+                MySpeed = MySpeed + 30.0f * Time.deltaTime;
+                SpeedIV.localRotation = Quaternion.Euler(90, MySpeed, 0);
+            }
+
+        }
+        else if (MySpeed > -100.0f)
+        {
+            MySpeed = MySpeed - 40.0f * Time.deltaTime;
+            SpeedIV.localRotation = Quaternion.Euler(90, MySpeed, 0);
+        }
+        else
+        {
+            //MyRPM = 80.0f;
+            //RPMIV.localRotation = Quaternion.Euler(90.0f, MyRPM, 0.0f);
+        }
+    }
+
+   
+
+
+    void Update()
+    {
+      //  getButton();
+        //if (Input.GetKey(KeyCode.UpArrow))
+        //{
+            
+        //    b_AccelIV = true;
+        // //   MyRPM = MyRPM - ;
+        //   // Debug.Log(MyRPM);
+           
+        //}
+        //else
+        //{
+        //    b_AccelIV = false;
+        //}
+       
+
+      
+
+        //if (Input.GetKey(KeyCode.DownArrow))
+        //{
+        //    if (MySpeed > -101.0f)
+        //    {
+        //        MySpeed = MySpeed - 20.0f * Time.deltaTime;
+        //        // Debug.Log(MySpeed);
+        //        SpeedIV.localRotation = Quaternion.Euler(90, MySpeed, 0);
+        //    }
+        //}
+
+		if (keyboard) 
+		{
+			if (true == Input.GetKeyDown (KeyCode.Z)) 
+			{
+				gear = GEAR.N;
+                b_gearIV = false;
+			}
+			else if (true == Input.GetKeyDown (KeyCode.X))
+			{
+				gear = GEAR.D;
+                b_gearIV = true;
+			} 
+			else if (true == Input.GetKeyDown (KeyCode.C))
+			{
+				gear = GEAR.R;
+                b_gearIV = true;
+			}
+			
+			steer = Mathf.Clamp (Input.GetAxis ("Horizontal"), -1, 1);
+			motor = Mathf.Clamp (Input.GetAxis ("Vertical"), 0, 1);
+			brake = -1 * Mathf.Clamp (Input.GetAxis ("Vertical"), -1, 0);
+
+            if (steer != 0)
+            {
+                GameEvent.notify(GameEvent.TAG.DRIVE_HANDLE);
+            }
+
+            if (motor > 0)
+            {
+                GameObject.Find("Main").GetComponent<UIDrivePedal>().OnPressAccel();
+                GameObject.Find("Main").GetComponent<UIDrivePedal>().OnReleaseBreak();
+
+                brake = 0;
+            }
+            else
+            {
+                GameObject.Find("Main").GetComponent<UIDrivePedal>().OnReleaseAccel();
+                GameObject.Find("Main").GetComponent<UIDrivePedal>().OnPressBreak();
+
+                if (MySpeed > -100.0f)
+                {
+                    MySpeed = MySpeed - 80.0f * Time.deltaTime;
+                    SpeedIV.localRotation = Quaternion.Euler(90, MySpeed, 0);
+                }
+            }
+        }
+        else if(!Mode_Caterpiller)
+        {
+            if (ViveDriveScene.instance.IsVR() == false)
+            {
+                UpdateButtons();
+            }
+            else
+            {
+                UpdateButtonsVR();
+            }
+        }
+
+        float _forward = Forward;
+
+      
+
+        if (Mode_Caterpiller)
+        {
+            InputCaterpiller3();
+        }
+        else
+        {
+
+            if (isDone)
+            {
+                wheels[0].brakeTorque = brake_max * 1;
+                wheels[1].brakeTorque = brake_max * 1;
+                wheels[2].brakeTorque = brake_max * 1;
+                wheels[3].brakeTorque = brake_max * 1;
+
+                return;
+            }
+
+            wheels[0].motorTorque = motor_max * motor * _forward;
+            wheels[1].motorTorque = motor_max * motor * _forward;
+            wheels[2].motorTorque = motor_max * motor * _forward;
+            wheels[3].motorTorque = motor_max * motor * _forward;
+
+            wheels[0].brakeTorque = brake_max * brake;
+            wheels[1].brakeTorque = brake_max * brake;
+            wheels[2].brakeTorque = brake_max * brake;
+            wheels[3].brakeTorque = brake_max * brake;
+
+            wheels[0].steerAngle = steer_max * steer;
+            wheels[1].steerAngle = steer_max * steer;
+
+        }
+
+        float _velocity = body.velocity.magnitude;
+        _velocity = Mathf.Clamp(_velocity, 0.0f, 13.0f);
+        body.velocity = body.velocity.normalized * _velocity;
+
+        if (_velocity >= 0.1f)
+            volume = Mathf.Clamp01(_velocity * 0.3f);
+
+        if (true == Option.Instance.Sound) 
+        {
+            soundEngine.volume = Mathf.Lerp(0.0f, DeviceSound.Instance.Effect, volume);
+			diesel.volume = Mathf.Lerp (0.0f, DeviceSound.Instance.Effect,120.0f);			
+			diesel.GetComponent<AudioSource>().loop = true;
+		} else {
+			soundEngine.GetComponent<AudioSource>().volume = 0;
+			diesel.GetComponent<AudioSource>().volume = 0;
+		}
+
+
+        SetSpeedIV();  //계기판
+    }
+
+
+    GEAR GetAxisCaterpillerInput(string inputName)
+    {
+        // 0 은 중립 , -1은 후진, 1은 전진으로 구분
+
+        if (Input.GetAxisRaw(inputName) > 0.3f)
+        {
+            return GEAR.D;
+        }
+        else if (Input.GetAxisRaw(inputName) < -0.3f)
+        {
+            return GEAR.R;
+        }
+        else
+        {
+            return GEAR.N;
+        }
+    }
+    void InputCaterpiller3()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            GameObject.Find("Main").GetComponent<UIDriveCamera>().OnSwitchCenter();
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            GameObject.Find("Main").GetComponent<UIDriveCamera>().OnSwitchFront();
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            GameObject.Find("Main").GetComponent<UIDriveCamera>().OnSwitchRear();
+        }
+        else if(Input.GetKeyDown(KeyCode.Keypad4))
+        {
+
+        }
+
+        float _forward = 0;
+
+      
+        float left = Mathf.Clamp(SerialCommunication3.Instance.analogValues[1], -1, 1);
+        float right = Mathf.Clamp(SerialCommunication3.Instance.analogValues[2], -1, 1);
+
+        steer = left - right;
+
+        if (left > 0.2f || right > 0.2f)
+        {
+            _forward = 1;
+            brake = 0;
+
+            if (steer < -1)
+            {
+                LeftAdd += 0.002f;
+                RightAdd -= 0.002f;
+            }
+            else if (steer > 1)
+            {
+                LeftAdd -= 0.002f;
+                RightAdd += 0.002f;
+            }
+            else if (steer == 0)
+            {
+                LeftAdd -= 0.002f;
+                RightAdd -= 0.002f;
+            }
+            else if (steer > 0)
+            {
+                LeftAdd -= 0.002f;
+            }
+            else
+            {
+                RightAdd -= 0.002f;
+            }
+        }
+        else if (left < -0.2f || right < -0.2f)
+        {
+            _forward = -1;
+            brake = 0;
+
+            if (steer == 0)
+            {
+                LeftAdd += 0.002f;
+                RightAdd += 0.002f;
+            }
+            else if (steer > 0)
+            {
+                LeftAdd += 0.002f;
+            }
+            else
+            {
+                RightAdd += 0.002f;
+            }
+        }
+        else
+        {
+            brake = 1;
+            _forward = 0;
+        }
+
+        //가속도 부분 임의로 정함
+        motor = 1 + Mathf.Abs(left + right) * 0.5f;
+        Caterpillers[0].material.SetTextureOffset("_MainTex", new Vector2(0, LeftAdd));
+        Caterpillers[1].material.SetTextureOffset("_MainTex", new Vector2(0, RightAdd));
+
+        float _motorMax = motor_max;
+
+        if(gear == GEAR.R)
+        {
+            _motorMax = motor_max/ 2;
+        }
+        else if(gear == GEAR.N)
+        {
+            _motorMax = motor_max;
+        }
+        else
+        {
+            _motorMax = motor_max * 2f;
+        }
+
+
+        wheels[0].motorTorque = _motorMax * motor * _forward;
+        wheels[1].motorTorque = _motorMax * motor * _forward;
+        wheels[2].motorTorque = _motorMax * motor * _forward;
+        wheels[3].motorTorque = _motorMax * motor * _forward;
+
+        wheels[0].brakeTorque = brake_max * brake;
+        wheels[1].brakeTorque = brake_max * brake;
+        wheels[2].brakeTorque = brake_max * brake;
+        wheels[3].brakeTorque = brake_max * brake;
+
+        wheels[0].steerAngle = steer_max * steer;
+        wheels[1].steerAngle = steer_max * steer;
+    }
+
+    
+}

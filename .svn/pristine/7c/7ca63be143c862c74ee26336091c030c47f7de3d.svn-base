@@ -1,0 +1,81 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class RoomPlaneControl : MonoBehaviour
+{
+    [SerializeField]  int type;
+
+    [SerializeField] float speed;
+
+     float planeAngle;
+
+    public float toAngle;
+
+    public GameObject[] objs;
+
+    [SerializeField] GameObject objs_0;
+
+    [SerializeField] GameObject objs_1;
+
+    [SerializeField] GameObject objs_2;
+
+    void Start()
+    {
+
+    }
+
+    bool[] isActives  = new bool[4];
+
+    void Update()
+    {
+
+
+        /*
+        if (toAngle > 0 + 0.1f || toAngle < 0 - 0.1f)
+        {
+            objs[0].SetActive(false);
+
+            isActives[0] = false;
+        }
+        else if ((toAngle < 0 + 0.1f || toAngle > 0 - 0.1f))
+        {
+            if (!isActives[0])
+            {
+                objs[0].SetActive(true);
+
+                objs[0].GetComponent<Animation>().Play();
+
+                isActives[0] = true;
+            }
+        }
+        else if ((toAngle > 90 + 0.1f || toAngle < 90 - 0.1f))
+        {
+            objs[1].SetActive(false);
+
+            isActives[1] = false;
+        }
+        else if ((toAngle < 90 + 0.1f || toAngle > 90 - 0.1f))
+        {
+
+            if (!isActives[1])
+            {
+                objs[1].SetActive(true);
+
+                objs[1].GetComponent<Animation>().Play();
+
+                isActives[1] = true;
+            }
+        }
+        */
+
+        Quaternion q = Quaternion.identity;
+
+        q.eulerAngles = new Vector3(0, toAngle, 0);
+
+        transform.rotation = Quaternion.Lerp(transform.rotation, q, Time.deltaTime * speed);
+    }
+
+ 
+
+}

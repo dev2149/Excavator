@@ -1,0 +1,128 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using VRStandardAssets.Utils;
+
+public class RPMControl : MonoBehaviour
+{
+    private VRInteractiveItem m_VRInteractiveItem;
+
+    public float waitTime;
+
+    int rpmLv;
+    float _random = 0;
+    public Text text;
+
+    Coroutine coroutine;
+
+    [SerializeField]
+    Transform RPM;
+
+    int joy1;
+    int joy2;
+
+    void Start()
+    {
+        rpmLv = 0;
+    }
+
+    private void OnEnable()
+    {
+
+        if (GetComponent<VRInteractiveItem>() != null)
+            m_VRInteractiveItem = GetComponent<VRInteractiveItem>();
+
+        m_VRInteractiveItem.waitTime = waitTime;
+
+        m_VRInteractiveItem.OnOver += HandleOver;
+        m_VRInteractiveItem.OnOut += HandleOut;
+    }
+
+    private void HandleOver()
+    {
+        if (coroutine != null)
+        {
+            StopCoroutine(coroutine);
+        }
+
+        coroutine = StartCoroutine(Corount_Start());
+    }
+
+    private void HandleOut()
+    {
+        text.gameObject.SetActive(false);
+
+        if (coroutine != null)
+        {
+            StopCoroutine(coroutine);
+        }
+    }
+
+
+    private void Update()
+    {
+        //Mathf.Abs(Input.GetAxisRaw(joy1 + "_Joystick_Vertical")
+
+        joy1 = GetJoysticks.Instance.GetJoystickNumber(JoystickType.Left);
+        joy2 = GetJoysticks.Instance.GetJoystickNumber(JoystickType.Right);
+
+        if (joy1 < 0 || joy2 < 0)
+        {
+                _random = Random.Range(-180.0f + (rpmLv * 50f), -185.0f + (rpmLv * 50f));
+
+            RPM.localRotation = Quaternion.Euler(0, 179f, _random);
+
+            return;
+        }
+
+        if ((Input.GetAxisRaw(joy1 + "_Joystick_Vertical") > 0.3f || -0.3f > Input.GetAxisRaw(joy1 + "_Joystick_Vertical")))
+        {
+            _random = Random.Range(-180.0f + (rpmLv * 50f) + Mathf.Abs(Input.GetAxis(joy1 + "_Joystick_Vertical") * 20f), -185.0f + (rpmLv * 50f) + Mathf.Abs(Input.GetAxis(joy1 + "_Joystick_Vertical") * 20f));
+        }
+        else if ((Input.GetAxisRaw(joy1 + "_Joystick_Horizontal") > 0.3f || -0.3f > Input.GetAxisRaw(joy1 + "_Joystick_Horizontal")))
+        {
+            _random = Random.Range(-180.0f + (rpmLv * 50f) + Mathf.Abs(Input.GetAxis(joy1 + "_Joystick_Horizontal") * 20f), -185.0f + (rpmLv * 50f) + Mathf.Abs(Input.GetAxis(joy1 + "_Joystick_Horizontal") * 20f));
+        }
+        else if ((Input.GetAxisRaw(joy2 + "_Joystick_Vertical") > 0.3f || -0.3f > Input.GetAxisRaw(joy2 + "_Joystick_Vertical")))
+        {
+            _random = Random.Range(-180.0f + (rpmLv * 50f) + Mathf.Abs(Input.GetAxis(joy2 + "_Joystick_Vertical") * 20f), -185.0f + (rpmLv * 50f) + Mathf.Abs(Input.GetAxis(joy2 + "_Joystick_Vertical") * 20f));
+        }
+        else if ((Input.GetAxisRaw(joy2 + "_Joystick_Horizontal") > 0.3f || -0.3f > Input.GetAxisRaw(joy2 + "_Joystick_Horizontal")))
+        {
+            _random = Random.Range(-180.0f + (rpmLv * 50f) + Mathf.Abs(Input.GetAxis(joy2 + "_Joystick_Horizontal") * 20f), -185.0f + (rpmLv * 50f) + Mathf.Abs(Input.GetAxis(joy2 + "_Joystick_Horizontal") * 20f));
+        }
+        else
+        {
+            _random = Random.Range(-180.0f + (rpmLv * 50f), -185.0f + (rpmLv * 50f));
+        }
+
+        RPM.localRotation = Quaternion.Euler(0,179f , _random);
+    }
+
+    IEnumerator Corount_Start()
+    {
+        text.gameObject.SetActive(true);
+
+        text.text = (rpmLv +1).ToString();
+
+        yield return new WaitForSeconds(waitTime);
+
+       
+        rpmLv = (rpmLv + 1) % 4;
+
+        
+
+        GetComponent<BoxCollider>().enabled = false;
+
+        StartCoroutine(Corount_Start2());
+
+    }
+
+    IEnumerator Corount_Start2()
+    {
+        yield return new WaitForSeconds(0.5f);
+
+        GetComponent<BoxCollider>().enabled = true;
+    }
+}

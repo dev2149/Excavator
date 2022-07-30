@@ -1,0 +1,62 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class PhysicTest : MonoBehaviour 
+{
+	[System.Serializable]
+	public class AXIS
+	{
+		public Rigidbody rigidbody;
+		public float force;
+	}
+
+	public AXIS upper;
+	public AXIS fore;
+	public AXIS bucket;
+
+	// Use this for initialization
+	void Start () 
+	{
+		upper.rigidbody.centerOfMass = Vector3.zero;
+		fore.rigidbody.centerOfMass = Vector3.zero;
+		bucket.rigidbody.centerOfMass = Vector3.zero;
+	}
+	
+	// Update is called once per frame
+	void Update () 
+	{
+		InputAxis (KeyCode.Q, KeyCode.A, upper);
+		InputAxis (KeyCode.W, KeyCode.S, fore);
+		InputAxis (KeyCode.E, KeyCode.D, bucket);
+	}
+
+	void InputAxis(KeyCode up, KeyCode down, AXIS axis)
+	{
+		if (Input.GetKey(up))
+		{
+			//if (true == axis.rigidbody.isKinematic)
+			//	axis.rigidbody.isKinematic = false;
+
+			//Debug.Log(axis.rigidbody.centerOfMass);
+			axis.rigidbody.AddTorque(Vector3.right * axis.force);
+			//axis.rigidbody.MoveRotation(axis.rigidbody.rotation * Quaternion.Euler(90.0f * Time.deltaTime, 0.0f, 0.0f));
+		}
+		else if (Input.GetKeyUp(up))
+		{
+			//if (false == axis.rigidbody.isKinematic)
+			//	axis.rigidbody.isKinematic = true;
+		}
+		
+		if (Input.GetKey(down))
+		{
+			
+			axis.rigidbody.AddTorque(Vector3.right *-axis.force);
+			//axis.rigidbody.MoveRotation(axis.rigidbody.rotation * Quaternion.Euler(-90.0f * Time.deltaTime, 0.0f, 0.0f));
+		}
+		else if (Input.GetKeyUp(down))
+		{
+			//if (false == axis.rigidbody.isKinematic)
+			//	axis.rigidbody.isKinematic = true;
+		}
+	}
+}

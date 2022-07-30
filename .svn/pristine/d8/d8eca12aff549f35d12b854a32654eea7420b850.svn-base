@@ -1,0 +1,46 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class ProjectorLine : MonoBehaviour 
+{
+	public Transform target; //point
+
+	private Vector3 position; 
+	public Projector line;
+
+	public Transform dig;
+
+    void Start()
+    {
+        
+    }
+	
+	void Update () 
+	{
+       
+
+        Vector3 dist =  target.position - dig.position ;
+
+
+		line.aspectRatio = dist.y * 0.075f; // digging
+
+        if (line.aspectRatio <= 0.0f)
+        {
+            line.aspectRatio = 0F;
+            line.gameObject.SetActive(false);
+        }
+        else
+        {
+            line.gameObject.SetActive(true);
+        }
+				
+
+		position.x = target.position.x;
+		position.y = 10.0f;
+		position.z = target.position.z -5f ;
+
+		transform.position = position;
+
+        //Debug.Log(dist);
+    }
+}

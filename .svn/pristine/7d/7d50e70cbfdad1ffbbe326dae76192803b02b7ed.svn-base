@@ -1,0 +1,1658 @@
+﻿using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.UI;
+
+public class DigMessage : MonoBehaviour
+{
+
+    public GameObject preMessage;
+    public UILabel label;
+    public Diging diging;
+    public UIAxisRange[] ranges;
+    public UIAxisRange[] ranges_vr;
+    public GameObject tutorial;
+    public digMap Map;
+    private AudioClip alram;
+    private DigingBucket bucket;
+    public AudioSource audio_;
+
+
+    bool isSpinFail = false;
+
+    public DigingBucket score_; //현재 스코어
+    private int prescore; //이전 스코어
+
+    private class AXIS
+    {
+        public Diging.AXIS @ref;
+        public float target;
+        public string targetName;
+        public bool complete;
+
+        public static AXIS Create(Diging.AXIS _ref, float _target, string _targetName)
+        {
+            AXIS axis = new AXIS();
+            axis.@ref = _ref;
+            axis.target = _target;
+            axis.targetName = _targetName;
+            axis.complete = false;
+            return axis;
+        }
+
+    }
+    private List<AXIS> axis;
+    public int state = 0;
+    private GameObject message;
+    private bool stateflat;
+
+
+    void Awake()
+    {
+        GameEvent.notify += OnGameEventNotify;
+    }
+
+    void OnDestroy()
+    {
+        GameEvent.notify -= OnGameEventNotify;
+    }
+
+    void Start()
+    {
+        alram = Resources.Load("띠롱") as AudioClip;
+        bucket = GameObject.Find("Bucket").GetComponent<DigingBucket>();
+
+        //평탄화 작업
+        //		state = 25;
+        //		GameEvent.notify (GameEvent.TAG.DIG_POUR);
+        //		bucket.shovelingCount = 4;
+    }
+
+
+    private float bucketAngle;
+    private float foreAngle;
+    private float upperAngle;
+    private float bodyAngle;
+
+    private AudioClip guidemessage;
+
+
+    void Update()
+    {
+        if (null == axis)
+            return;
+
+      
+
+        if (!Diging.tutorial)
+            return;
+
+        bucketAngle = diging.bucket.angle;
+        foreAngle = diging.fore.angle;
+        upperAngle = diging.upper.angle;
+        bodyAngle = diging.body.angle;
+
+       
+        
+
+
+        int cout = 0;
+        int i;
+
+        for (i = 0; i < axis.Count; ++i)
+        {
+            
+
+            float angle = axis[i].@ref.angle; //움직이는 화살표
+
+            float d = axis[i].target - angle;
+
+            if (1.0f >= Mathf.Abs(d))
+            {
+                ranges_vr[i].gameObject.GetComponent<RawImage>().color = Color.green;
+                ranges_vr[i].transform.Find("angle").GetComponent<RawImage>().color = Color.green;
+            }
+            else
+            {
+                ranges_vr[i].gameObject.GetComponent<RawImage>().color = Color.white;
+                ranges_vr[i].transform.Find("angle").GetComponent<RawImage>().color = Color.white;
+            }
+
+            if (true == axis[i].complete)
+            {
+                ++cout;
+                continue;
+            }
+
+            if (1.0f >= Mathf.Abs(d))
+            {
+                axis[i].complete = true;
+                NGUITools.PlaySound(alram, DeviceSound.Instance.Effect);
+            }
+
+            if (Mathf.Abs(d) >= 190)
+            {
+                isSpinFail = true;
+
+               // label.text = "[ff0000]회전방향이 잘못되었습니다!![-]";
+               // GuideSound("DigCaution/012", true);
+            }
+            else
+            {
+
+                isSpinFail = false;
+                label.text = " ";
+            }
+
+            GuideCaution();
+        }
+
+        if (cout >= axis.Count)
+        {
+            if (state >= 37)
+            {
+                return;
+            }
+
+            NextState();
+           
+        }
+
+    }
+
+    void GuideSound(string str, bool on)
+    {
+        if (!this.gameObject.activeSelf)
+            return;
+
+        if (ViveDigScene.instance.IsVR())
+        {
+            DeviceSound.Instance.PlayG(Resources.Load(str.ToString()) as AudioClip, DeviceSound.Instance.Effect);
+            return;
+        }
+
+        if (on)
+        {
+            if (!audio_.isPlaying)
+            {
+                audio_.clip = Resources.Load(str.ToString()) as AudioClip;
+                audio_.Play();
+                audio_.volume = DeviceSound.Instance.Effect;
+            }
+            on = false;
+        }
+    }
+
+    void GuideCaution()
+    {
+        if (ViveDigScene.instance.IsVR() == false)
+        {
+            if (state == 11 && upperAngle <= -7.0f)
+            {
+                SetMessage("[00ff00]안전한 작업을 위해[-] 붐을 내려 주세요.");
+                GuideSound("DigCaution/013", true);
+                state = 6;
+                state += 2;
+                axis = new List<AXIS>();
+                axis.Add(AXIS.Create(diging.upper, 0.0f, "붐"));
+                EnableRage();
+            }
+
+            if (state < 10 && bucket.soil.time <= 0.5f)
+            {
+                state = 12;
+                GameEvent.notify(GameEvent.TAG.DIG_DIGGING);
+            }
+
+            if (state == 10 && upperAngle < -4.0f)
+            { //붐을 올리고는 작업이 불가.
+
+                SetMessage("[00ff00]안전한 작업을 위해[-] 붐을 내려 주세요.");
+                GuideSound("DigCaution/013", true);
+                state = 8;
+                axis = new List<AXIS>();
+                axis.Add(AXIS.Create(diging.upper, 0f + (score_.score / 10), "붐"));
+                EnableRage();
+            }
+            if (stateflat && upperAngle < -10f)
+            {
+
+                SetMessage("[00ff00]안전한 작업을 위해[-] 붐을 내려 주세요.");
+                GuideSound("DigCaution/013", true);
+                state = 26;
+                axis = new List<AXIS>();
+                axis.Add(AXIS.Create(diging.upper, -8.0f, "붐"));
+                EnableRage();
+            }
+
+            if (state >= 24 && bodyAngle > -180f)
+            {
+                isSpinFail = true;
+
+                SetMessage("[00ff00]작업영역으로 이동해주세요.[-]");
+                state = 26;
+                axis = new List<AXIS>();
+                axis.Add(AXIS.Create(diging.body, -180.0f, "케빈"));
+                EnableRage();
+            }
+            else if (bodyAngle > 10F && state <= 15)
+            {
+                isSpinFail = true;
+
+                GuideSound("DigCaution/012", true);
+                SetMessage("[ff0000]회전방향이 잘못되었습니다.[-] \n 왼쪽으로 회전해 주세요.");
+                axis = new List<AXIS>();
+                Diging.AXIS bodyAngleValue = diging.body;
+
+                bodyAngleValue.angle = Mathf.Clamp(diging.body.angle, -100, 100);
+
+                //axis.Add(AXIS.Create(diging.body, -3.0f, "케빈"));    //임의 값		
+
+                axis.Add(AXIS.Create(bodyAngleValue, -3.0f, "케빈")); //임의 값		
+                EnableRage();
+            }
+            else if (bodyAngle < -200F)//&& state >= 20)
+            {
+                isSpinFail = true;
+
+                GuideSound("DigCaution/012", true);
+                SetMessage("[ff0000]회전방향이 잘못되었습니다.[-]\n 오른쪽으로 회전해 주세요.");
+
+                axis = new List<AXIS>();
+                Diging.AXIS bodyAngleValue = diging.body;
+
+                bodyAngleValue.angle = Mathf.Clamp(diging.body.angle, -300F, 300f);
+
+                axis.Add(AXIS.Create(bodyAngleValue, -200.0f, "케빈"));   //임의 값		
+
+                EnableRage();
+            }
+            else
+            {
+                isSpinFail = false;
+            }
+
+            if (bodyAngle < -14F && state == 2)
+            {
+                if (bucket.soil.time > 0.6f)
+                {
+                    SetMessage("[ff0000]가이드이탈 이동할 흙량이 부족합니다.[-] \n[00ff00]작업영역으로 이동해주세요.[-]");
+                    state = 0;
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.body, 0.0f, "케빈"));
+                    EnableRage();
+                }
+            }
+
+
+            if (bodyAngle < -14F && state == 5)
+            {
+                if (bucket.soil.time > 0.6f)
+                {
+                    SetMessage("[ff0000]가이드이탈 이동할 흙량이 부족합니다.[-] \n[00ff00]작업영역으로 이동해주세요.[-]");
+                    state = 2;
+                    state++;
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.body, 0.0f, "케빈"));
+                    EnableRage();
+                }
+            }
+
+            if (bodyAngle < -14F && state == 6)
+            {
+                if (bucket.soil.time > 0.6f)
+                {
+                    SetMessage("[ff0000]가이드이탈 이동할 흙량이 부족합니다.[-] \n[00ff00]작업영역으로 이동해주세요.[-]");
+                    state = 5;
+                    --state;
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.body, 0.0f, "케빈"));
+                    EnableRage();
+                }
+            }
+
+            if (bodyAngle < -14F && state == 8)
+            {
+
+                if (bucket.soil.time > 0.6f)
+                {
+                    SetMessage("[ff0000]가이드이탈 이동할 흙량이 부족합니다.[-] \n[00ff00]작업영역으로 이동해주세요.[-]");
+                    state = 7;
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.body, 0.0f, "케빈"));
+                    EnableRage();
+                }
+            }
+
+            if (bodyAngle < -10F && state == 13)
+            {
+                if (bucket.soil.time > 0.6f)
+                {
+                    state = 11;
+                }
+
+                if (bucket.soil.time < 0.6f)
+                {
+                    SetMessage("[00ff00] 가이드이탈 일곱번째[-], \n케빈을 왼쪽으로 회전해 주세요.");
+                    state = 14;
+                    ++state;
+
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.body, -183.0f, "케빈")); //-180.0f
+                    EnableRage();
+                }
+            }
+
+
+            if (bodyAngle < -14F && state == 15)
+            {
+                if (bucket.soil.time > 0.6f)
+                {
+                    SetMessage("[ff0000]가이드이탈 이동할 흙량이 부족합니다.[-] \n[00ff00]작업영역으로 이동해주세요.[-]");
+                    state = 12;
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.body, 0.0f, "케빈"));
+                    EnableRage();
+                }
+            }
+            if (bodyAngle < -14F && state == 17) // 붐을 내려주세요.
+            {
+                if (bucket.soil.time > 0.6f)
+                {
+                    state = 18;
+                    state += 2;
+                }
+            }
+
+            if (state == 19)   // 흙을 먼저 버리고 생기는 가이드 이탈.
+            {
+                if (bucket.soil.time < 0.6f)
+                    return;
+
+                //pc 버전 에는  && bodyAngle > -180 이었음.
+                else if (bucket.soil.time >= 1.0f)
+                {
+                    if (bodyAngle > -180) // 케빈을 회전했을때.
+                    {
+                        GuideSound("DigGuide/Guide_008", true);
+                        SetMessage("[00ff00]가이드이탈 열한번째[-],\n 케빈을 오른쪽으로 회전해 주세요.");
+
+                        state = 21;
+                        state += 2;
+
+                        axis = new List<AXIS>();
+                        axis.Add(AXIS.Create(diging.body, 0.0f, "케빈"));
+                        EnableRage();
+                    }
+                }
+                else // 회전하지 않았을때.
+                {
+                    GuideSound("DigGuide/Guide_010", true);
+                    SetMessage("[00ff00]열번째[-],\n 버킷은 닫고 암을 당기고 붐을 올리세요.");
+                    state++;
+                    //				state = 20;
+
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.upper, -37.0f, "붐"));
+                    axis.Add(AXIS.Create(diging.fore, -35.0f, "암"));
+                    axis.Add(AXIS.Create(diging.bucket, 20.0f, "버킷"));
+                    EnableRage();
+                }
+            }
+
+            if (state == 21) //케빈을 회전하려할때.
+            {
+                if (bodyAngle < -180)
+                    return;
+                else
+                {
+                    GuideSound("DigGuide/Guide_008", true);
+                    SetMessage("[00ff00]가이드이탈 열한번째[-],\n 케빈을 오른쪽으로 회전해 주세요.");
+
+                    state = 21;
+                    state++;
+
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.body, 0.0f, "케빈"));
+                    EnableRage();
+
+                    //     print("설마중첩");
+
+                }
+            }
+        }
+        else //VR
+        {
+            if (state == 11 && upperAngle <= -7.0f)
+            {
+                SetMessage("<color=#00ff00>안전한 작업을 위해</color> 붐을 내려 주세요.");
+                GuideSound("DigCaution/013", true);
+                state = 6;
+                state += 2;
+                axis = new List<AXIS>();
+                axis.Add(AXIS.Create(diging.upper, 0.0f, "붐"));
+                EnableRage();
+            }
+
+            if (state < 10 && bucket.soil.time <= 0.5f)
+            {
+                state = 12;
+                GameEvent.notify(GameEvent.TAG.DIG_DIGGING);
+            }
+
+            if (state == 10 && upperAngle < -4.0f)
+            { //붐을 올리고는 작업이 불가.
+
+                SetMessage("<color=#00ff00>안전한 작업을 위해</color> 붐을 내려 주세요.");
+                GuideSound("DigCaution/013", true);
+                state = 8;
+                axis = new List<AXIS>();
+                axis.Add(AXIS.Create(diging.upper, 0f + (score_.score / 10), "붐"));
+                EnableRage();
+            }
+            if (stateflat && upperAngle < -10f)
+            {
+
+                SetMessage("<color=#00ff00>안전한 작업을 위해</color> 붐을 내려 주세요.");
+                GuideSound("DigCaution/013", true);
+                state = 26;
+                axis = new List<AXIS>();
+                axis.Add(AXIS.Create(diging.upper, -8.0f, "붐"));
+                EnableRage();
+            }
+
+            if (state >= 24 && bodyAngle > -180f)
+            {
+                isSpinFail = true;
+
+                SetMessage("<color=#00ff00>작업영역으로 이동해주세요.</color>");
+                state = 26;
+                axis = new List<AXIS>();
+                axis.Add(AXIS.Create(diging.body, -180.0f, "케빈"));
+                EnableRage();
+            }
+            else if (bodyAngle > 10F && state <= 15)
+            {
+                isSpinFail = true;
+
+                GuideSound("DigCaution/012", true);
+                SetMessage("<color=#ff0000>회전방향이 잘못되었습니다.</color> 왼쪽으로 회전해 주세요.");
+                axis = new List<AXIS>();
+                Diging.AXIS bodyAngleValue = diging.body;
+
+                bodyAngleValue.angle = Mathf.Clamp(diging.body.angle, -100, 100);
+
+                //axis.Add(AXIS.Create(diging.body, -3.0f, "케빈"));    //임의 값		
+
+                axis.Add(AXIS.Create(bodyAngleValue, -3.0f, "케빈")); //임의 값		
+                EnableRage();
+            }
+            else if (bodyAngle < -200F)//&& state >= 20)
+            {
+                isSpinFail = true;
+
+                GuideSound("DigCaution/012", true);
+                SetMessage("<color=#ff0000>회전방향이 잘못되었습니다.</color> 오른쪽으로 회전해 주세요.");
+
+                axis = new List<AXIS>();
+                Diging.AXIS bodyAngleValue = diging.body;
+
+                bodyAngleValue.angle = Mathf.Clamp(diging.body.angle, -300F, 300f);
+
+                axis.Add(AXIS.Create(bodyAngleValue, -200.0f, "케빈"));   //임의 값		
+
+                EnableRage();
+            }
+            else
+            {
+                isSpinFail = false;
+            }
+
+            if (bodyAngle < -14F && state == 2)
+            {
+                if (bucket.soil.time > 0.6f)
+                {
+                    SetMessage("<color=#ff0000>가이드이탈 이동할 흙량이 부족합니다.</color> <color=#00ff00>작업영역으로 이동해주세요.</color>");
+                    state = 0;
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.body, 0.0f, "케빈"));
+                    EnableRage();
+                }
+            }
+
+
+            if (bodyAngle < -14F && state == 5)
+            {
+                if (bucket.soil.time > 0.6f)
+                {
+                    SetMessage("<color=#ff0000>가이드이탈 이동할 흙량이 부족합니다.</color> <color=#00ff00>작업영역으로 이동해주세요.</color>");
+                    state = 2;
+                    state++;
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.body, 0.0f, "케빈"));
+                    EnableRage();
+                }
+            }
+
+            if (bodyAngle < -14F && state == 6)
+            {
+                if (bucket.soil.time > 0.6f)
+                {
+                    SetMessage("<color=#ff0000>가이드이탈 이동할 흙량이 부족합니다.</color> <color=#00ff00>작업영역으로 이동해주세요.</color>");
+                    state = 5;
+                    --state;
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.body, 0.0f, "케빈"));
+                    EnableRage();
+                }
+            }
+
+            if (bodyAngle < -14F && state == 8)
+            {
+
+                if (bucket.soil.time > 0.6f)
+                {
+                    SetMessage("<color=#ff0000>가이드이탈 이동할 흙량이 부족합니다.</color> <color=#00ff00>작업영역으로 이동해주세요.</color>");
+                    state = 7;
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.body, 0.0f, "케빈"));
+                    EnableRage();
+                }
+            }
+
+            if (bodyAngle < -10F && state == 13)
+            {
+                if (bucket.soil.time > 0.6f)
+                {
+                    state = 11;
+                }
+
+                if (bucket.soil.time < 0.6f)
+                {
+                    SetMessage("<color=#00ff00> 가이드이탈 일곱번째</color>, 케빈을 왼쪽으로 회전해 주세요.");
+                    state = 14;
+                    ++state;
+
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.body, -183.0f, "케빈")); //-180.0f
+                    EnableRage();
+                }
+            }
+
+
+            if (bodyAngle < -14F && state == 15)
+            {
+                if (bucket.soil.time > 0.6f)
+                {
+                    SetMessage("<color=#ff0000>가이드이탈 이동할 흙량이 부족합니다.</color> <color=#00ff00>작업영역으로 이동해주세요.</color>");
+                    state = 12;
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.body, 0.0f, "케빈"));
+                    EnableRage();
+                }
+            }
+            if (bodyAngle < -14F && state == 17) // 붐을 내려주세요.
+            {
+                if (bucket.soil.time > 0.6f)
+                {
+                    state = 18;
+                    state += 2;
+                }
+            }
+
+            if (state == 19)   // 흙을 먼저 버리고 생기는 가이드 이탈.
+            {
+                if (bucket.soil.time < 0.6f)
+                    return;
+
+                //pc 버전 에는  && bodyAngle > -180 이었음.
+                else if (bucket.soil.time >= 1.0f)
+                {
+                    if (bodyAngle > -180) // 케빈을 회전했을때.
+                    {
+                        GuideSound("DigGuide/Guide_008", true);
+                        SetMessage("<color=#00ff00>가이드이탈 열한번째</color>, 케빈을 오른쪽으로 회전해 주세요.");
+
+                        state = 21;
+                        state += 2;
+
+                        axis = new List<AXIS>();
+                        axis.Add(AXIS.Create(diging.body, 0.0f, "케빈"));
+                        EnableRage();
+                    }
+                }
+                else // 회전하지 않았을때.
+                {
+                    GuideSound("DigGuide/Guide_010", true);
+                    SetMessage("<color=#00ff00>열번째</color>, 버킷은 닫고 암을 당기고 붐을 올리세요.");
+                    state++;
+                    //				state = 20;
+
+                    axis = new List<AXIS>();
+                    //axis.Add(AXIS.Create(diging.upper, -37.0f, "붐"));
+                    //axis.Add(AXIS.Create(diging.fore, -35.0f, "암"));
+                    axis.Add(AXIS.Create(diging.upper, -34.0f, "붐"));
+                    axis.Add(AXIS.Create(diging.fore, -41.0f, "암")); //-53.0f
+                    axis.Add(AXIS.Create(diging.bucket, 46.0f, "버킷"));
+                    EnableRage();
+                }
+            }
+
+            if (state == 21) //케빈을 회전하려할때.
+            {
+                if (bodyAngle < -180)
+                    return;
+                else
+                {
+                    GuideSound("DigGuide/Guide_008", true);
+                    SetMessage("<color=#00ff00>가이드이탈 열한번째</color>, 케빈을 오른쪽으로 회전해 주세요.");
+
+                    state = 21;
+                    state++;
+
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.body, 0.0f, "케빈"));
+                    EnableRage();
+
+                    //     print("설마중첩");
+
+                }
+            }
+        }
+
+
+    }
+
+    void OnGameEventNotify(GameEvent.TAG tag)
+    {
+        if (false == Diging.tutorial)
+            return;
+
+        if (tag == GameEvent.TAG.DRIVE_FOUL_CONE)
+        {
+            if(ViveDigScene.instance.IsVR()==false)
+                SetMessage("[ff0000]콘[-]에 부딪쳤습니다.");
+            else
+                SetMessage("<color=#ff0000>콘</color>에 부딪쳤습니다.");
+            state = 1000;
+        }
+        else if (tag == GameEvent.TAG.DRIVE_FOUL_TIME)
+        {
+            if (ViveDigScene.instance.IsVR() == false)
+                SetMessage("시간을 [ff0000]초과[-]하였습니다.");
+            else
+                SetMessage("시간을 <color=#ff0000>초과</color>하였습니다.");
+            state = 1000;
+        }
+        else if (tag == GameEvent.TAG.DRIVE_FOUL_CENTER)
+        {
+            if (ViveDigScene.instance.IsVR() == false)
+                SetMessage("<color=#ff0000>중간지점</color>을 지나쳤습니다.");
+            else
+                SetMessage("<color=#ff0000>중간지점</color>을 지나쳤습니다.");
+            state = 1000;
+        }
+        else
+        {
+            CheckNotify(tag);
+        }
+    }
+
+    void SetMessage(string text)
+    {
+        if (null != message) Destroy(message);
+
+        if (ViveDigScene.instance.IsVR() == false)
+        {
+            LogManager.Instance.Save(text);
+
+            message = NGUITools.AddChild(gameObject, preMessage);
+            message.SetActive(true);
+            message.GetComponent<UILabel>().text = text;
+            message.transform.localPosition = new Vector3(0, 200.0f, 0); //
+        }
+        else
+        {
+            ViveDigScene.instance.message.text = text;
+        }
+    }
+
+    void ResetMessage()
+    {
+        if (ViveDigScene.instance.IsVR() == false)
+        {
+            message.GetComponent<UILabel>().text = " ";
+        }
+        else
+        {
+            ViveDigScene.instance.message.text = " ";
+        }
+    }
+
+    [HideInInspector]
+    public int safeCount;
+
+    public void SetGuide()
+    {
+        safeCount++;
+
+        if (safeCount == 2)
+        {
+            Invoke("NextState", 1.0f);
+        }
+
+
+    }
+
+    void CheckNotify(GameEvent.TAG tag)
+    {
+        print("stage" + state);
+
+        if (ViveDigScene.instance.IsVR() == false)
+        {
+            switch (state)
+            {
+                case 0:
+                    if (tag == GameEvent.TAG.DIG_READY)
+                    {
+                        SetMessage("굴삭모드 연습을 시작하겠습니다.");
+                        //++state;
+                        // Invoke("NextState", 5.0f);
+
+                        Invoke("NextState", 1.0f);
+
+                        EnableRage();
+                    }
+                    break;
+
+                case 1:
+                    SetMessage("[00ff00]안전벨트[-]를 착용후 안전바를 내려주세요 ");
+                    break;
+
+                case 2:
+
+                    if (!this.gameObject.activeSelf)
+                        return;
+
+                    string[] text = new string[3];
+                    text[0] = "첫번째 굴삭!";
+                    text[1] = "두번째 굴삭!";
+                    text[2] = "세번째 굴삭!";
+
+                    prescore += score_.score;
+                    if (upperAngle >= -13.0f)
+                    {
+                        if (ViveDigScene.instance.IsVR() == false)
+                        {
+                            //로그 카운터 저장
+                            LogManager.Instance.Save(text[score_.score / 20]);
+                        }
+
+                        GuideSound("DigGuide/Guide_002", true);
+                        SetMessage(text[score_.score / 20] + "\n[00ff00]첫번째[-], 붐을 올려 주세요.");
+                    }
+                    else
+                    {
+                        if (!audio_.isPlaying)
+                        {
+                            audio_.clip = Resources.Load("DigGuide/Guide_002_d") as AudioClip;
+                            audio_.Play();
+                        }
+
+                        SetMessage(text[score_.score / 20] + "\n[00ff00]첫번째[-], 붐을 내려 주세요.");
+                    }
+
+
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.upper, -10.0f, "붐"));
+                    EnableRage();
+
+                    break;
+
+                case 3:
+                    break;
+
+                case 4:
+
+                    if (foreAngle >= -40.0f)
+                    {
+                        GuideSound("DigGuide/Guide_003_push", true);
+                        SetMessage("[00ff00]두번째[-], 암을 밀어 주세요.");
+                    }
+                    else
+                    {
+                        if (!audio_.isPlaying)
+                        {
+                            audio_.clip = Resources.Load("DigGuide/Guide_003") as AudioClip;
+                            audio_.Play();
+                        }
+
+                        SetMessage("[00ff00]두번째[-], 암을 당겨 주세요.");
+                    }
+                    ++state;
+
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.fore, -40.0f, "암"));
+                    EnableRage();
+
+
+                    break;
+
+                case 5:
+                    break;
+
+                case 6:
+                    if (bucketAngle >= -80.0f)
+                    {
+                        GuideSound("DigGuide/Guide_004_open", true);
+                        SetMessage("[00ff00]세번째[-], 버킷을 열어 주세요.");
+                    }
+                    else
+                    {
+                        GuideSound("DigGuide/Guide_004", true);
+                        SetMessage("[00ff00]세번째[-], 버킷을 닫아 주세요.");
+                    }
+
+
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.bucket, -80.0f, "버킷"));
+                    EnableRage();
+
+                    break;
+
+                case 7:
+                    break;
+
+                case 8:
+                    if (bucketAngle <= -80.0f)
+                    {
+                        if (upperAngle <= 1.0f)
+                        {
+                            GuideSound("DigGuide/Guide_002_d", true);
+                            SetMessage(" [00ff00]네번째[-], 붐을 내려 주세요.");   // 땅에 있을때.
+                        }
+                        else
+                        {
+                            GuideSound("DigGuide/Guide_002", true);
+                            SetMessage(" [00ff00]네번째[-], 붐을 올려 주세요.");
+                        }
+
+
+                        axis = new List<AXIS>();
+                        axis.Add(AXIS.Create(diging.upper, 0f + (score_.score / 8), "붐"));   // 점점 더 땅속으로 내려가게..	
+                        EnableRage();
+                    }
+                    break;
+
+                case 9:
+                    break;
+
+                case 10:
+                    if (upperAngle >= -4F) // 땅속에서 
+                    {
+
+
+                        if (foreAngle <= -30.0f)
+                        {
+                            GuideSound("DigGuide/Guide_005", true);
+                            SetMessage("[00ff00]다섯번째[-],\n암을 당기면서 버킷을 닫아주세요.");
+                            axis = new List<AXIS>();
+                            axis.Add(AXIS.Create(diging.bucket, 20.0f, "버킷"));
+                            axis.Add(AXIS.Create(diging.fore, -30.0f, "암")); //왔다갔다 한다. 문제가 되고있다.
+                        }
+                        else
+                        {
+                            GuideSound("DigGuide/Guide_004", true);
+                            axis = new List<AXIS>();
+                            SetMessage("[00ff00]다섯번째[-], 버킷을 닫아 주세요.");
+                            axis.Add(AXIS.Create(diging.bucket, 20.0f, "버킷"));
+                        }
+
+                        EnableRage();
+
+                    }
+                    break;
+
+                case 11:
+                    break;
+
+                case 12:
+                    if (tag == GameEvent.TAG.DIG_DIGGING)
+                    {
+                        GuideSound("DigGuide/Guide_006", true);
+                        SetMessage("[ff0000]흙을 펐습니다.[-]\n 붐을 올려 주세요.");
+
+                        ++state;
+
+                        axis = new List<AXIS>();
+                        axis.Add(AXIS.Create(diging.upper, -37.0f, "붐")); //-28 
+                        EnableRage();
+                    }
+                    else
+                    {
+                        if (bucket.soil.time <= 0.6f)
+                        {
+
+                            GuideSound("DigGuide/Guide_002", true);
+                            SetMessage("[00ff00]여섯번째[-], 붐을 올려 주세요.");
+
+                            ++state;
+
+                            axis = new List<AXIS>();
+                            axis.Add(AXIS.Create(diging.upper, -37.0f, "붐")); //-28
+                            EnableRage();
+                        }
+                        else
+                        {
+
+                            GuideSound("DigGuide/Guide_002_d", true);
+                            SetMessage(" [00ff00]네번째[-],붐을 내려 주세요.");
+                            state = 8;
+
+                            axis = new List<AXIS>();
+                            axis.Add(AXIS.Create(diging.upper, 0f + (score_.score / 10), "붐")); // 점점 더 땅속으로 내려가게..	
+                            EnableRage();
+
+                        }
+
+                    }
+                    break;
+
+                case 13:
+                    break;
+
+                case 14:
+                    if (bucket.soil.time > 0.6f)
+                    {
+                        GuideSound("DigGuide/Guide_007", true);
+                        SetMessage("[ff0000]이동할 흙량이 부족합니다.[-] \n[00ff00]세번째[-], 버킷을 움직여 주세요.");
+                        state = 6;
+
+                        axis = new List<AXIS>();
+                        axis.Add(AXIS.Create(diging.bucket, -100.0f, "버킷"));
+                        EnableRage();
+                    }
+                    else
+                    {
+                        GuideSound("DigGuide/Guide_008_left", true);
+                        SetMessage("[00ff00]일곱번째[-], \n케빈을 왼쪽으로 회전해 주세요.");
+                        ++state;
+
+                        axis = new List<AXIS>();
+                        axis.Add(AXIS.Create(diging.body, -183.0f, "케빈")); //-180
+                        EnableRage();
+                    }
+
+                    break;
+
+                case 15:
+                    break;
+
+                case 16: // 문제 구간.
+                    GuideSound("DigGuide/Guide_002_d", true);
+                    SetMessage("[00ff00]여덟번째[-], 붐을 내려 주세요.");
+                    ++state;
+
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.upper, -20.0f, "붐"));
+                    EnableRage();
+
+
+                    break;
+
+                case 17:
+                    break;
+
+                case 18:
+                    if (bucket.soil.time < 0.6f)
+                    {
+                        GuideSound("DigGuide/Guide_009", true);
+                        SetMessage("[00ff00]아홉번째[-],\n 버킷을 열면서 암을 밀어 주세요.");
+                        ++state;
+
+                        axis = new List<AXIS>();
+                        axis.Add(AXIS.Create(diging.fore, -45.0f, "암"));
+                        axis.Add(AXIS.Create(diging.bucket, -80.0f, "버킷"));
+                        EnableRage();
+                    }
+                    else
+                    {
+                        SetMessage("흙량이 부족합니다. 작업영역으로 돌아가세요.");
+                        state = 2;
+
+                        axis = new List<AXIS>();
+                        axis.Add(AXIS.Create(diging.body, -2.0f, "케빈")); //-180.0f
+                        EnableRage();
+                    }
+
+                    break;
+
+                case 19:
+                    break;
+
+                case 20:
+
+                    GuideSound("DigGuide/Guide_010", true);
+                    SetMessage("[00ff00]열번째[-],\n 버킷은 닫고 암을 당기고 붐을 올리세요.");
+                    state++;
+
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.upper, -37.0f, "붐"));
+                    axis.Add(AXIS.Create(diging.fore, -35.0f, "암"));
+                    axis.Add(AXIS.Create(diging.bucket, 20.0f, "버킷"));
+                    EnableRage();
+
+                    break;
+
+                case 21:
+
+                    break;
+
+                case 22:
+
+                    GuideSound("DigGuide/Guide_008", true);
+                    SetMessage("[00ff00]열한번째[-],\n 케빈을 오른쪽으로 회전해 주세요.");
+
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.body, 0.0f, "케빈")); //-180.0f
+                    EnableRage();
+
+
+                    break;
+
+                case 23:
+                    break;
+
+                case 24:
+                    if (score_.score >= 60)
+                    {
+                        GuideSound("DigGuide/Guide_011", true);
+                        SetMessage("네번째 굴삭! \n같은 방법으로 1번 더 하세요.");
+                        ++state;
+                        Invoke("ResetMessage", 3.0f);
+
+                        axis = null;
+                        EnableRage();
+                    }
+                    else
+                        state = 1;
+                    break;
+
+
+                case 25:
+                    if (GameEvent.TAG.DIG_POUR == tag)
+                    {
+                        GuideSound("DigGuide/Guide_013", true);
+                        SetMessage("[00ff00]평탄 작업을 시작하겠습니다.[-]\n버킷은 열고 암을 당기고 붐을 내리세요.");
+                        ++state;
+
+                        axis = new List<AXIS>();
+                        axis.Add(AXIS.Create(diging.upper, -6.0f, "붐"));
+                        axis.Add(AXIS.Create(diging.fore, -15.0f, "암"));
+                        axis.Add(AXIS.Create(diging.bucket, -95.0f, "버킷"));
+                        EnableRage();
+                    }
+                    break;
+
+                case 26:
+
+                    break;
+
+                case 27:
+                    stateflat = true; //안전한 작업을 위해 붐을 내려 주세요.
+                    SetMessage("[00ff00]평탄 첫번째,[-]\n암을 밀어주세요.");
+                    ++state;
+
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.fore, -42.0f, "암"));
+                    EnableRage();
+                    break;
+
+                case 28:
+                    break;
+
+                case 29:
+                    SetMessage("[00ff00]평탄 두번째,[-]\n암을 당기면서 붐을 올려려주세요.");
+                    ++state;
+
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.upper, -18.0f, "붐"));
+                    axis.Add(AXIS.Create(diging.fore, -30.0f, "암"));
+                    EnableRage();
+                    stateflat = false;
+                    break;
+
+                case 30:
+                    break;
+
+
+                case 31:
+
+                    GuideSound("DigGuide/Guide_014", true);
+                    SetMessage("[00ff00]자~ 이제 평탄마지막 단계입니다.[-]\n버킷을 땅에 닿게 해주세요.");
+                    ++state;
+
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.upper, -2.0f, "붐"));
+
+                    EnableRage();
+                    break;
+
+                case 32:
+                    break;
+
+                case 33:
+
+                    GuideSound("DriveGuide/023", true);
+                    SetMessage("수고하셨습니다. ");
+
+                    if (ViveDigScene.instance.IsVR() == false)
+                    {
+                        for (int i = 0; i < ranges.Length; ++i)
+                        {
+                            ranges[i].gameObject.SetActive(false);
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < ranges_vr.Length; ++i)
+                        {
+                            ranges_vr[i].gameObject.SetActive(false);
+                        }
+                    }
+                    Invoke("NextState", 1.5f);
+
+                    break;
+                case 34:
+                    Map.SendMessage("ShowTutorial", true);
+                    break;
+
+            }
+        }
+        else //VR
+        {
+            switch (state)
+            {
+                case 0:
+                    if (tag == GameEvent.TAG.DIG_READY)
+                    {
+                        SetMessage("굴삭모드 연습을 시작하겠습니다.");
+                        //++state;
+                        Invoke("NextState", 1.0f);
+
+                        EnableRage();
+                    }
+                    break;
+
+                case 1:
+
+                    SetMessage("<color=#00ff00>안전벨트를</color> 착용후 안전바를 내려주세요 ");
+
+                    break;
+
+                case 2:
+
+                    if (!this.gameObject.activeSelf)
+                        return;
+
+                    string[] text = new string[3];
+
+                    text[0] = "첫번째 굴삭!";
+                    text[1] = "두번째 굴삭!";
+                    text[2] = "세번째 굴삭!";
+
+                    prescore += score_.score;
+
+                    if (upperAngle >= -13.0f)
+                    {
+                        if (ViveDigScene.instance.IsVR() == false)
+                        {
+                            //로그 카운터 저장
+                          //  LogManager.Instance.Save(text[score_.score / 20]);
+                        }
+
+                        GuideSound("DigGuide/Guide_002", true);
+                        SetMessage(text[score_.score / 20] + "<color=#00ff00>첫번째</color>, 붐을 올려 주세요.");
+                    }
+                    else
+                    {
+                        //if (!audio_.isPlaying)
+                        //{
+                        //    audio_.clip = Resources.Load("DigGuide/Guide_002_d") as AudioClip;
+                        //    audio_.Play();
+                        //}
+
+                        GuideSound("DigGuide/Guide_002_d", true);
+                        SetMessage(text[score_.score / 20] + "<color=#00ff00>첫번째</color>, 붐을 내려 주세요.");
+                    }
+
+
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.upper, -10.0f, "붐"));
+                    EnableRage();
+
+                    break;
+
+                case 3:
+
+
+
+                    break;
+
+                case 4:
+
+                    //if (foreAngle >= -40.0f)
+                    if (foreAngle >= -58.0f)
+                    {
+                        GuideSound("DigGuide/Guide_003_push", true);
+                        SetMessage("<color=#00ff00>두번째</color>, 암을 밀어 주세요.");
+                    }
+                    else
+                    {
+                        //if (!audio_.isPlaying)
+                        //{
+                        //    audio_.clip = Resources.Load("DigGuide/Guide_003") as AudioClip;
+                        //    audio_.Play();
+                        //}
+
+                        GuideSound("DigGuide/Guide_003", true);
+                        SetMessage("<color=#00ff00>두번째</color>, 암을 당겨 주세요.");
+                    }
+                    ++state;
+
+                    axis = new List<AXIS>();
+                    //axis.Add(AXIS.Create(diging.fore, -40.0f, "암"));
+                    axis.Add(AXIS.Create(diging.fore, -58.0f, "암"));
+                    EnableRage();
+
+
+                    break;
+
+                case 5:
+                    break;
+
+                case 6:
+                    if (bucketAngle >= -80.0f)
+                    {
+                        GuideSound("DigGuide/Guide_004_open", true);
+                        SetMessage("<color=#00ff00>세번째</color>, 버킷을 열어 주세요.");
+                    }
+                    else
+                    {
+                        GuideSound("DigGuide/Guide_004", true);
+                        SetMessage("<color=#00ff00>세번째</color>, 버킷을 닫아 주세요.");
+                    }
+
+
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.bucket, -80.0f, "버킷"));
+                    EnableRage();
+
+                    break;
+
+                case 7:
+                    break;
+
+                case 8:
+                    if (bucketAngle <= -80.0f)
+                    {
+                        if (upperAngle <= 1.0f)
+                        {
+                            GuideSound("DigGuide/Guide_002_d", true);
+                            SetMessage(" <color=#00ff00>네번째</color>, 붐을 내려 주세요.");   // 땅에 있을때.
+                        }
+                        else
+                        {
+                            GuideSound("DigGuide/Guide_002", true);
+                            SetMessage(" <color=#00ff00>네번째</color>, 붐을 올려 주세요.");
+                        }
+
+
+                        axis = new List<AXIS>();
+                        axis.Add(AXIS.Create(diging.upper, 0f + (score_.score / 8), "붐"));   // 점점 더 땅속으로 내려가게..	
+                        EnableRage();
+                    }
+                    break;
+
+                case 9:
+                    break;
+
+                case 10:
+                    if (upperAngle >= -4F) // 땅속에서 
+                    {
+
+
+                        //if (foreAngle <= -30.0f)
+                        if (foreAngle <= -48.0f)
+                        {
+                            GuideSound("DigGuide/Guide_005", true);
+                            SetMessage("<color=#00ff00>다섯번째</color>,암을 당기면서 버킷을 닫아주세요.");
+                            axis = new List<AXIS>();
+                            axis.Add(AXIS.Create(diging.bucket, 20.0f, "버킷"));
+                            //axis.Add(AXIS.Create(diging.fore, -30.0f, "암")); //왔다갔다 한다. 문제가 되고있다.
+                            axis.Add(AXIS.Create(diging.fore, -48.0f, "암")); //왔다갔다 한다. 문제가 되고있다.
+                        }
+                        else
+                        {
+                            GuideSound("DigGuide/Guide_004", true);
+                            axis = new List<AXIS>();
+                            SetMessage("<color=#00ff00>다섯번째</color>, 버킷을 닫아 주세요.");
+                            axis.Add(AXIS.Create(diging.bucket, 20.0f, "버킷"));
+                        }
+
+                        EnableRage();
+
+                    }
+                    break;
+
+                case 11:
+                    break;
+
+                case 12:
+                    if (tag == GameEvent.TAG.DIG_DIGGING)
+                    {
+                        GuideSound("DigGuide/Guide_006", true);
+                        SetMessage("<color=#ff0000>흙을 펐습니다.</color> 붐을 올려 주세요.");
+
+                        ++state;
+
+                        axis = new List<AXIS>();
+                        //axis.Add(AXIS.Create(diging.upper, -37.0f, "붐")); //-28 
+                        axis.Add(AXIS.Create(diging.upper, -32.0f, "붐")); //-28 
+                        EnableRage();
+                    }
+                    else
+                    {
+                        if (bucket.soil.time <= 0.6f)
+                        {
+
+                            GuideSound("DigGuide/Guide_002", true);
+                            SetMessage("<color=#00ff00>여섯번째</color>, 붐을 올려 주세요.");
+
+                            ++state;
+
+                            axis = new List<AXIS>();
+                            //axis.Add(AXIS.Create(diging.upper, -37.0f, "붐")); //-28
+                            axis.Add(AXIS.Create(diging.upper, -32.0f, "붐")); //-28 
+                            EnableRage();
+                        }
+                        else
+                        {
+
+                            GuideSound("DigGuide/Guide_002_d", true);
+                            SetMessage(" <color=#00ff00>네번째</color>,붐을 내려 주세요.");
+                            state = 8;
+
+                            axis = new List<AXIS>();
+                            axis.Add(AXIS.Create(diging.upper, 0f + (score_.score / 10), "붐")); // 점점 더 땅속으로 내려가게..	
+                            EnableRage();
+
+                        }
+
+                    }
+                    break;
+
+                case 13:
+                    break;
+
+                case 14:
+                    if (bucket.soil.time > 0.6f)
+                    {
+                        GuideSound("DigGuide/Guide_007", true);
+                        SetMessage("<color=#ff0000>이동할 흙량이 부족합니다.</color> <color=#00ff00>세번째</color>, 버킷을 움직여 주세요.");
+                        state = 6;
+
+                        axis = new List<AXIS>();
+                        axis.Add(AXIS.Create(diging.bucket, -100.0f, "버킷"));
+                        EnableRage();
+                    }
+                    else
+                    {
+                        GuideSound("DigGuide/Guide_008_left", true);
+                        SetMessage("<color=#00ff00>일곱번째</color>, 케빈을 왼쪽으로 회전해 주세요.");
+                        ++state;
+
+                        axis = new List<AXIS>();
+                        axis.Add(AXIS.Create(diging.body, -183.0f, "케빈")); //-180
+                        EnableRage();
+                    }
+
+                    break;
+
+                case 15:
+                    break;
+
+                case 16: // 문제 구간.
+                    GuideSound("DigGuide/Guide_002_d", true);
+                    SetMessage("<color=#00ff00>여덟번째</color>, 붐을 내려 주세요.");
+                    ++state;
+
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.upper, -20.0f, "붐"));
+                    EnableRage();
+
+
+                    break;
+
+                case 17:
+                    break;
+
+                case 18:
+                    if (bucket.soil.time < 0.6f)
+                    {
+                        GuideSound("DigGuide/Guide_009", true);
+                        SetMessage("<color=#00ff00>아홉번째</color>, 버킷을 열면서 암을 밀어 주세요.");
+                        ++state;
+
+                        axis = new List<AXIS>();
+                        //axis.Add(AXIS.Create(diging.fore, -45.0f, "암"));
+                        axis.Add(AXIS.Create(diging.fore, -63.0f, "암"));
+                        axis.Add(AXIS.Create(diging.bucket, -80.0f, "버킷"));
+                        EnableRage();
+                    }
+                    else
+                    {
+                        SetMessage("흙량이 부족합니다. 작업영역으로 돌아가세요.");
+                        state = 2;
+
+                        axis = new List<AXIS>();
+                        axis.Add(AXIS.Create(diging.body, -2.0f, "케빈")); //-180.0f
+                        EnableRage();
+                    }
+
+                    break;
+
+                case 19:
+                    break;
+
+                case 20:
+
+                    GuideSound("DigGuide/Guide_010", true);
+                    SetMessage("<color=#00ff00>열번째</color>, 버킷은 닫고 암을 당기고 붐을 올리세요.");
+                    state++;
+
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.upper, -34.0f, "붐"));
+                    axis.Add(AXIS.Create(diging.fore, -41.0f, "암")); //-53.0f
+                    axis.Add(AXIS.Create(diging.bucket, 46.0f, "버킷"));
+                    EnableRage();
+
+                    break;
+
+                case 21:
+
+                    break;
+
+                case 22:
+
+                    GuideSound("DigGuide/Guide_008", true);
+                    SetMessage("<color=#00ff00>열한번째</color>, 케빈을 오른쪽으로 회전해 주세요.");
+
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.body, 0.0f, "케빈")); //-180.0f
+                    EnableRage();
+
+
+                    break;
+
+                case 23:
+                    break;
+
+                case 24:
+                    if (score_.score >= 60)
+                    {
+                        GuideSound("DigGuide/Guide_011", true);
+                        SetMessage("네번째 굴삭! 같은 방법으로 1번 더 하세요.");
+                        ++state;
+                        Invoke("ResetMessage", 3.0f);
+
+                        axis = null;
+                        EnableRage();
+                    }
+                    else
+                        state = 1;
+                    break;
+
+
+                case 25:
+                    if (GameEvent.TAG.DIG_POUR == tag)
+                    {
+                        GuideSound("DigGuide/Guide_013", true);
+                        SetMessage("<color=#00ff00>평탄 작업을 시작하겠습니다.</color>버킷은 열고 암을 당기고 붐을 내리세요.");
+                        ++state;
+
+                        axis = new List<AXIS>();
+                        axis.Add(AXIS.Create(diging.upper, -6.0f, "붐"));
+                        //axis.Add(AXIS.Create(diging.fore, -15.0f, "암"));
+                        axis.Add(AXIS.Create(diging.fore, -33.0f, "암"));
+                        axis.Add(AXIS.Create(diging.bucket, -95.0f, "버킷"));
+                        EnableRage();
+                    }
+                    break;
+
+                case 26:
+
+                    break;
+
+                case 27:
+                    stateflat = true; //안전한 작업을 위해 붐을 내려 주세요.
+                    SetMessage("<color=#00ff00>평탄 첫번째,</color>암을 밀어주세요.");
+                    ++state;
+
+                    axis = new List<AXIS>();
+                    //axis.Add(AXIS.Create(diging.fore, -42.0f, "암"));
+                    axis.Add(AXIS.Create(diging.fore, -60.0f, "암"));
+                    EnableRage();
+                    break;
+
+                case 28:
+                    break;
+
+                case 29:
+                    SetMessage("<color=#00ff00>평탄 두번째,</color>암을 당기면서 붐을 올려려주세요.");
+                    ++state;
+
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.upper, -18.0f, "붐"));
+                    //axis.Add(AXIS.Create(diging.fore, -30.0f, "암"));
+                    axis.Add(AXIS.Create(diging.fore, -48.0f, "암"));
+                    EnableRage();
+                    stateflat = false;
+                    break;
+
+                case 30:
+                    break;
+
+
+                case 31:
+
+                    GuideSound("DigGuide/Guide_014", true);
+                    SetMessage("<color=#00ff00>자~ 이제 평탄마지막 단계입니다.</color>버킷을 땅에 닿게 해주세요.");
+                    ++state;
+
+                    axis = new List<AXIS>();
+                    axis.Add(AXIS.Create(diging.upper, -2.0f, "붐"));
+
+                    EnableRage();
+                    break;
+
+                case 32:
+                    break;
+
+                case 33:
+
+                    GuideSound("DriveGuide/023", true);
+                    SetMessage("수고하셨습니다. ");
+                    if (ViveDigScene.instance.IsVR() == false)
+                    {
+                        for (int i = 0; i < ranges.Length; ++i)
+                        {
+                            ranges[i].gameObject.SetActive(false);
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < ranges_vr.Length; ++i)
+                        {
+                            ranges_vr[i].gameObject.SetActive(false);
+                        }
+                    }
+                    Invoke("NextState", 1.5f);
+
+                    break;
+                case 34:
+                    Map.SendMessage("ShowTutorial", true);
+                    break;
+
+            }
+        }
+    }
+
+    void NextState()
+    {
+        ++state;
+        CheckNotify(GameEvent.TAG.NONE);
+    }
+
+    void EnableRage()
+    {
+        int count = 0;
+
+        if (null != axis)
+        {
+            count = axis.Count;
+        }
+
+        if (ViveDigScene.instance.IsVR() == false)
+        {
+            for (int i = 0; i < count; ++i)
+            {
+                ranges[i].gameObject.SetActive(true);
+                ranges[i].axis = axis[i].@ref;
+                ranges[i].transform.GetComponentInChildren<UILabel>().text = axis[i].targetName;
+                ranges[i].targetAngle = axis[i].target;
+            }
+
+            for (int i = count; i < ranges.Length; ++i)
+            {
+                ranges[i].gameObject.SetActive(false);
+            }
+        }
+        else
+        {
+            for (int i = 0; i < count; ++i)
+            {
+                ranges_vr[i].gameObject.SetActive(true);
+                ranges_vr[i].axis = axis[i].@ref;
+                ranges_vr[i].transform.GetComponentInChildren<Text>().text = axis[i].targetName;
+                ranges_vr[i].targetAngle = axis[i].target;
+            }
+
+            for (int i = count; i < ranges_vr.Length; ++i)
+            {
+                ranges_vr[i].gameObject.SetActive(false);
+            }
+        }
+    }
+
+}

@@ -1,0 +1,111 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class cInputJoysticks : MonoBehaviour
+{
+    public UITexture _TextureL;
+    public UITexture _TextureR;
+    public UILabel _buttonOK;
+
+  
+	// Use this for initialization
+	void Start ()
+    {
+     //  UIDrivePedal
+	  //  Input.
+	}
+	
+	// Update is called once per frame
+	void Update ()
+    {
+      //  if(Input.GetKey(KeyCode.F9))        //조이스틱 좌측
+      //  {
+      ////      OVRManager.display.RecenterPose();
+      //  }
+
+        //if (Input.GetButtonDown("joystick_left_button"))
+        //{
+        //    if (Application.loadedLevelName == "menu")
+        //    {
+        //        if (_TextureL != null)
+        //        {
+        //            if (_TextureL.color == Color.yellow)
+        //            {
+        //                Application.LoadLevel("drive");
+        //            }
+        //            else
+        //            {
+        //                _TextureL.color = Color.yellow;
+        //                _TextureR.color = Color.white;
+        //            }
+        //        }
+        //    }
+        //    else if(Application.loadedLevelName == "warning")
+        //    {
+        //        if(_buttonOK != null)
+        //        {
+        //            if (_buttonOK.color == Color.yellow)
+        //            {
+        //                Application.LoadLevel("menu");
+        //            }
+        //            else
+        //            {
+        //                _buttonOK.color = Color.yellow;
+        //            }
+        //        }
+        //    }
+          
+        //}
+        //if (Input.GetButtonDown("joystick_right_button"))
+        //{
+        //    if (_TextureR != null)
+        //    {
+        //        if (_TextureR.color == Color.yellow)
+        //        {
+        //            Application.LoadLevel("dig");
+        //        }
+        //        else
+        //        {
+        //            _TextureL.color = Color.white;
+        //            _TextureR.color = Color.yellow;
+        //        }
+        //    }
+        //}
+
+        //if (Input.GetButtonDown("YES"))
+        //{
+        //    if (Application.loadedLevelName.Contains("dig") || Application.loadedLevelName.Contains("drive"))
+        //        Application.LoadLevel("menu");
+        
+        //    //RaycastHit target;
+        //    //Ray targetRay = new Ray(mouseObject.transform.position, -mouseObject.transform.forward);
+        //    //if (Physics.Raycast(targetRay, out target, rayDistance))
+        //    //{
+        //    //    //do something here for now just print the name
+        //    //    print(target.transform.name);
+        //    //    //  name.text = target.transform.name;
+        //    //}
+        //}
+    
+	
+	}
+
+
+    public float getAxisJoystict(string key)
+    {
+        if (Input.GetAxisRaw(key) > 0.3f || Input.GetAxisRaw(key) < -0.3f)
+        {
+            return Input.GetAxisRaw(key);
+        }
+        else
+            return 0.0f;
+    }
+
+    public bool getJoystict(string key)
+    {
+        if (Input.GetButtonDown(key))
+            return true;
+        else
+            return false;
+    }
+}

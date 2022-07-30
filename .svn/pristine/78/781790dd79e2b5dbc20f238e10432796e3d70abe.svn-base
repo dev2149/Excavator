@@ -1,0 +1,54 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class GameEvent
+{
+	public enum TAG
+	{
+		NONE,
+		DRIVE_READY,
+		DRIVE_START,
+		DRIVE_CENTER,
+		DRIVE_END,
+		DRIVE_BACK,
+		DRIVE_FINISH,
+		DRIVE_HANDLE,
+		DRIVE_PEDAL_ACCEL,
+		DRIVE_PEDAL_BREAK,
+		DRIVE_GEAR_N,
+		DRIVE_GEAR_D,
+		DRIVE_GEAR_R,
+		DRIVE_CAMERA_CENTER,
+		DRIVE_CAMERA_FRONT,
+		DRIVE_CAMERA_REAR,
+        DRIVE_CAMERA_EXPAND,
+		DRIVE_FOUL_CENTER,
+		DRIVE_FOUL_CONE,
+		DRIVE_FOUL_TIME,
+		DRIVE_FOUL_OUT,
+		DRIVE_SUCCESS,
+		DRIVE_FAIL,
+
+
+		//////////////////////////////////////// 추가한 변수.
+		DRIVE_CENTER_CAUTION,
+		DRIVE_END_CAUTION,
+		DRIVE_BACK_CAUTION,
+		DRIVE_START_CAUTION,
+		DRIVE_FINISH_CAUTION,
+		DRIVE_FINISH_CAUTION_GEAR_N,
+		DRIVE_BACK_POINT,
+		////////////////////////////////////////
+
+
+		DIG_READY,
+		DIG_DIGGING,
+		DIG_POUR,
+		DIG_FLAT,
+		DIG_FINISH,
+		DIG_SHAKE,
+
+	}
+	public delegate void NOTIFY(TAG tag); 
+	public static NOTIFY notify; 
+}

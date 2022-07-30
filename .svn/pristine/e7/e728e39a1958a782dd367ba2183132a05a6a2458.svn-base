@@ -1,0 +1,604 @@
+﻿using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+
+public class DriveMap : MonoBehaviour
+{
+	public enum STATE
+	{
+		READY,
+		CENTER,
+		END,
+		START,
+		FINISH,
+		FAIL,
+	}
+
+	public GameObject RenderTexture_;
+    public GameObject ZoomView;         //확대뷰 버튼
+	public GameObject MiniCam;
+	public GameObject message;
+	public GameObject excavator;
+	public GameObject TestResult;
+	public GameObject tutorialResult;
+	public GameObject ResetResult;
+	public GameObject guideButton;
+	public GameObject TopUI;
+	private GameObject Sound;	
+	
+	public DigingWarning warning;
+	public DigingWarning MessageWarning;	
+	
+	public DriveMessage guide;
+	public Driving driving; 	
+	private AudioClip TestMode;
+	private AudioClip PraticeMode;	
+	public AudioClip failwhistle;	
+	private AudioClip cautionment;
+	public AudioSource audio_;
+	
+	
+	public UILabel laptime;	
+	public UIToggle[] states;		
+	private float _laptime = 120.0f;
+	private float time_stamp = 0.0f;
+	public int int_collision;
+	private int wheelnum;
+
+	private STATE state = STATE.READY;
+	private Dictionary<string, bool> wheels;	
+	public DriveMap.STATE State
+	{
+		get { return state; }
+		set { ChangeState(value); }
+	}
+	
+	void Awake()
+	{
+		GameEvent.notify += OnGameEventNotify;
+		Sound = GameObject.Find ("Sound");
+	}
+	
+	void OnDestroy()
+	{
+		GameEvent.notify -= OnGameEventNotify;
+	}
+	
+	void Start()
+	{
+
+
+		Sound.SetActive (true);
+		Driving.finish = false;
+		ResetWheel();
+		time_stamp = Time.time;  
+
+		if (true == Driving.tutorial) {
+			laptime.text = "--:--:--";
+			TopUI.SetActive(false);
+			guideButton.SetActive(true);
+			DeviceSound.Instance.source_bgm.clip = Resources.Load ("새소리") as AudioClip;
+			DeviceSound.Instance.source_bgm.Play();
+			
+		}else {        
+			DeviceSound.Instance.source_bgm.clip = Resources.Load ("새소리") as AudioClip;
+			DeviceSound.Instance.source_bgm.Play();
+		}
+		
+		
+		if (true == Driving.start_at_end)
+		{            
+			excavator.rigidbody.Sleep();
+			excavator.rigidbody.velocity = Vector3.zero;
+			excavator.rigidbody.position = new Vector3(-180.0f, 0.0f, 136.0f);
+			State = STATE.START;
+			driving.gear = Driving.GEAR.D;
+		}
+		else
+		{
+			State = STATE.READY;
+		}
+	}
+	
+	void Update()
+	{
+		UpdateState();
+		UpdateLaptime ();		
+		
+		if (message.activeSelf == true) {			
+			if(Driving.tutorial)
+				MessageWarning.On ();
+		}		
+
+
+	}
+	
+	void OnStartPointEnter(GameObject obj)
+	{		
+		if (State != STATE.READY)
+			return;
+		
+		State = STATE.CENTER;
+		time_stamp = Time.time;
+		if(guide.state <= 5)
+			guide.state = 6;
+		
+		wheels[obj.name] = true; //수정
+		
+	}
+	
+	void OnStartPointExit(GameObject obj)	//수정.
+	{
+		
+		if (State != STATE.READY) 
+			return;
+		
+		wheels[obj.name] = false;	
+	}
+	
+	void OnFinishPointEnter(GameObject obj)
+	{
+		if (State != STATE.START)
+			return;
+		
+		wheels[obj.name] = true;
+	}
+	
+	void OnFinishPointExit(GameObject obj)
+	{
+		if (State != STATE.START)
+			return;
+		
+		wheels[obj.name] = false;
+	}
+	
+	void OnEndPointEnter(GameObject obj)
+	{
+		if (State != STATE.END)
+			return;
+		
+		wheels[obj.name] = true;
+	}
+	
+	void OnEndPointExit(GameObject obj)
+	{
+		if (State != STATE.END)
+			return;
+		
+		wheels[obj.name] = false;
+	}
+	
+	void OnCenterPointEnter(GameObject obj)
+	{
+		if (State != STATE.CENTER)
+			return;
+		
+		
+		if ("Wheel_F_L" == obj.name)//center일때, 앞바퀴가
+		{
+
+			print("!!Center Point True!!");
+			wheels[obj.name] = true;
+			GameEvent.notify (GameEvent.TAG.DRIVE_CENTER);
+		}
+		
+	}
+	
+	void OnCenterPointExit(GameObject obj)
+	{
+		if (State != STATE.CENTER)
+			return;
+		
+		//Debug.Log(obj);
+		if ((true == wheels[obj.name]) && ("Wheel_F_L" == obj.name))
+		{
+			if (true != Driving.tutorial)
+				State = STATE.FAIL;
+			
+			wheels[obj.name] = false;					
+			StartCoroutine (ShowMessage(3)); //정지선 을넘엇습니.다	
+			if(true != Driving.tutorial)
+				GameEvent.notify (GameEvent.TAG.DRIVE_FOUL_CENTER);
+			
+		}
+	}
+	
+	void OnBackPointEnter(GameObject obj)
+	{
+		if (State != STATE.START)
+			return;
+
+		if ("Wheel_R_L" == obj.name)
+		{
+			if (guide.state <= 24) 
+				GameEvent.notify (GameEvent.TAG.DRIVE_BACK_POINT);
+		}
+	}
+	
+	void OnBackPointExit(GameObject obj)
+	{
+		if (State != STATE.START)
+			return;
+	}
+	
+	void OnCollisionOut()
+	{
+		if (true != Driving.tutorial) {
+			State = STATE.FAIL;
+			GameEvent.notify (GameEvent.TAG.DRIVE_FOUL_OUT);
+		}
+		
+		StartCoroutine (ShowMessage(5));
+		
+	}
+
+
+ 
+
+	void OnCollisionOutIn(int wheel) //Line안에 들어온 바퀴.
+	{
+		if (wheel == wheelnum) {
+			RenderTexture_.SetActive(false);
+            ZoomView.GetComponent<UISprite>().color = new Color(0.368f, 0.247f, 0.247f);
+            ZoomView.GetComponent<BoxCollider>().enabled = false;
+			MiniCam.SetActive(false);
+//			print ("OutIn");
+		}			
+	}
+	
+	void OnCollisionCon(int wheel) //콘에 부딪힌 바퀴.
+	{
+		if (State == STATE.FAIL)
+			return;
+		
+		if (true != Driving.tutorial) {
+			State = STATE.FAIL;			
+			GameEvent.notify (GameEvent.TAG.DRIVE_FOUL_CONE);
+		}
+
+		StartCoroutine(ShowMessage(wheel));
+		int_collision += 1;
+		wheelnum = wheel;
+	}
+	
+	void ChangeState(STATE _state)
+	{
+		//Debug.Log("State : " + _state.ToString());
+		
+		switch (_state)
+		{
+		case STATE.READY:
+			Driving.finish = false;
+			GameEvent.notify(GameEvent.TAG.DRIVE_READY);
+			break;
+		case STATE.CENTER:
+			//GameEvent.notify (GameEvent.TAG.DRIVE_START);
+			GameEvent.notify(GameEvent.TAG.DRIVE_START_CAUTION);
+			TurnOnLamp(0);
+			ResetWheel();
+			break;
+		case STATE.END:
+			GameEvent.notify (GameEvent.TAG.DRIVE_END);
+			TurnOnLamp(1);
+			ResetWheel();
+			break;
+		case STATE.START:
+			GameEvent.notify (GameEvent.TAG.DRIVE_BACK);
+			TurnOnLamp(2);
+			ResetWheel();
+			break;
+		case STATE.FINISH:
+			Driving.finish = true;
+			GameEvent.notify (GameEvent.TAG.DRIVE_FINISH);
+			TurnOnLamp(3);
+			Invoke("ShowResult", 1.5f);
+			break;
+		case STATE.FAIL:
+			if(false == Driving.tutorial){
+				Driving.finish = true;
+				NGUITools.PlaySound (failwhistle,DeviceSound.Instance.Effect);	
+				Invoke("ShowResult", 3.0f);
+			}
+			break;
+		}
+		
+		state = _state;
+	}
+	
+	void UpdateState()
+	{
+	//	print ("STATE: "+ State);
+		switch (State)
+		{
+		case STATE.READY:
+			if (60.0f <= (Time.time - time_stamp))
+			{
+				if(Driving.tutorial)
+					return;
+
+				StartCoroutine (ShowMessage(6));
+			}				
+//			if ((true == wheels["Wheel_R_L"]))//오른쪽 뒷바퀴가 들어왔을때 State를 Center로 바꾼다.
+//				State = STATE.CENTER; 
+			break;
+		case STATE.CENTER:
+			if ((true == wheels["Wheel_F_L"]) && (0.1f >= excavator.rigidbody.velocity.magnitude))
+				State = STATE.END;
+			else
+				GameEvent.notify(GameEvent.TAG.DRIVE_START_CAUTION);
+			
+			_laptime -= Time.deltaTime;
+			break;
+		case STATE.END:
+			if (true == CheckWheel())//네개의 바퀴 모두가 들어오면 State는 STart로 바뀐다.
+				State = STATE.START;
+			else if (true == CheckWheel_()) // 만약에 앞바퀴두개만 들어 왔을때 경고 메시지
+			{
+				GameEvent.notify (GameEvent.TAG.DRIVE_END_CAUTION); //뒷바퀴가 도착선을 통과할 때까지 전진 하세요.
+			}
+			else if (driving.gear == Driving.GEAR.R)
+			{
+				if( true != Driving.tutorial)
+					StartCoroutine (ShowMessage(4));
+			}
+			
+			_laptime -= Time.deltaTime;
+			break;
+		case STATE.START:	 //후진 시작시 처음에는 Start이며, BackPoint에 들어오면 체크가되서 TRUE가됨.	
+			if (true == CheckWheel_()){ //하나만 들어왔을때.
+				GameEvent.notify(GameEvent.TAG.DRIVE_FINISH_CAUTION);
+			}					
+			if (true == CheckWheel())	//네개다 들어왔을때.
+			{
+				GameEvent.notify(GameEvent.TAG.DRIVE_FINISH);   
+				if(driving.gear == Driving.GEAR.N) 
+					State = STATE.FINISH;
+			}				
+			
+			_laptime -= Time.deltaTime;
+			break;
+		case STATE.FINISH:
+			driving.brake = 1.0f;
+			break;
+		case STATE.FAIL:
+			if(true != Driving.tutorial)
+				driving.brake = 1.0f;
+			break;
+		}
+	}
+	
+	void ResetWheel()
+	{
+		wheels = new Dictionary<string, bool>();
+		wheels.Add("Wheel_F_L", false);
+		wheels.Add("Wheel_F_R", false);
+		wheels.Add("Wheel_R_L", false);
+		wheels.Add("Wheel_R_R", false);
+	}
+	
+	bool CheckWheel()
+	{
+		foreach (KeyValuePair<string, bool> wheel in wheels)
+		{
+			if (false == wheel.Value)
+				return false;
+		}
+		
+		return true;
+	}
+	
+	bool CheckWheel_() //바퀴중 하나라도 true일때 true
+	{
+		foreach (KeyValuePair<string, bool> wheel in wheels) 
+		{
+			if (true == wheel.Value) 
+				return true;
+		}
+		
+		return false;
+	}
+	
+	void TurnOnLamp(int index)
+	{
+		if (0 > index)
+			return;
+		
+		if (states.Length <= index)
+			return;
+		
+		states[index].value = true;
+	}
+	
+	void UpdateLaptime ()
+	{
+		if (true == Driving.tutorial)
+			return;
+		
+		
+		if (0.0f >= _laptime)
+		{
+			_laptime = 00.0f;
+			StartCoroutine (ShowMessage(2));
+		}
+
+		int minute = Mathf.FloorToInt (_laptime / 60.0f);
+		int second = Mathf.FloorToInt (_laptime) % 60;
+		int msecond = Mathf.FloorToInt (_laptime * 100) % 100;
+		laptime.text = string.Format ("{0:00}:{1:00}:{2:00}", minute, second, msecond);
+	}
+	
+	void ShowResult()
+	{
+		
+		if (00.0f > _laptime)
+			GameEvent.notify (GameEvent.TAG.DRIVE_FOUL_TIME);
+
+		if (!Driving.tutorial) 
+		{
+			if (State == STATE.FINISH) {
+				GameEvent.notify (GameEvent.TAG.DRIVE_SUCCESS);
+				TestResult.SetActive (true);
+				TestResult.SendMessage ("OnOpen", true);
+			} 
+			else {
+				GameEvent.notify (GameEvent.TAG.DRIVE_FAIL);
+				TestResult.SetActive (true);
+				TestResult.SendMessage ("OnOpen", false);				
+			}
+		} 
+		else if(Driving.tutorial)
+		{
+			tutorialResult.SetActive (true);
+			tutorialResult.SendMessage ("OnOpen", int_collision);			
+		}
+		
+		Sound.SetActive (false);
+		
+	}
+	
+	void OnGameEventNotify(GameEvent.TAG tag)
+	{
+	}
+
+
+    IEnumerator ShowZoom(float time)
+    {
+        ZoomView.GetComponent<UISprite>().color = Color.white;
+        yield return new WaitForSeconds(time);
+        ZoomView.GetComponent<UISprite>().color = new Color(0.368f, 0.247f, 0.247f);
+    }
+
+	IEnumerator ShowMessage(int index)
+	{
+		if (true != Driving.tutorial)
+			State = STATE.FAIL;    
+		
+		string desc = "";
+		switch(index)
+		{
+		case 11:
+			GuideSound("DriveCaution/001",true);
+			desc = "[ff0000][실격요인][-] \n오른쪽 앞바퀴가 \n주행선을 밟았습니다.";
+			break;
+		case 12:
+			GuideSound("DriveCaution/003",true);
+			desc = "[ff0000][실격요인][-] \n왼쪽 앞바퀴가 \n주행선을 밟았습니다.";
+			break;
+		case 13:
+			GuideSound("DriveCaution/002",true);
+			desc = "[ff0000][실격요인][-] \n오른쪽 뒷바퀴가 \n주행선을 밟았습니다.";
+			break;
+		case 14:
+			GuideSound("DriveCaution/004",true);
+			desc = "[ff0000][실격요인][-] \n왼쪽 뒷바퀴가 \n주행선을 밟았습니다.";
+			break;
+		case 2:
+			GuideSound("DriveCaution/005",true);
+			desc = "[ff0000][실격요인][-] \n시험 시간이 \n종료되었습니다.";
+			break;
+		case 3:
+			GuideSound("DriveCaution/006",true);
+			desc = "[ff0000][감점요인][-] \n정지선을 \n넘었습니다.";
+//			CenterPointSet();
+			break;
+		case 4:
+			GuideSound("DriveCaution/008",true);
+			desc = "[ff0000][실격요인][-] \n뒷바퀴가 라인을 \n넘지 못했습니다.";
+			break;
+		case 5:
+			GuideSound("DriveCaution/007",true);
+			desc = "[ff0000][실격요인][-] \n시험장을 \n벗어났습니다.";
+			MiniCam.SetActive(false);
+			driving.brake = 0.0f;
+			if(Driving.tutorial)
+				Invoke("PositionReset",2.0f);
+
+			break;
+		case 6:
+			GuideSound("DriveCaution/009",tutorialResult);
+			desc = "[ff0000][실격요인][-] \n출발선에 \n들어서지 않았습니다.";
+			ChangeState(STATE.FAIL);
+			break;
+		}
+		
+		message.SetActive (true);
+		
+		if (index > 10) {
+
+            if (MiniCam.activeSelf)
+            {
+                RenderTexture_.SetActive(false);
+                ZoomView.GetComponent<UISprite>().color = new Color(0.368f, 0.247f, 0.247f);
+                ZoomView.GetComponent<BoxCollider>().enabled = false;
+            }
+            else
+            {
+                RenderTexture_.SetActive(true);
+                ZoomView.GetComponent<UISprite>().color = Color.white;
+                ZoomView.GetComponent<BoxCollider>().enabled = true;
+            }
+
+			message.GetComponentInChildren<UISprite> ().spriteName = string.Format ("ex_PpMsg_icon_01");
+		}else
+			message.GetComponentInChildren<UISprite> ().spriteName = string.Format ("ex_PpMsg_icon_{0}", index.ToString("D2"));
+
+			message.GetComponentInChildren<UILabel> ().text = desc;
+		
+		yield return new WaitForSeconds(4.0f);
+		message.SetActive (false);
+		TestCautionResult(index); // 시험모드 결과.
+	}
+
+	public int mistake;	
+	void TestCautionResult(int index)
+	{
+
+		if (!Driving.tutorial) 
+		{
+			if(index == 3)	
+			{
+				++mistake;
+				return;
+			}				
+			else
+			{
+				Sound.SetActive (false);
+				TestResult.SetActive(true);
+				TestResult.SendMessage ("OnOpen", false);
+			}
+		}
+	}
+	
+	void PositionReset()
+	{
+		DeviceSound.Instance.source_bgm.Stop();
+		ResetResult.SetActive (true);		
+	}
+	
+//	void CenterPointSet()
+//	{
+//		excavator.rigidbody.position = new Vector3(-45.3f,0,90.28f);
+//		excavator.transform.rotation = Quaternion.Euler(new Vector3(-7.35f,-92.0f,-1.8f));
+//		State = STATE.CENTER;
+//		ResetWheel(); //왜 회전이 돌아오지 않는가??
+//		driving.brake = 0.1f;
+//	}
+
+	public void OnVibration()
+	{
+		if (!Option.Instance.Vibration)
+			return;
+
+	}
+
+	void GuideSound(string str, bool on)
+	{
+		if (on) {
+			if (!audio_.isPlaying) {
+				audio_.clip = Resources.Load (str.ToString()) as AudioClip;
+				audio_.Play();
+			}
+			on = false;
+		}
+	}
+}

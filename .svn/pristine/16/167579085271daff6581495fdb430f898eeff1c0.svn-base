@@ -1,0 +1,52 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class Option
+{
+	private static Option _instance = new Option();
+	public static Option Instance
+	{
+		get
+		{
+			return _instance;
+		}
+	}
+
+	private bool vibration = false;
+	private bool sound = true;
+
+	public bool Vibration
+	{
+		get
+		{
+			return vibration;
+		}
+
+		set
+		{
+			vibration = value;
+			PlayerPrefs.SetInt ("option_vibration", (vibration) ? 1 : 0);
+		}
+	}
+
+	public bool Sound
+	{
+		get
+		{
+			return sound;
+		}
+		
+		set
+		{
+			sound = value;
+			PlayerPrefs.SetInt ("option_sound", (sound) ? 1 : 0);
+		}
+	}
+
+
+	public void Load()
+	{
+		Option.Instance.vibration = (1 == PlayerPrefs.GetInt ("option_vibration", 1));
+		Option.Instance.sound = (1 == PlayerPrefs.GetInt ("option_sound", 1));
+	}
+}

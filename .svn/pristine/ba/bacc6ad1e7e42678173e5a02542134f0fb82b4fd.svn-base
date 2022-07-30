@@ -1,0 +1,89 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class UIDriveTutorial : MonoBehaviour {
+
+
+	public UIKeyBinding keybinding;
+	public AudioClip sound_success;
+	public AudioClip sound_fail;
+
+	public UILabel FoulLabel;
+	public UILabel Encourage;
+
+
+	public AudioSource audio_;
+	public AudioSource diesel;
+	
+	void OnEnable()
+	{
+		Time.timeScale = 0.0f;
+	}
+	
+	void OnDisable()
+	{
+		Time.timeScale = 1.0f;
+	}
+		
+	public void OnOpen(int int_collision) //drive
+	{
+		DeviceSound.Instance.AudioPuase ();
+		diesel.Stop ();
+		
+		if (int_collision >= 3.0f) { //success
+			NGUITools.PlaySound (sound_success,DeviceSound.Instance.Effect);
+			FoulLabel.text += "콘에 부딪힌 횟수: " + int_collision + "번";
+			Encourage.text += "포기하지 마시고 끝까지 노력해주세요.";
+			GuideSound("DigResult/Result_002",true);
+		} else {
+
+			if(int_collision == 0){
+				NGUITools.PlaySound (sound_success,DeviceSound.Instance.Effect);
+                FoulLabel.text += "콘에 부딪힌 횟수: " + int_collision + "번";		
+				Encourage.text += "시험모드에 도전 하셔도 되겠어요!";
+				GuideSound("DigResult/Result_003",true);
+			}
+			else{
+				NGUITools.PlaySound (sound_fail,DeviceSound.Instance.Effect);
+                FoulLabel.text += "콘에 부딪힌 횟수: " + int_collision + "번";		
+				Encourage.text += "거의 합격인데… 조금 더 노력해주세요.";
+				GuideSound("DigResult/Result_004",true);
+			}
+
+
+		}
+		
+		
+		keybinding.enabled = false;
+	}
+
+	public void OnEnd_drive()
+	{
+		DeviceVibrate.Play();
+		DeviceSound.Instance.source_bgm.Stop();
+		Application.LoadLevel ("drive_mode");
+
+		DeviceSound.Instance.source_bgm.clip = Resources.Load ("M_SS_ Tr01 Good Choice") as AudioClip;
+		DeviceSound.Instance.source_bgm.Play ();
+	}
+	
+	public void OnReset()
+	{
+		DeviceVibrate.Play();
+		DeviceSound.Instance.source_bgm.Stop();
+		Application.LoadLevel ("drive");
+	}
+
+
+	void GuideSound(string str, bool on)
+	{
+		if (on) {
+			if (!audio_.isPlaying) {
+				audio_.clip = Resources.Load (str.ToString()) as AudioClip;
+				audio_.Play();
+			}
+			on = false;
+		}
+	}
+
+}

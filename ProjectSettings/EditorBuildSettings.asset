@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Vive/ViveMenu.unity
+    guid: 7f3103a7349914145867853e84101191
+  - enabled: 1
+    path: Assets/Scenes/Vive/ViveDig.unity
+    guid: bc97f43486b3ea64e87638e5eaef8f0d
+  - enabled: 1
+    path: Assets/Scenes/Vive/ViveDrive.unity
+    guid: fd48de49caa009849b3a2fd3040a22ca
+  - enabled: 1
+    path: Assets/Scenes/Vive/ViveFlatness.unity
+    guid: 9f5144a9dbd9cc04da0585d5731a7b2c

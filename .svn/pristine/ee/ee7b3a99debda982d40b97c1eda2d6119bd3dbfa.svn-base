@@ -1,0 +1,30 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class OutLineCollider : MonoBehaviour {
+
+	public DriveMap Map;
+	public DrivingCamera Cam;
+	private int wheel;
+
+
+
+	void OnTriggerEnter(Collider other)
+	{
+		if (other.transform.tag != "Body")
+			return;
+
+		if (other.transform.name == "Wheel_F_R") 
+			wheel = 11;
+		if (other.transform.name == "Wheel_F_L") 
+			wheel = 12;		
+		if (other.transform.name == "Wheel_R_R") 
+			wheel = 13;	
+		if (other.transform.name == "Wheel_R_L") 
+			wheel = 14;	
+
+		Map.SendMessage ("OnCollisionOutIn",wheel);
+	}
+
+
+}

@@ -1,0 +1,488 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &132100
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 432100}
+  - 114: {fileID: 11432100}
+  m_Layer: 0
+  m_Name: Manual Atlas
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &432100
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 132100}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+--- !u!114 &11432100
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 132100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d0c51bb0b6e93049af5e88f93826e3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  material: {fileID: 2100000, guid: 01544744d37bc2942ad67483a866e73d, type: 2}
+  mSprites:
+  - name: info_board
+    x: 0
+    y: 3616
+    width: 1024
+    height: 480
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 0
+    paddingRight: 0
+    paddingTop: 0
+    paddingBottom: 0
+  - name: info_couse_text0
+    x: 1025
+    y: 3649
+    width: 84
+    height: 36
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 38
+    paddingRight: 902
+    paddingTop: 9
+    paddingBottom: 0
+  - name: info_couse_text1
+    x: 1025
+    y: 2810
+    width: 767
+    height: 29
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 40
+    paddingRight: 217
+    paddingTop: 12
+    paddingBottom: 18
+  - name: info_couse_text10
+    x: 776
+    y: 2758
+    width: 562
+    height: 37
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 39
+    paddingRight: 423
+    paddingTop: 35
+    paddingBottom: 21
+  - name: info_couse_text11
+    x: 0
+    y: 3113
+    width: 762
+    height: 110
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 40
+    paddingRight: 222
+    paddingTop: 0
+    paddingBottom: 1
+  - name: info_couse_text12
+    x: 763
+    y: 3114
+    width: 767
+    height: 109
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 39
+    paddingRight: 218
+    paddingTop: 2
+    paddingBottom: 0
+  - name: info_couse_text13
+    x: 955
+    y: 3505
+    width: 932
+    height: 110
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 38
+    paddingRight: 54
+    paddingTop: 0
+    paddingBottom: 0
+  - name: info_couse_text2
+    x: 0
+    y: 3027
+    width: 942
+    height: 85
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 39
+    paddingRight: 43
+    paddingTop: 9
+    paddingBottom: 6
+  - name: info_couse_text3
+    x: 0
+    y: 2902
+    width: 940
+    height: 61
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 39
+    paddingRight: 45
+    paddingTop: 7
+    paddingBottom: 9
+  - name: info_couse_text4
+    x: 0
+    y: 2741
+    width: 775
+    height: 54
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 38
+    paddingRight: 211
+    paddingTop: 24
+    paddingBottom: 0
+  - name: info_couse_text5
+    x: 0
+    y: 3224
+    width: 908
+    height: 110
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 69
+    paddingRight: 47
+    paddingTop: 1
+    paddingBottom: 0
+  - name: info_couse_text6
+    x: 1025
+    y: 3745
+    width: 369
+    height: 36
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 38
+    paddingRight: 617
+    paddingTop: 32
+    paddingBottom: 15
+  - name: info_couse_text7
+    x: 0
+    y: 2964
+    width: 949
+    height: 62
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 40
+    paddingRight: 35
+    paddingTop: 2
+    paddingBottom: 4
+  - name: info_couse_text8
+    x: 950
+    y: 2964
+    width: 946
+    height: 62
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 39
+    paddingRight: 39
+    paddingTop: 5
+    paddingBottom: 8
+  - name: info_couse_text9
+    x: 0
+    y: 3483
+    width: 954
+    height: 132
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 39
+    paddingRight: 31
+    paddingTop: 0
+    paddingBottom: 0
+  - name: info_digging_text
+    x: 1025
+    y: 3862
+    width: 630
+    height: 234
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 31
+    paddingRight: 363
+    paddingTop: 2
+    paddingBottom: 2
+  - name: info_digging_text0
+    x: 1110
+    y: 3649
+    width: 83
+    height: 36
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 39
+    paddingRight: 902
+    paddingTop: 54
+    paddingBottom: 10
+  - name: info_digging_text1
+    x: 730
+    y: 3342
+    width: 767
+    height: 29
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 40
+    paddingRight: 217
+    paddingTop: 14
+    paddingBottom: 12
+  - name: info_digging_text10
+    x: 1339
+    y: 2758
+    width: 562
+    height: 37
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 39
+    paddingRight: 423
+    paddingTop: 32
+    paddingBottom: 22
+  - name: info_digging_text11
+    x: 0
+    y: 3335
+    width: 729
+    height: 147
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 39
+    paddingRight: 256
+    paddingTop: 3
+    paddingBottom: 0
+  - name: info_digging_text2
+    x: 943
+    y: 3028
+    width: 942
+    height: 84
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 39
+    paddingRight: 43
+    paddingTop: 0
+    paddingBottom: 1
+  - name: info_digging_text3
+    x: 941
+    y: 2903
+    width: 940
+    height: 60
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 39
+    paddingRight: 45
+    paddingTop: 6
+    paddingBottom: 14
+  - name: info_digging_text4
+    x: 874
+    y: 2841
+    width: 840
+    height: 60
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 38
+    paddingRight: 146
+    paddingTop: 24
+    paddingBottom: 0
+  - name: info_digging_text5
+    x: 730
+    y: 3372
+    width: 908
+    height: 110
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 69
+    paddingRight: 47
+    paddingTop: 2
+    paddingBottom: 0
+  - name: info_digging_text6
+    x: 1025
+    y: 3708
+    width: 369
+    height: 36
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 38
+    paddingRight: 617
+    paddingTop: 32
+    paddingBottom: 19
+  - name: info_digging_text7
+    x: 909
+    y: 3243
+    width: 951
+    height: 91
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 40
+    paddingRight: 33
+    paddingTop: 0
+    paddingBottom: 0
+  - name: info_digging_text8
+    x: 0
+    y: 2684
+    width: 691
+    height: 56
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 39
+    paddingRight: 294
+    paddingTop: 0
+    paddingBottom: 30
+  - name: info_digging_text9
+    x: 0
+    y: 2840
+    width: 873
+    height: 61
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 39
+    paddingRight: 112
+    paddingTop: 1
+    paddingBottom: 21
+  - name: info_scrollbar_bg
+    x: 0
+    y: 2138
+    width: 13
+    height: 545
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 4
+    paddingRight: 2
+    paddingTop: 4
+    paddingBottom: 0
+  - name: info_scrollbar_btn
+    x: 1475
+    y: 3754
+    width: 10
+    height: 107
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 6
+    paddingRight: 3
+    paddingTop: 6
+    paddingBottom: 7
+  - name: info_title
+    x: 1025
+    y: 3782
+    width: 449
+    height: 79
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 12
+    paddingRight: 6
+    paddingTop: 8
+    paddingBottom: 6
+  - name: info_title_sub
+    x: 1025
+    y: 3686
+    width: 215
+    height: 21
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 7
+    paddingRight: 14
+    paddingTop: 6
+    paddingBottom: 4
+  - name: info_top_bar
+    x: 0
+    y: 2796
+    width: 1024
+    height: 43
+    borderLeft: 0
+    borderRight: 0
+    borderTop: 0
+    borderBottom: 0
+    paddingLeft: 0
+    paddingRight: 0
+    paddingTop: 0
+    paddingBottom: 0
+  mPixelSize: 1
+  mReplacement: {fileID: 0}
+  mCoordinates: 0
+  sprites: []
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 132100}
+  m_IsPrefabParent: 1
+  m_IsExploded: 1

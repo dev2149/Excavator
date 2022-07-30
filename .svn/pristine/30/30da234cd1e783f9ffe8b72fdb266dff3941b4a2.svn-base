@@ -1,0 +1,105 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class ResetScene : MonoBehaviour
+{
+	public GameObject MiniCam;
+    public GameObject buttonN;
+
+	void OnEnable()
+	{
+        DeviceSound.Instance.TimePause = true;
+
+      //  Time.timeScale = 0.0f;
+	}
+	
+    //void OnDisable()
+    //{
+    //    DeviceSound.Instance.TimePause = false;
+
+    //    Time.timeScale = 1.0f;
+    //}
+
+	public void OnPraticeStartAtStart()
+	{
+		Driving.tutorial = true;
+		Driving.start_at_end = false;
+		//DeviceVibrate.Play();
+        if (buttonN.active == false)
+        {
+            gameObject.SetActive(false);
+            buttonN.SetActive(true);
+        }
+	}
+	
+	public void OnPraticeStartAtEnd()
+	{
+		Driving.tutorial = true;
+		Driving.start_at_end = true;
+		//DeviceVibrate.Play();
+        if (buttonN.active == false)
+        {
+            if (PlayerPrefs.GetInt("Gear") == 0)
+            {
+                DeviceSound.Instance.TimePause = false;
+                Time.timeScale = 1.0f;
+                if (ViveDriveScene.instance.IsVR() == false)
+                {
+                    Application.LoadLevel("drive");
+                }
+                else
+                {
+                    Application.LoadLevel("ViveDrive");
+                }
+            }
+            else
+            {
+                gameObject.SetActive(false);
+                buttonN.SetActive(true);
+            }
+        }
+		//Application.LoadLevel("drive");
+		
+	}
+
+    public void GoDrive()
+    {
+        if (PlayerPrefs.GetInt("Gear") == 0)
+        {
+            DeviceSound.Instance.TimePause = false;
+
+            Time.timeScale = 1.0f;
+
+            if (ViveDriveScene.instance.IsVR() == false)
+            {
+                Application.LoadLevel("drive");
+            }
+            else
+            {
+                Application.LoadLevel("ViveDrive");
+            }
+
+        }
+    }
+	
+	public void OnEnd()
+	{
+		if (MiniCam.activeSelf == true)
+			return;
+
+		DeviceVibrate.Play();
+        if (ViveDriveScene.instance.IsVR() == false)
+        {
+            Application.LoadLevel("drive_mode");
+        }
+        else
+        {
+            Application.LoadLevel("ViveMenu");
+        }
+
+
+		DeviceSound.Instance.source_bgm.clip =  Resources.Load("M_SS_ Tr01 Good Choice") as AudioClip;
+		DeviceSound.Instance.source_bgm.Play ();
+
+	}
+}

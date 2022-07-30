@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - Wheel
+  - Body
+  - DIG_FAIL
+  - DIG_WARNNING
+  - DIG_DIGGING
+  - DIG_DROP
+  - DIG_AREA_1
+  - DIG_AREA_2
+  - Con
+  - Out
+  - DIG_TERRAIN
+  - backpoint
+  - Wheel_F_L
+  - Wheel_F_R
+  - Wheel_R_L
+  - Wheel_R_R
+  - Sound
+  - DIG_FLAT
+  - OutLine
+  - Stone
+  - Minimapcamera
+  - DIG_OVER
+  - DIG_FAIL_2
+  - DIG_FINISH
+  - DIG_FAIL_3
+  - DIG_FAIL_4
+  - DIG_BucketOn
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - 
+  - 
+  - Wheel
+  - Point
+  - Con
+  - Dig
+  - MiniMap
+  - map
+  - MainBody
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0

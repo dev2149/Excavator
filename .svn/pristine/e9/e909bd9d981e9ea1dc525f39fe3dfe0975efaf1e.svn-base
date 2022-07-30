@@ -1,0 +1,18 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class PistonBucket : MonoBehaviour
+{
+	public Diging diging;
+
+	// Use this for initialization
+	void Start () {
+		enabled = (null != diging);
+	}
+	
+	// Update is called once per frame
+	void Update () 
+	{
+		transform.localRotation = Quaternion.Euler(diging.bucket.angle, 0.0f, 0.0f);
+	}
+}

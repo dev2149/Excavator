@@ -1,0 +1,40 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CaterpillerControl : MonoBehaviour
+{
+    public GameObject obj_Ins;
+
+    GameObject obj;
+
+    public CaterpillerPrefab cbar;
+    Transform cbar_R;
+
+    void Start ()
+    {
+        obj = Instantiate(obj_Ins);
+
+        obj.transform.parent = transform;
+
+        obj.transform.localPosition = new Vector3(0, -0.3f, -10.7f);
+
+        obj.transform.localRotation = Quaternion.Euler(90f,0,0);
+
+        cbar = obj.GetComponent<CaterpillerPrefab>(); 
+
+    }
+
+
+    private void LateUpdate()
+    {
+        // cbar.L.transform.localRotation = Quaternion.Euler(0, 90, SerialCommunication3.Instance.analogValues[2] * 50f );
+        // cbar.R.transform.localRotation = Quaternion.Euler(0, 90, SerialCommunication3.Instance.analogValues[1] * 50f);
+
+        cbar.L.transform.localRotation = Quaternion.Lerp(cbar.L.transform.localRotation, Quaternion.Euler(0, 90, SerialCommunication3.Instance.analogValues[2] * 25f), 50f * Time.smoothDeltaTime);
+         cbar.R.transform.localRotation = Quaternion.Lerp(cbar.R.transform.localRotation, Quaternion.Euler(0, 90, SerialCommunication3.Instance.analogValues[1] * 25f), 50f *  Time.smoothDeltaTime);
+
+
+    }
+
+}

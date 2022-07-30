@@ -1,0 +1,111 @@
+using UnityEngine;
+using System.Collections;
+
+public class DeviceVibrate : MonoBehaviour
+{
+    #region #Singleton Encapsulate
+    private static DeviceVibrate _instance = null;
+    public static DeviceVibrate Instance
+    {
+        get
+        {
+            return DeviceVibrate._instance;
+        }
+    }
+    #endregion
+
+    private bool play = true;
+    private float delay = 0.0f;
+	private float time = 1.0f;
+
+    void Awake()
+    {
+        #region #Singleton Initialization
+        if (null == DeviceVibrate._instance)
+        {
+            DeviceVibrate._instance = this;
+            GameObject.DontDestroyOnLoad(this.gameObject);
+        }
+        else
+        {
+            GameObject.Destroy(this.gameObject);
+            return;
+        }
+        #endregion
+    }
+
+    void OnDestroy()
+    {
+        Off();
+    }
+
+	void OnApplicationFocus(bool focus)		
+	{// Pause상태에서 돌아올 때(Resume)
+		if (false == focus)
+			Off ();
+	}
+
+	void OnApplicationPause(bool pause)		
+	{// 다른 어플로 이동하거나, 모바일에서 Home 화면으로 이동되었을 때
+		if (true == pause)
+			Off ();
+	}
+
+	void OnApplicationQuit()		
+	{	// 종료될 때
+		Off ();
+	}
+
+	public static void Play() 
+	{
+		Play (0.1f, 0.0f);
+	}
+
+    public static void Play(float _time, float _delay) 
+    {
+		if (false == Option.Instance.Vibration)
+			return;
+
+
+        //DeviceVibrate.Instance.time = _time;
+       // DeviceVibrate.Instance.delay = _delay;
+
+        //DeviceVibrate.Instance.StopCoroutine("_Play");
+       // DeviceVibrate.Instance.StartCoroutine("_Play");
+        
+    }
+
+    private IEnumerator _Play()
+    {
+        if (0.0f < delay)
+            yield return new WaitForSeconds(delay);
+
+        On();
+
+		yield return new WaitForSeconds(time);
+
+        Off();
+    }
+
+    private void On()
+    {
+        if (false == play)
+        {
+			#if UNITY_IPHONE || UNITY_ANDROID
+//			Vibration.Vibrate(100);
+			#endif
+			play = true;
+        }
+    }
+
+    private void Off()
+    {
+        if (true == play)
+        {
+			#if UNITY_IPHONE || UNITY_ANDROID
+//			Vibration.Cancel ();
+			#endif
+			play = false;
+        }
+    }
+}
